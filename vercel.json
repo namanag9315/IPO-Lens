@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/sync-ipos",
+      "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/sync-subscription",
+      "schedule": "0 0,12 * * *"
+    }
+  ]
+}
