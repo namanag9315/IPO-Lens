@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/sync-ipos",
-      "schedule": "0 */4 * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/sync-subscription",
-      "schedule": "0 0,12 * * *"
+      "schedule": "0 7 * * *"
     }
   ]
 }
