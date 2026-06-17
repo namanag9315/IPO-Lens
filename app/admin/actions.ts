@@ -1,10 +1,63 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 
+// Authorization guard helper
+function verifyAuth() {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  // If not configured, we allow it (the UI will show a warning banner)
+  if (!adminPassword) return;
+
+  const cookiePassword = cookies().get("admin_password")?.value;
+  if (cookiePassword !== adminPassword) {
+    throw new Error("Unauthorized: Invalid admin credentials");
+  }
+}
+
+// Authentication Actions
+export async function verifyAndLoginAdmin(password: string): Promise<boolean> {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    return true; // No password configured, allow access
+  }
+
+  if (password === adminPassword) {
+    cookies().set("admin_password", password, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
+    return true;
+  }
+  return false;
+}
+
+export async function logoutAdmin() {
+  cookies().delete("admin_password");
+}
+
+export async function checkAdminSession(): Promise<{ authenticated: boolean; configured: boolean }> {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const configured = Boolean(adminPassword);
+
+  if (!configured) {
+    return { authenticated: true, configured: false };
+  }
+
+  const cookiePassword = cookies().get("admin_password")?.value;
+  const authenticated = cookiePassword === adminPassword;
+
+  return { authenticated, configured: true };
+}
+
+// Admin Actions
 export async function fetchAdminIPOs() {
+  verifyAuth();
+
   const { data, error } = await supabaseAdmin
     .from("ipos")
     .select(`
@@ -51,6 +104,8 @@ export async function updateIPODetails(
     registrar_name?: string | null;
   }
 ) {
+  verifyAuth();
+
   const { error } = await supabaseAdmin
     .from("ipos")
     .update(fields)
@@ -66,6 +121,8 @@ export async function updateIPODetails(
 }
 
 export async function toggleVerification(ipoId: string, verified: boolean) {
+  verifyAuth();
+
   const { error } = await supabaseAdmin
     .from("ipos")
     .update({ admin_verified: verified })
@@ -81,6 +138,8 @@ export async function toggleVerification(ipoId: string, verified: boolean) {
 }
 
 export async function deleteIPO(ipoId: string) {
+  verifyAuth();
+
   const { error } = await supabaseAdmin
     .from("ipos")
     .delete()
@@ -96,6 +155,8 @@ export async function deleteIPO(ipoId: string) {
 }
 
 export async function addManualGMP(ipoId: string, value: number, source: string) {
+  verifyAuth();
+
   const { error } = await supabaseAdmin
     .from("gmp_history")
     .insert({
@@ -122,6 +183,8 @@ export async function addManualSubscription(
     total: number;
   }
 ) {
+  verifyAuth();
+
   const { error } = await supabaseAdmin
     .from("subscription_data")
     .insert({
@@ -142,6 +205,8 @@ export async function addManualSubscription(
 }
 
 export async function runSyncJob(jobType: "ipos" | "subscription" | "gmp") {
+  verifyAuth();
+
   try {
     const host = headers().get("host") || "localhost:3000";
     const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
@@ -167,6 +232,8 @@ export async function runSyncJob(jobType: "ipos" | "subscription" | "gmp") {
 }
 
 export async function runAIAnalysis(ipoId: string) {
+  verifyAuth();
+
   try {
     const host = headers().get("host") || "localhost:3000";
     const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
@@ -193,6 +260,8 @@ export async function runAIAnalysis(ipoId: string) {
 }
 
 export async function fetchSyncLogs() {
+  verifyAuth();
+
   const { data, error } = await supabaseAdmin
     .from("ipo_data_sync_logs")
     .select("*")

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Search, UserRound } from "lucide-react";
+import { Search, UserRound, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
+import { useState, useEffect } from "react";
 
 const navLinks = [
   { href: "/", label: "Live IPOs" },
@@ -28,6 +29,23 @@ function isActive(pathname: string, href: string) {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [mobileMenuOpen]);
+
+  // Close mobile menu when page path changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   return (
     <header className="premium-navbar">
@@ -60,6 +78,43 @@ export default function Navbar() {
           <Link aria-label="Account" className="premium-user-button" href="/#watchlist">
             <UserRound size={18} />
           </Link>
+          <button
+            className="premium-mobile-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Premium Mobile Menu Drawer */}
+      <div className={`premium-mobile-drawer ${mobileMenuOpen ? "open" : ""}`}>
+        <div className="drawer-overlay" onClick={() => setMobileMenuOpen(false)} />
+        <div className="drawer-content">
+          <nav className="mobile-nav">
+            {navLinks.map((link) => (
+              <Link
+                className={isActive(pathname, link.href) ? "active" : ""}
+                href={link.href}
+                key={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="mobile-drawer-actions">
+            <form action="/#ipos" className="premium-search" onSubmit={() => setMobileMenuOpen(false)}>
+              <Search size={16} />
+              <input aria-label="Search IPOs" name="q" placeholder="Search for IPO, company or sector..." />
+            </form>
+            <ButtonLink href="/#ipos" variant="primary" onClick={() => setMobileMenuOpen(false)}>
+              Explore IPOs →
+            </ButtonLink>
+          </div>
         </div>
       </div>
     </header>

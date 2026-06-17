@@ -13,6 +13,7 @@ interface ButtonLinkProps {
   className?: string;
   href: string;
   variant?: ButtonVariant;
+  onClick?: () => void;
 }
 
 function buttonClass(variant: ButtonVariant, className = "") {
@@ -27,9 +28,9 @@ export function Button({ children, className = "", variant = "secondary", ...pro
   );
 }
 
-export function ButtonLink({ children, className = "", href, variant = "secondary" }: ButtonLinkProps) {
+export function ButtonLink({ children, className = "", href, variant = "secondary", onClick }: ButtonLinkProps) {
   return (
-    <Link className={buttonClass(variant, className)} href={href}>
+    <Link className={buttonClass(variant, className)} href={href} onClick={onClick}>
       {children}
     </Link>
   );

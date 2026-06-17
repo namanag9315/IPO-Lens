@@ -76,7 +76,7 @@ export default async function PerformancePage() {
   const hasStats = strongApply.length > 0 || highGMP.length > 0;
 
   return (
-    <main style={{ padding: "32px 24px 48px" }}>
+    <main className="premium-page-container performance-page">
       <header style={{ marginBottom: 24 }}>
         <h1 style={{ color: "var(--text-primary)", fontSize: 24, fontWeight: 700 }}>Listing Performance</h1>
         <p style={{ color: "var(--text-muted)", fontSize: 13, marginTop: 4 }}>How accurate was IPO Lens?</p>

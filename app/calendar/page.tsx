@@ -7,7 +7,7 @@ export default async function CalendarPage() {
   const ipos = await getComputedIPOs();
 
   return (
-    <main style={{ padding: "32px 24px 48px" }}>
+    <main className="premium-page-container calendar-page">
       <IPOCalendar ipos={ipos} />
     </main>
   );
