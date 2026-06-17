@@ -5,6 +5,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { getTickerItems, getLiveIndices } from "@/lib/ipoData";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "IPO Lens — Indian IPO Intelligence",
   description: "Track GMP, subscription data and AI-powered analysis for every Indian IPO",
