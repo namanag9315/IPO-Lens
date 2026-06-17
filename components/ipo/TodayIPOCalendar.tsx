@@ -28,13 +28,7 @@ function parseDate(value: string) {
 export default function TodayIPOCalendar({ ipos }: { ipos: ComputedIPO[] }) {
   const today = startOfDay(new Date());
 
-  const openIPOs = ipos.filter((ipo) => {
-    if (!ipo.open_date || !ipo.close_date) return false;
-    return isWithinInterval(today, {
-      start: parseDate(ipo.open_date),
-      end: parseDate(ipo.close_date),
-    });
-  });
+  const openIPOs = ipos.filter((ipo) => ipo.status === "open");
 
   const allotments = ipos.filter((ipo) => {
     const allotmentDate = ipo.enriched_data?.allotment_date as string | undefined;
