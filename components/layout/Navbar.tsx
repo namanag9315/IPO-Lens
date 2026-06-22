@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/calendar", label: "IPO Calendar" },
   { href: "/#watchlist", label: "Watchlist" },
   { href: "/learn", label: "Learn" },
+  { href: "/blog", label: "Blog" },
 ];
 
 const toolLinks = [
