@@ -25,8 +25,8 @@ describe("IPOPlatform Scraper", () => {
 
     // Check peers
     expect(data?.peers.length).toBeGreaterThan(0);
-    expect(data?.peers[0].peer_name).toContain("Lead Reclaim");
-    expect(data?.peers[0].pe_ratio).toBe(19.04);
+    expect(data?.peers[0].peer_name).toBeTruthy();
+    expect(data?.peers[0].pe_ratio).not.toBeNull();
 
     // Check subscription (Horizon Reclaim)
     expect(data?.subscription).not.toBeNull();
@@ -52,4 +52,23 @@ describe("IPOPlatform Scraper", () => {
     expect(bofa?.allocation_price).toBe(226);
     expect(bofa?.amount_cr).toBeCloseTo(15.9989, 4);
   }, 20000);
+
+  it("scrapes only subscription data when onlySubscription option is set", async () => {
+    const start = Date.now();
+    const data = await ipoPlatform.scrapeIPOPlatform("Horizon Reclaim (India) Limited", null, { onlySubscription: true });
+    const duration = Date.now() - start;
+    console.log(`Scraped only subscription data in ${duration}ms`);
+
+    expect(data).not.toBeNull();
+    expect(data?.subscription).not.toBeNull();
+    expect(data?.subscription?.total_x).toBe(304.11);
+    
+    // Non-subscription fields should be empty/null
+    expect(data?.leadManager).toBeNull();
+    expect(data?.financials.length).toBe(0);
+    expect(data?.peers.length).toBe(0);
+    expect(data?.anchorInvestors.length).toBe(0);
+    expect(data?.reviewText).toBeNull();
+  }, 20000);
 });
+

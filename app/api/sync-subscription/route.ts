@@ -149,7 +149,7 @@ async function syncSubscription(request: Request) {
     if (isActive) {
       try {
         console.log(`[Sync-Sub] Fetching subscription fallback from IPOPlatform for: ${ipo.name}`);
-        const platformData = await scrapeIPOPlatform(ipo.name);
+        const platformData = await scrapeIPOPlatform(ipo.name, null, { onlySubscription: true });
         if (platformData && platformData.subscription) {
           rows.push({
             ipo_id: ipo.id,
