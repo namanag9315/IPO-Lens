@@ -5732,6 +5732,40 @@ body.no-scroll {
   padding: 46px;
 }
 
+.blog-article h2 {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 18px;
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+  margin-top: 40px;
+}
+
+.blog-article h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+  margin-top: 32px;
+}
+
+.blog-article p {
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 20px;
+  line-height: 1.75;
+}
+
+.blog-article ul, .blog-article ol {
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 20px;
+  line-height: 1.75;
+}
+
 .blog-sidebar {
   position: sticky;
   top: 96px;
