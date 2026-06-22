@@ -191,6 +191,7 @@ export interface IPOPlatformData {
   peRatio?: number | null;
   evEbitda?: number | null;
   leverageRatio?: number | null;
+  registrar: string | null;
 }
 
 // Crawls list pages to discover the IPOPlatform.com details page URL
@@ -266,6 +267,7 @@ export async function scrapeIPOPlatform(
   };
 
   let leadManager: string | null = null;
+  let registrar: string | null = null;
   const financials: IPOPlatformData["financials"] = [];
   const peers: IPOPlatformData["peers"] = [];
   let subscription: IPOPlatformData["subscription"] = null;
@@ -329,6 +331,18 @@ export async function scrapeIPOPlatform(
           companyOverview = fullEl.text().trim().replace(/\s+/g, " ");
         }
       }
+
+      // Scrape Registrar
+      $main("h3").each((i, el) => {
+        const text = $main(el).text().trim();
+        if (text.toLowerCase().includes("registrar (rta)")) {
+          const nextB = $main(el).nextAll("b.brand-primary").first();
+          if (nextB.length > 0) {
+            registrar = nextB.text().trim().replace(/\s+/g, " ");
+          }
+          return false; // Break
+        }
+      });
     } catch (err) {
       console.error(`IPOPlatform: Main scrape failed for ${companyName}:`, err);
     }
@@ -962,6 +976,7 @@ export async function scrapeIPOPlatform(
     companyOverview,
     peRatio,
     evEbitda,
-    leverageRatio
+    leverageRatio,
+    registrar
   };
 }

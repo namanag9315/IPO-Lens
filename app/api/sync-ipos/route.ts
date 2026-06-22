@@ -410,9 +410,14 @@ async function syncIPOs(request: Request) {
         updatePayload.issue_size_cr = details.issueSizeCr;
         sources.issue_size_cr = "chittorgarh";
       }
-      if (!ipo.registrar && details?.registrar) {
-        updatePayload.registrar_name = details.registrar;
-        sources.registrar_name = "chittorgarh";
+      if (!ipo.registrar) {
+        if (platformData?.registrar) {
+          updatePayload.registrar_name = platformData.registrar;
+          sources.registrar_name = "ipoplatform";
+        } else if (details?.registrar) {
+          updatePayload.registrar_name = details.registrar;
+          sources.registrar_name = "chittorgarh";
+        }
       }
 
       updatePayload.enriched_data = {
