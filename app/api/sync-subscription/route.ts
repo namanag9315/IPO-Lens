@@ -105,50 +105,12 @@ async function syncSubscription(request: Request) {
     );
   };
 
-  // --- Step 1: Process IPO Guru subscriptions (Primary) ---
-  for (const guruIpo of guruIPOs) {
-    if (hasValidSubData(guruIpo.subscription)) {
-      const match = findMatchingIPO(guruIpo.name, ipoRows);
-      if (match) {
-        rows.push({
-          ipo_id: match.id,
-          qib_x: guruIpo.subscription.qib ?? 0,
-          nii_x: guruIpo.subscription.nii ?? 0,
-          retail_x: guruIpo.subscription.retail ?? 0,
-          total_x: guruIpo.subscription.total ?? 0,
-        });
-        processedIpoIds.add(match.id);
-      }
-    }
-  }
-
-  // --- Step 2: Process BSE subscriptions (Secondary) ---
-  for (const subscription of bseSubs) {
-    const match = findMatchingIPO(subscription.name, ipoRows);
-
-    if (match && !processedIpoIds.has(match.id)) {
-      rows.push({
-        ipo_id: match.id,
-        qib_x: subscription.qib,
-        nii_x: subscription.nii,
-        retail_x: subscription.retail,
-        total_x: subscription.total,
-      });
-      processedIpoIds.add(match.id);
-    }
-  }
-
-  // --- Step 3: Process IPOPlatform scraper (Tertiary) ---
+  // --- Step 1: Process IPOPlatform scraper (Primary/Strict for active IPOs) ---
   for (const ipo of ipoRows) {
-    if (processedIpoIds.has(ipo.id)) {
-      continue;
-    }
-
-    // Sync subscriptions only for active/open/upcoming/closed IPOs
     const isActive = !ipo.status || ipo.status === "open" || ipo.status === "upcoming" || ipo.status === "closed";
     if (isActive) {
       try {
-        console.log(`[Sync-Sub] Fetching subscription fallback from IPOPlatform for: ${ipo.name}`);
+        console.log(`[Sync-Sub] Fetching subscription strictly from IPOPlatform for: ${ipo.name}`);
         const platformData = await scrapeIPOPlatform(ipo.name, null, { onlySubscription: true });
         if (platformData && platformData.subscription) {
           rows.push({
@@ -166,7 +128,38 @@ async function syncSubscription(request: Request) {
     }
   }
 
-  // --- Step 4: Process Chittorgarh subscriptions (Quaternary) ---
+  // --- Step 2: Process IPO Guru subscriptions (Secondary Fallback) ---
+  for (const guruIpo of guruIPOs) {
+    const match = findMatchingIPO(guruIpo.name, ipoRows);
+    if (match && !processedIpoIds.has(match.id) && hasValidSubData(guruIpo.subscription)) {
+      rows.push({
+        ipo_id: match.id,
+        qib_x: guruIpo.subscription.qib ?? 0,
+        nii_x: guruIpo.subscription.nii ?? 0,
+        retail_x: guruIpo.subscription.retail ?? 0,
+        total_x: guruIpo.subscription.total ?? 0,
+      });
+      processedIpoIds.add(match.id);
+    }
+  }
+
+  // --- Step 3: Process BSE subscriptions (Tertiary Fallback) ---
+  for (const subscription of bseSubs) {
+    const match = findMatchingIPO(subscription.name, ipoRows);
+
+    if (match && !processedIpoIds.has(match.id)) {
+      rows.push({
+        ipo_id: match.id,
+        qib_x: subscription.qib,
+        nii_x: subscription.nii,
+        retail_x: subscription.retail,
+        total_x: subscription.total,
+      });
+      processedIpoIds.add(match.id);
+    }
+  }
+
+  // --- Step 4: Process Chittorgarh subscriptions (Quaternary Fallback) ---
   if (useChittorgarhFallback) {
     for (const subscription of chittorgarhSubs) {
       const match = findMatchingIPO(subscription.name, ipoRows);

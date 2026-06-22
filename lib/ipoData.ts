@@ -85,6 +85,25 @@ function sortByFinancialYear(items: IPOFinancialYearly[]) {
   return items.slice().sort((a, b) => a.financial_year.localeCompare(b.financial_year));
 }
 
+export function getIPOCompletenessScore(ipo: ComputedIPO): number {
+  let score = 0;
+
+  if (ipo.price_band_high !== null && ipo.price_band_high > 0) score += 15;
+  if (ipo.lot_size !== null && ipo.lot_size > 0) score += 15;
+  if (ipo.issue_size_cr !== null && ipo.issue_size_cr > 0) score += 15;
+
+  if (ipo.open_date !== null && ipo.open_date !== "") score += 5;
+  if (ipo.close_date !== null && ipo.close_date !== "") score += 5;
+  if (ipo.listing_date !== null && ipo.listing_date !== "") score += 5;
+
+  if (ipo.company_profile?.company_overview && ipo.company_profile.company_overview.trim().length > 0) score += 15;
+  if (ipo.company_profile?.sector && ipo.company_profile.sector.trim().length > 0) score += 10;
+  if (ipo.financials_yearly && ipo.financials_yearly.length > 0) score += 15;
+
+  return score;
+}
+
+
 async function safeSingle<T>(query: PromiseLike<{ data: unknown; error: { message: string } | null }>): Promise<T | null> {
   const response = await query;
 
@@ -199,23 +218,28 @@ export async function getComputedIPOs(): Promise<ComputedIPO[]> {
     const objectsByIPO = groupByIPOId((objectsResponse.data ?? []) as IPOObjectOfIssue[]);
     const profilesByIPO = groupByIPOId((profilesResponse.data ?? []) as IPOCompanyProfile[]);
 
-    return ipoRows.map((ipo) =>
-      buildComputedIPO(
-        ipo,
-        gmpByIPO.get(ipo.id) ?? [],
-        subscriptionByIPO.get(ipo.id) ?? [],
-        analysisByIPO.get(ipo.id) ?? [],
-        performanceByIPO.get(ipo.id) ?? [],
-        {
-          companyProfile: (profilesByIPO.get(ipo.id) ?? [])[0] ?? null,
-          financialsYearly: sortByFinancialYear(financialsByIPO.get(ipo.id) ?? []),
-          peerComparisons: peersByIPO.get(ipo.id) ?? [],
-          anchorInvestors: anchorsByIPO.get(ipo.id) ?? [],
-          anchorSummary: (anchorSummaryByIPO.get(ipo.id) ?? [])[0] ?? null,
-          objectsOfIssue: objectsByIPO.get(ipo.id) ?? [],
-        }
-      ),
-    );
+    return ipoRows
+      .map((ipo) =>
+        buildComputedIPO(
+          ipo,
+          gmpByIPO.get(ipo.id) ?? [],
+          subscriptionByIPO.get(ipo.id) ?? [],
+          analysisByIPO.get(ipo.id) ?? [],
+          performanceByIPO.get(ipo.id) ?? [],
+          {
+            companyProfile: (profilesByIPO.get(ipo.id) ?? [])[0] ?? null,
+            financialsYearly: sortByFinancialYear(financialsByIPO.get(ipo.id) ?? []),
+            peerComparisons: peersByIPO.get(ipo.id) ?? [],
+            anchorInvestors: anchorsByIPO.get(ipo.id) ?? [],
+            anchorSummary: (anchorSummaryByIPO.get(ipo.id) ?? [])[0] ?? null,
+            objectsOfIssue: objectsByIPO.get(ipo.id) ?? [],
+          }
+        ),
+      )
+      .filter((computedIpo) => {
+        const completeness = getIPOCompletenessScore(computedIpo);
+        return completeness >= 30 || computedIpo.admin_verified;
+      });
   } catch (error) {
     console.error("Error in getComputedIPOs:", error);
     return [];
@@ -272,7 +296,7 @@ export async function getComputedIPOBySlug(slug: string): Promise<ComputedIPO | 
       }
     }
 
-    return buildComputedIPO(
+    const computedIpo = buildComputedIPO(
       ipoRow,
       (gmpResponse.data ?? []) as GMPHistory[],
       (subscriptionResponse.data ?? []) as SubscriptionData[],
@@ -301,6 +325,12 @@ export async function getComputedIPOBySlug(slug: string): Promise<ComputedIPO | 
         ),
       },
     );
+
+    const completeness = getIPOCompletenessScore(computedIpo);
+    if (completeness < 30 && !computedIpo.admin_verified) {
+      return null;
+    }
+    return computedIpo;
   } catch {
     return null;
   }

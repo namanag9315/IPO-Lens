@@ -310,21 +310,16 @@ async function syncIPOs(request: Request) {
           }
         }
 
-        // Save Subscription (Prefer IPOPlatform if it has categories and Guru does not, or if Guru has no subscription)
+        // Save Subscription (Strictly prefer IPOPlatform if available)
         if (platformData.subscription) {
-          const guruHasCategories = currentSub && (currentSub.qib_x > 0 || currentSub.nii_x > 0 || currentSub.retail_x > 0);
-          const platformHasCategories = (platformData.subscription.qib_x ?? 0) > 0 || (platformData.subscription.nii_x ?? 0) > 0 || (platformData.subscription.retail_x ?? 0) > 0;
-
-          if (!currentSub || (!guruHasCategories && platformHasCategories)) {
-            currentSub = {
-              ipo_id: ipoId,
-              qib_x: platformData.subscription.qib_x ?? 0,
-              nii_x: platformData.subscription.nii_x ?? 0,
-              retail_x: platformData.subscription.retail_x ?? 0,
-              total_x: platformData.subscription.total_x ?? 0,
-            };
-            subSource = "ipoplatform";
-          }
+          currentSub = {
+            ipo_id: ipoId,
+            qib_x: platformData.subscription.qib_x ?? 0,
+            nii_x: platformData.subscription.nii_x ?? 0,
+            retail_x: platformData.subscription.retail_x ?? 0,
+            total_x: platformData.subscription.total_x ?? 0,
+          };
+          subSource = "ipoplatform";
         }
 
         if (platformData.leadManager) {
