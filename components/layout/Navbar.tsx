@@ -1,18 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { Search, UserRound, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, Search, UserRound, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
 
 const navLinks = [
   { href: "/", label: "Live IPOs" },
-  { href: "/calendar", label: "Calendar" },
-  { href: "/performance", label: "Performance" },
-  { href: "/#analysis-engine", label: "Analysis Engine" },
+  { href: "/?filter=upcoming#ipos", label: "Upcoming" },
+  { href: "/calendar", label: "IPO Calendar" },
   { href: "/#watchlist", label: "Watchlist" },
-  { href: "/#methodology", label: "Learn" },
+  { href: "/learn", label: "Learn" },
+];
+
+const toolLinks = [
+  { href: "/allotment", label: "Allotment Checker" },
+  { href: "/performance", label: "Listing Performance" },
+  { href: "/methodology", label: "Methodology" },
+  { href: "/risk-disclosure", label: "Risk Disclosure" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -25,6 +31,10 @@ function isActive(pathname: string, href: string) {
   }
 
   return pathname.startsWith(href);
+}
+
+function isToolActive(pathname: string) {
+  return toolLinks.some((link) => pathname.startsWith(link.href));
 }
 
 export default function Navbar() {
@@ -64,6 +74,19 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <div className={`premium-tools-menu ${isToolActive(pathname) ? "active" : ""}`}>
+            <button aria-haspopup="menu" type="button">
+              Tools
+              <ChevronDown size={14} />
+            </button>
+            <div className="premium-tools-popover" role="menu">
+              {toolLinks.map((link) => (
+                <Link href={link.href} key={link.href} role="menuitem">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </nav>
 
         <div className="premium-navbar-actions">
@@ -104,6 +127,19 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <div className="mobile-nav-group">
+              <span>Tools</span>
+              {toolLinks.map((link) => (
+                <Link
+                  className={isActive(pathname, link.href) ? "active" : ""}
+                  href={link.href}
+                  key={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </nav>
 
           <div className="mobile-drawer-actions">

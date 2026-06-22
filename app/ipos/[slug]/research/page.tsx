@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { getComputedIPOBySlug } from "@/lib/ipoData";
 import { mapToIPOResearchView, hasValue, getPartnerLogoUrl } from "@/lib/mappers/researchMapper";
-import { 
+import {
   SectionGuard, 
   ScoreGauge, 
   MetricCard, 
@@ -43,6 +43,7 @@ import {
   LeadManagerPerformanceCard
 } from "@/components/ipo/ResearchComponents";
 import AskAIInteractive from "@/components/ipo/AskAIInteractive";
+import LearnButton from "@/components/learn/LearnButton";
 
 export const dynamic = "force-dynamic";
 
@@ -253,7 +254,10 @@ export default async function IPOResearchPage({ params }: PageProps) {
               </span>
             </div>
             <div>
-              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">GMP Today</span>
+              <div className="metric-learn-label research-learn-label">
+                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">GMP Today</span>
+                <LearnButton topic="gmp" variant="icon" />
+              </div>
               <span className="text-sm font-black text-[#0052cc] mt-1 block">
                 {data.metrics?.gmp !== null && data.metrics?.gmp !== undefined ? `₹${data.metrics.gmp}` : "₹0"}
               </span>
@@ -262,14 +266,20 @@ export default async function IPOResearchPage({ params }: PageProps) {
               </span>
             </div>
             <div>
-              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Price Band</span>
+              <div className="metric-learn-label research-learn-label">
+                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Price Band</span>
+                <LearnButton topic="priceBand" variant="icon" />
+              </div>
               <span className="text-sm font-black text-[#0a192f] mt-1 block">
                 {data.ipo.priceBand ? `₹${data.ipo.priceBand.min} - ₹${data.ipo.priceBand.max}` : "TBA"}
               </span>
               <span className="text-[9px] font-bold text-slate-400 mt-0.5 block">Per Share</span>
             </div>
             <div>
-              <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Lot Size</span>
+              <div className="metric-learn-label research-learn-label">
+                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">Lot Size</span>
+                <LearnButton topic="lotSize" variant="icon" />
+              </div>
               <span className="text-sm font-black text-[#0a192f] mt-1 block">
                 {data.ipo.lotSize ? `${data.ipo.lotSize} Shares` : "TBA"}
               </span>
@@ -298,13 +308,21 @@ export default async function IPOResearchPage({ params }: PageProps) {
           {/* Right Section: Score Gauge */}
           <div className="lg:w-[20%] flex items-center justify-center border-t lg:border-t-0 border-slate-100 pt-5 lg:pt-0 shrink-0">
             {data.score && (
-              <ScoreGauge score={data.score.total} label={data.score.label} />
+              <div className="flex flex-col items-center gap-2">
+                <LearnButton topic="ipoScore" variant="pill" />
+                <ScoreGauge score={data.score.total} label={data.score.label} />
+              </div>
             )}
           </div>
         </div>
 
         {/* 3. SME Warning Caution strip */}
-        {isSme && <SMEWarningStrip />}
+        {isSme && (
+          <div className="space-y-2">
+            <LearnButton topic="smeIpo" variant="pill" />
+            <SMEWarningStrip />
+          </div>
+        )}
 
         {/* 4. Plain-English Summary */}
         <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.01)] flex flex-col md:flex-row gap-6 items-start font-sans">

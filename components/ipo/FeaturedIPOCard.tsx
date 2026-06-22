@@ -6,6 +6,7 @@ import Card from "@/components/ui/Card";
 import { estimateListingGainPct, calculateScore } from "@/lib/scoring";
 import { cleanAndFilterFinancials, extractDomain, guessCompanyDomain } from "@/lib/mappers/researchMapper";
 import CompanyLogo from "@/components/ui/CompanyLogo";
+import LearnButton from "@/components/learn/LearnButton";
 
 function initials(name: string) {
   return name
@@ -188,9 +189,12 @@ export default function FeaturedIPOCard({ ipo, label, score }: FeaturedIPOCardPr
           </div>
           <div className="featured-score-line">
             <div>
-              <span className="tooltip-trigger" data-tooltip="IPO Lens Score is a rule-based educational signal based on available data such as financials, valuation, GMP, subscription, issue details and risk factors. It is not a recommendation or guarantee of returns." style={{ borderBottom: "1px dashed var(--line-strong)", cursor: "help" }}>
-                IPO Score ⓘ
-              </span>
+              <div className="metric-learn-label">
+                <span className="tooltip-trigger" data-tooltip="IPO Lens Score is a rule-based educational signal based on available data such as financials, valuation, GMP, subscription, issue details and risk factors. It is not a recommendation or guarantee of returns." style={{ borderBottom: "1px dashed var(--line-strong)", cursor: "help" }}>
+                  IPO Score ⓘ
+                </span>
+                <LearnButton topic="ipoScore" variant="icon" />
+              </div>
               <strong className="mono">{score}<em>/100</em></strong>
             </div>
             <div className="featured-signal">
@@ -253,14 +257,20 @@ export default function FeaturedIPOCard({ ipo, label, score }: FeaturedIPOCardPr
 
       <div className="featured-metrics">
         <div>
-          <span className="tooltip-trigger" data-tooltip="GMP is unofficial grey market information and may be inaccurate, volatile or misleading. It is not a guaranteed indicator of listing price or returns." style={{ borderBottom: "1px dashed var(--line-strong)", cursor: "help" }}>
-            GMP ⓘ
-          </span>
+          <div className="metric-learn-label">
+            <span className="tooltip-trigger" data-tooltip="GMP is unofficial grey market information and may be inaccurate, volatile or misleading. It is not a guaranteed indicator of listing price or returns." style={{ borderBottom: "1px dashed var(--line-strong)", cursor: "help" }}>
+              GMP ⓘ
+            </span>
+            <LearnButton topic="gmp" variant="icon" />
+          </div>
           <strong className="mono data-positive">₹{latestGmp} · +{gmpPremium.toFixed(1)}%</strong>
           <MiniSpark values={ipo.gmp_history.map((item) => item.gmp_value).slice(-8)} />
         </div>
         <div>
-          <span>Total Subscription</span>
+          <div className="metric-learn-label">
+            <span>Total Subscription</span>
+            <LearnButton topic="subscription" variant="icon" />
+          </div>
           <strong className="mono">{totalDemand.toFixed(1)}x</strong>
           <MiniSpark values={[1, 2, 2, 4, 5, 7, totalDemand]} />
         </div>
@@ -270,11 +280,17 @@ export default function FeaturedIPOCard({ ipo, label, score }: FeaturedIPOCardPr
           <MiniSpark values={[1, 1, 2, 4, 5, retailDemand]} />
         </div>
         <div>
-          <span>Price Band</span>
+          <div className="metric-learn-label">
+            <span>Price Band</span>
+            <LearnButton topic="priceBand" variant="icon" />
+          </div>
           <strong className="mono">{priceBand(ipo)}</strong>
         </div>
         <div>
-          <span>Lot Size</span>
+          <div className="metric-learn-label">
+            <span>Lot Size</span>
+            <LearnButton topic="lotSize" variant="icon" />
+          </div>
           <strong className="mono">{ipo.lot_size ?? "TBA"}</strong>
         </div>
         <div>

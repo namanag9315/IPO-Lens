@@ -7,6 +7,7 @@ import { calculateScore, estimateListingGainPct } from "@/lib/scoring";
 import type { AIAnalysisLabel, ComputedIPO, IPOStatus } from "@/types/ipo";
 import { extractDomain, cleanAndFilterFinancials, guessCompanyDomain } from "@/lib/mappers/researchMapper";
 import CompanyLogo from "@/components/ui/CompanyLogo";
+import LearnButton from "@/components/learn/LearnButton";
 
 interface IPOCardProps {
   ipo: ComputedIPO;
@@ -107,54 +108,60 @@ export default function IPOCard({ ipo, index }: IPOCardProps) {
 
   return (
     <Card
-      as={Link}
       className={`ipo-signal-card ${tone} status-${ipo.status}`}
-      href={`/ipo/${ipo.slug}`}
       style={{
         animation: "row-in 200ms ease-out both",
         animationDelay: `${index * 40}ms`,
       }}
     >
-      <div className="ipo-signal-top">
-        <div className="ipo-avatar relative flex items-center justify-center">
-          <CompanyLogo domain={extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name)} name={ipo.name} />
+      <Link className="ipo-card-main-link" href={`/ipo/${ipo.slug}`}>
+        <div className="ipo-signal-top">
+          <div className="ipo-avatar relative flex items-center justify-center">
+            <CompanyLogo domain={extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name)} name={ipo.name} />
+          </div>
+          <div>
+            <h3>{ipo.name}</h3>
+            <p>
+              {exchangeLine(ipo)}
+              {formatDateRange(ipo.open_date, ipo.close_date) && ` • ${formatDateRange(ipo.open_date, ipo.close_date)}`}
+            </p>
+          </div>
+          <Badge tone={statusTone(ipo.status)}>{ipo.status.toUpperCase()}</Badge>
         </div>
-        <div>
-          <h3>{ipo.name}</h3>
-          <p>
-            {exchangeLine(ipo)}
-            {formatDateRange(ipo.open_date, ipo.close_date) && ` • ${formatDateRange(ipo.open_date, ipo.close_date)}`}
-          </p>
-        </div>
-        <Badge tone={statusTone(ipo.status)}>{ipo.status.toUpperCase()}</Badge>
-      </div>
 
-      <div className="ipo-signal-metrics">
-        <div>
-          <span className="tooltip-trigger" data-tooltip="IPO Lens Score is a rule-based educational signal based on available data such as financials, valuation, GMP, subscription, issue details and risk factors. It is not a recommendation or guarantee of returns.">
-            Score ⓘ
-          </span>
-          <strong className="mono">{signal.score}</strong>
-          <em className={tone}>{cleanLabelForUI(signal.label)}</em>
+        <div className="ipo-signal-metrics">
+          <div>
+            <span className="tooltip-trigger" data-tooltip="IPO Lens Score is a rule-based educational signal based on available data such as financials, valuation, GMP, subscription, issue details and risk factors. It is not a recommendation or guarantee of returns.">
+              Score ⓘ
+            </span>
+            <strong className="mono">{signal.score}</strong>
+            <em className={tone}>{cleanLabelForUI(signal.label)}</em>
+          </div>
+          <div>
+            <span className="tooltip-trigger" data-tooltip="GMP is unofficial grey market information and may be inaccurate, volatile or misleading. It is not a guaranteed indicator of listing price or returns.">
+              GMP ⓘ
+            </span>
+            <strong className={`mono ${premium >= 0 ? "data-positive" : "data-negative"}`}>
+              {premium >= 0 ? "+" : ""}
+              {premium.toFixed(0)}%
+            </strong>
+          </div>
+          <div>
+            <span>Subs. (x)</span>
+            <strong className="mono">{totalSubscription ? `${totalSubscription.toFixed(0)}x` : "NA"}</strong>
+          </div>
         </div>
-        <div>
-          <span className="tooltip-trigger" data-tooltip="GMP is unofficial grey market information and may be inaccurate, volatile or misleading. It is not a guaranteed indicator of listing price or returns.">
-            GMP ⓘ
-          </span>
-          <strong className={`mono ${premium >= 0 ? "data-positive" : "data-negative"}`}>
-            {premium >= 0 ? "+" : ""}
-            {premium.toFixed(0)}%
-          </strong>
-        </div>
-        <div>
-          <span>Subs. (x)</span>
-          <strong className="mono">{totalSubscription ? `${totalSubscription.toFixed(0)}x` : "NA"}</strong>
-        </div>
-      </div>
 
-      <div className="ipo-signal-foot">
-        <span>{ipo.company_profile?.sector ?? "Sector NA"}</span>
-        <Bookmark aria-hidden="true" size={16} />
+        <div className="ipo-signal-foot">
+          <span>{ipo.company_profile?.sector ?? "Sector NA"}</span>
+          <Bookmark aria-hidden="true" size={16} />
+        </div>
+      </Link>
+
+      <div aria-label="Learn IPO terms" className="ipo-card-learn-actions">
+        <LearnButton topic="ipoScore" variant="link" />
+        <LearnButton topic="gmp" variant="icon" />
+        <LearnButton topic="subscription" variant="icon" />
       </div>
     </Card>
   );
