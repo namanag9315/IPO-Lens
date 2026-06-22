@@ -17,6 +17,16 @@ const blogPosts = [
     readTime: "8 min read",
     tag: "IPO Analysis",
   },
+  {
+    slug: "why-gmp-is-not-enough",
+    title: "Why IPO Lens Does Not Judge IPOs Only by GMP",
+    excerpt: "A high Grey Market Premium can create excitement, but it cannot explain business quality, valuation comfort, or key risks. Learn how IPO Lens reads an IPO score beyond GMP.",
+    coverIcon: "📊",
+    coverGradient: "linear-gradient(135deg, var(--ink) 0%, var(--green) 100%)",
+    date: "June 22, 2026",
+    readTime: "8 min read",
+    tag: "Education",
+  },
 ];
 
 export default function BlogIndexPage() {
