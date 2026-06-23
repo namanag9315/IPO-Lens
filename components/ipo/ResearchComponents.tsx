@@ -466,6 +466,7 @@ export function FinancialMiniChart({
               <XAxis dataKey="year" fontSize={9} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
               <YAxis fontSize={9} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} width={24} />
               <Tooltip 
+                cursor={false}
                 contentStyle={{ background: "#0a192f", border: "none", borderRadius: "12px", padding: "8px" }}
                 labelStyle={{ color: "#94a3b8", fontSize: "9px", fontWeight: "bold" }}
                 itemStyle={{ color: "#fff", fontSize: "10px", fontWeight: "bold" }}
@@ -481,6 +482,7 @@ export function FinancialMiniChart({
               <XAxis dataKey="year" fontSize={9} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
               <YAxis fontSize={9} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} width={24} />
               <Tooltip 
+                cursor={false}
                 contentStyle={{ background: "#0a192f", border: "none", borderRadius: "12px", padding: "8px" }}
                 labelStyle={{ color: "#94a3b8", fontSize: "9px", fontWeight: "bold" }}
                 itemStyle={{ color: "#fff", fontSize: "10px", fontWeight: "bold" }}
@@ -588,6 +590,7 @@ export function SubscriptionTrendChart({ data }: { data: { label: string; value:
           <XAxis dataKey="label" fontSize={8} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
           <YAxis fontSize={8} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
           <Tooltip 
+            cursor={false}
             contentStyle={{ background: "#0a192f", border: "none", borderRadius: "12px", padding: "8px" }}
             labelStyle={{ color: "#94a3b8", fontSize: "9px", fontWeight: "bold" }}
             itemStyle={{ color: "#fff", fontSize: "10px", fontWeight: "bold" }}
@@ -608,6 +611,7 @@ export function GMPTrendChart({ data }: { data: { label: string; value: number }
           <XAxis dataKey="label" fontSize={8} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
           <YAxis fontSize={8} fontWeight="bold" tickLine={false} axisLine={false} tick={{ fill: "#94a3b8" }} />
           <Tooltip 
+            cursor={false}
             contentStyle={{ background: "#0a192f", border: "none", borderRadius: "12px", padding: "8px" }}
             labelStyle={{ color: "#94a3b8", fontSize: "9px", fontWeight: "bold" }}
             itemStyle={{ color: "#fff", fontSize: "10px", fontWeight: "bold" }}

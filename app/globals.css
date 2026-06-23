@@ -8533,3 +8533,23 @@ body {
     padding-right: 0 !important;
   }
 }
+
+/* Recharts Focus Outline and Hover Adjustments (Groww Style) */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-wrapper *:focus,
+.recharts-surface *:focus,
+svg:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.recharts-bar-rectangle {
+  transition: opacity 150ms ease;
+}
+
+.recharts-bar-rectangle:hover {
+  opacity: 0.82;
+  cursor: pointer;
+}
+
