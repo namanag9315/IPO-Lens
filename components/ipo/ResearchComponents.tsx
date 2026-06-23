@@ -81,7 +81,7 @@ export function ScoreGauge({ score, label }: { score: number; label: string }) {
 
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-3xl w-full max-w-[240px]">
-      <div className="relative w-full max-w-[180px] aspect-[2/1] overflow-hidden flex items-end justify-center">
+      <div className="relative w-full max-w-[180px] aspect-[2/1] flex items-end justify-center">
         {/* Gauge Path */}
         <svg viewBox="0 0 100 50" className="w-full">
           {/* Ticks */}
@@ -140,13 +140,13 @@ export function ScoreGauge({ score, label }: { score: number; label: string }) {
         </svg>
 
         {/* Score Value text overlay */}
-        <div className="absolute bottom-0 flex flex-col items-center justify-center">
+        <div className="absolute bottom-[-6px] flex flex-col items-center justify-center">
           <div className="flex items-baseline">
             <span className="text-3xl font-extrabold text-[#0a192f] leading-none">{score}</span>
             <span className="text-xs font-semibold text-slate-400 ml-0.5">/100</span>
           </div>
           <span 
-            className="text-[10px] font-extrabold mt-0.5 uppercase tracking-wider"
+            className="text-[10px] font-extrabold mt-1.5 uppercase tracking-wider"
             style={{ color }}
           >
             {getSentimentText(score)}

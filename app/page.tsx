@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import IPOCard from "@/components/ipo/IPOCard";
 import TodayIPOCalendar from "@/components/ipo/TodayIPOCalendar";
+import WatchlistPanel from "@/components/ipo/WatchlistPanel";
 import HeroWatermark from "@/components/ui/HeroWatermark";
 import { ButtonLink } from "@/components/ui/Button";
 import CompanyLogo from "@/components/ui/CompanyLogo";
@@ -661,6 +662,18 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <div className="empty-card">No IPOs found for this filter.</div>
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="section" id="watchlist" style={{ background: "var(--light-bg)" }}>
+        <div className="shell" style={{ maxWidth: 800, margin: "0 auto" }}>
+          <div className="section-head compact" style={{ textAlign: "center", marginBottom: 32 }}>
+            <div style={{ margin: "0 auto" }}>
+              <h2>Top Rated IPOs</h2>
+              <p>Your automatically curated high-potential IPO watchlist based on fundamentals and GMP signals.</p>
+            </div>
+          </div>
+          <WatchlistPanel ipos={allIPOs} />
         </div>
       </section>
 
