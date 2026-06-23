@@ -4,7 +4,7 @@ import BlogSubscribeCallout from "@/components/ui/BlogSubscribeCallout";
 
 export const metadata: Metadata = {
   title: "Turtlemint Fintech Solutions IPO — Should You Apply? Score: 20/100 | IPO Lens",
-  description: "Detailed Turtlemint Fintech Solutions IPO review: analysis of expanding losses (-₹76 Cr), negative cash flows, aggressive Price/Sales valuation (16x), and listing day discount risks.",
+  description: "Detailed Turtlemint Fintech Solutions IPO review: Mintpro app platform details, founders Anand Prabhudesai & Dhirendra Mahyavanshi, financial analysis of expanding losses (-₹76 Cr), price band (₹144 - ₹152), and risk analysis.",
 };
 
 export default function TurtlemintFintechIpoBlog() {
@@ -17,14 +17,14 @@ export default function TurtlemintFintechIpoBlog() {
             <span className="blog-hero-eyebrow">🚨 High-Risk IPO Review</span>
             <h1>Turtlemint Fintech Solutions IPO — Should You Apply? Score: 20/100</h1>
             <p className="blog-hero-sub">
-              Turtlemint Fintech is launching its ₹620 Cr public listing. Burdened by expanding losses, negative cash flows, and premium valuation multiples, here is why this issue earns a Weak research score of 20/100.
+              Turtlemint Fintech (operators of the Mintpro app) is launching its ₹883 Cr public listing. Burdened by expanding losses, negative cash flows, and premium valuation multiples, here is why this issue earns a Weak research score of 20/100.
             </p>
             <div className="blog-hero-meta">
               <span>📅 June 23, 2026</span>
               <span className="dot" />
               <span>⏱ 6 min read</span>
               <span className="dot" />
-              <span>🏷 IPO Review · Turtlemint Fintech · Fintech Sector</span>
+              <span>🏷 IPO Review · Turtlemint Fintech · Mintpro · Insurtech</span>
             </div>
           </div>
 
@@ -86,7 +86,7 @@ export default function TurtlemintFintechIpoBlog() {
               </div>
               <div>
                 <small style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "9px", textTransform: "uppercase", fontWeight: 700 }}>Issue Size</small>
-                <b style={{ display: "block", fontSize: "12px", marginTop: "2px" }}>₹620 Cr</b>
+                <b style={{ display: "block", fontSize: "12px", marginTop: "2px" }}>₹883 Cr</b>
               </div>
               <div>
                 <small style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "9px", textTransform: "uppercase", fontWeight: 700 }}>Operating Cash</small>
@@ -102,11 +102,11 @@ export default function TurtlemintFintechIpoBlog() {
         <div className="shell blog-article-layout">
           <article className="blog-article">
             <p>
-              <strong>Turtlemint Fintech Solutions Limited has filed its prospectus for a ₹620 Crore Mainboard IPO.</strong> The company operates an online insurance platform that assists sub-agents (partners) in selling life, health, and motor insurance policies.
+              <strong>Turtlemint Fintech Solutions Limited is launching its Mainboard IPO with a total issue size of ₹883 Crore.</strong> Founded in 2015 by industry veterans Anand Prabhudesai and Dhirendra Mahyavanshi, the Mumbai-based insurtech platform assists localized sub-agents (digital partners/PoSP) in selling life, health, and motor insurance policies.
             </p>
 
             <p>
-              While insurance brokerage is a growing sector in India, Turtlemint’s business is heavily dependent on aggressive marketing spends, broker commission cashbacks, and high technology expenses. This has pushed the company deep into the red. Earning a score of <strong>20/100</strong>, we analyze why this listing carries substantial capital loss risks.
+              While insurance brokerage is a growing sector in India, Turtlemint’s business is heavily dependent on aggressive marketing spends, advisor commission cashbacks, and technology expenses for its core **Mintpro app** platform. This has pushed the company deep into the red. Earning a score of <strong>20/100</strong>, we analyze why this listing carries substantial capital loss risks.
             </p>
 
             <div className="blog-callout blog-callout-warning" style={{ background: "var(--red-soft)", borderLeftColor: "var(--red)" }}>
@@ -121,19 +121,19 @@ export default function TurtlemintFintechIpoBlog() {
                 <tbody>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700", width: "180px" }}>Issue Period</td>
-                    <td style={{ padding: "10px" }}>Dates TBA (Upcoming)</td>
+                    <td style={{ padding: "10px" }}>June 19, 2026 to June 23, 2026</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Price Band</td>
-                    <td style={{ padding: "10px" }}>₹250 to ₹265 per share (Proposed)</td>
+                    <td style={{ padding: "10px" }}>₹144 to ₹152 per share</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Lot Size</td>
-                    <td style={{ padding: "10px" }}>55 Shares (Min. Investment: ₹14,575)</td>
+                    <td style={{ padding: "10px" }}>98 Shares (Min. Investment: ₹14,896)</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Issue Size</td>
-                    <td style={{ padding: "10px" }}>₹620 Crores (Fresh Issue: ₹420 Cr, OFS: ₹200 Cr)</td>
+                    <td style={{ padding: "10px" }}>₹883 Crores (Fresh Issue and OFS mix)</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Listing Exchange</td>
@@ -147,12 +147,15 @@ export default function TurtlemintFintechIpoBlog() {
               </table>
             </div>
 
-            <h2 id="business-profile">About Turtlemint: Business Model & Risks</h2>
+            <h2 id="business-profile">About Turtlemint: Business Model & Mintpro Platform</h2>
             <p>
-              Turtlemint operates a digital-first insurance distribution network. By providing sub-agents, financial planners, and local shops with an app to compare and sell policies, Turtlemint aggregates demand for large insurance companies (HDFC Life, LIC, ICICI Lombard, etc.).
+              Turtlemint operates a digital-first insurance distribution network. By providing local point-of-sale persons (PoSP), financial advisors, and insurance agents with their flagship **Mintpro mobile application**, Turtlemint enables them to compare instant quotes from multiple insurance providers, generate proposals, and close sales.
             </p>
             <p>
-              The challenge lies in customer retention and commission margins. Because sub-agents can switch between different competing aggregation apps (like Policybazaar or RenewBuy) for higher commission splits, Turtlemint must spend heavily on cashbacks and referral payouts. This leads to high customer acquisition costs (CAC) that prevent it from achieving profitability.
+              The platform facilitates motor, health, and life insurance policies, and has recently expanded into mutual funds and loans to maximize cross-selling margins. The core value proposition is hyper-local: empowering sub-agents in Tier-2 and Tier-3 cities with digital tools to explain complex insurance policies in person.
+            </p>
+            <p>
+              However, the cost of acquiring and retaining these PoSP partners is massive. Competitors like Policybazaar (PB Fintech) or RenewBuy compete aggressively on payout splits. Turtlemint must offer attractive commission overrides and cashbacks, which severely hits its operating margins.
             </p>
 
             <h2 id="financials">Financial Performance Check: The Cash Burn</h2>
@@ -200,14 +203,14 @@ export default function TurtlemintFintechIpoBlog() {
             </div>
 
             <p>
-              <strong>Critical Red Flag:</strong> Turtlemint's net worth has turned negative (-₹22.3 Cr) in FY26 due to accumulated losses. Operating cash flows are negative and burning cash faster every year. The company is highly reliant on external VC funding or this IPO fresh issue to stay afloat.
+              <strong>Critical Red Flag:</strong> Turtlemint's net worth has turned negative (-₹22.3 Cr) in FY26 due to accumulated losses. Operating cash flows are negative and burning cash faster every year. The company is highly reliant on external funding or this IPO fresh issue to sustain operations.
             </p>
 
             <h2 id="why-20">Why the Score is 20/100 (Drivers)</h2>
             <ul>
-              <li><strong>Expensive Multipliers:</strong> At the upper price band of ₹265, Turtlemint is demanding an implied Price-to-Sales (P/S) ratio of 16.1x. Its listed peer PB Fintech (Policybazaar) trades at roughly 12-14x P/S but has achieved operational break-even and registers much faster growth. Loss-making aggregators with negative net worth should not list at a premium.</li>
+              <li><strong>Expensive Multipliers:</strong> At the upper price band of ₹152, Turtlemint is demanding a premium Price-to-Sales (P/S) ratio of 16.1x. Its listed peer PB Fintech (Policybazaar) trades at comparable P/S multiples but has already achieved EBITDA-level profitability. Loss-making aggregators with negative equity should not command this premium.</li>
               <li><strong>Expanding Net Loss:</strong> Losses expanded by 39% in FY26, outstripping the 21% growth in revenues. The business is becoming less efficient as it grows.</li>
-              <li><strong>Negative Grey Market Premia:</strong> Early quotes suggest a discount listing in the grey market, with premiums at -₹15 (a 5.6% listing discount risk).</li>
+              <li><strong>Negative Grey Market Premia:</strong> Early quotes suggest a discount listing in the grey market, with premiums at -₹8 (a listing discount risk).</li>
             </ul>
 
             <h2 id="key-risks">Major Risk Factors</h2>

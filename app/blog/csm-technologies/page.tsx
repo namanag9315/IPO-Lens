@@ -4,7 +4,7 @@ import BlogSubscribeCallout from "@/components/ui/BlogSubscribeCallout";
 
 export const metadata: Metadata = {
   title: "CSM Technologies IPO — Should You Apply? Score: 49/100 | IPO Lens",
-  description: "Detailed CSM Technologies IPO review: analysis of government GovTech dependency, financials (8% revenue growth), aggressive P/E valuation, and listing Day 3 subscription strategy.",
+  description: "Detailed CSM Technologies IPO review: analysis of government GovTech dependency, CMMi Level 5 status, global operations, price band (₹107 - ₹113), and listing Day 3 subscription strategy.",
 };
 
 export default function CsmTechnologiesIpoBlog() {
@@ -17,14 +17,14 @@ export default function CsmTechnologiesIpoBlog() {
             <span className="blog-hero-eyebrow">⚙️ Mainboard IPO Review</span>
             <h1>CSM Technologies IPO — Should You Apply? Score: 49/100</h1>
             <p className="blog-hero-sub">
-              GovTech provider CSM Technologies is listing with a ₹450 Cr issue. Backed by steady e-governance client relationships but limited by slow revenue growth (8%) and aggressive pricing, here is why it earns a Neutral score of 49/100.
+              GovTech provider CSM Technologies is listing with a ₹146 Cr issue. Backed by steady e-governance client relationships across 14 countries, but limited by slow revenue growth (8%) and high working capital DSO, here is why it earns a Neutral score of 49/100.
             </p>
             <div className="blog-hero-meta">
               <span>📅 June 23, 2026</span>
               <span className="dot" />
               <span>⏱ 6 min read</span>
               <span className="dot" />
-              <span>🏷 IPO Review · CSM Technologies · GovTech</span>
+              <span>🏷 IPO Review · CSM Technologies · GovTech · CMMi Level 5</span>
             </div>
           </div>
 
@@ -64,7 +64,7 @@ export default function CsmTechnologiesIpoBlog() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
               <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
                 <span style={{ display: "block", fontSize: "9px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", fontWeight: 700, marginBottom: "2px" }}>Valuation P/E</span>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--amber)" }}>34.2x (Expensive)</span>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--amber)" }}>28.5x (Aggressive)</span>
               </div>
               <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
                 <span style={{ display: "block", fontSize: "9px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", fontWeight: 700, marginBottom: "2px" }}>Estimated GMP</span>
@@ -86,7 +86,7 @@ export default function CsmTechnologiesIpoBlog() {
               </div>
               <div>
                 <small style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "9px", textTransform: "uppercase", fontWeight: 700 }}>Issue Size</small>
-                <b style={{ display: "block", fontSize: "12px", marginTop: "2px" }}>₹450 Cr</b>
+                <b style={{ display: "block", fontSize: "12px", marginTop: "2px" }}>₹146 Cr</b>
               </div>
               <div>
                 <small style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "9px", textTransform: "uppercase", fontWeight: 700 }}>Govt Dependency</small>
@@ -102,7 +102,7 @@ export default function CsmTechnologiesIpoBlog() {
         <div className="shell blog-article-layout">
           <article className="blog-article">
             <p>
-              <strong>CSM Technologies Limited is launching its Mainboard IPO with a total issue size of ₹450 Crore.</strong> Specializing in GovTech and e-governance IT solutions, CSM is a key digital transformation partner for several state governments.
+              <strong>CSM Technologies Limited is launching its Mainboard IPO with a total issue size of ₹146 Crore.</strong> Specializing in GovTech, e-governance systems, and digital infrastructure consultancy, CSM is a key digital transformation partner for government agencies in India and internationally.
             </p>
 
             <p>
@@ -121,19 +121,19 @@ export default function CsmTechnologiesIpoBlog() {
                 <tbody>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700", width: "180px" }}>Issue Period</td>
-                    <td style={{ padding: "10px" }}>Dates TBA (Upcoming)</td>
+                    <td style={{ padding: "10px" }}>June 24, 2026 to June 29, 2026</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Price Band</td>
-                    <td style={{ padding: "10px" }}>₹380 to ₹400 per share (Proposed)</td>
+                    <td style={{ padding: "10px" }}>₹107 to ₹113 per share</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Lot Size</td>
-                    <td style={{ padding: "10px" }}>35 Shares (Min. Investment: ₹14,000)</td>
+                    <td style={{ padding: "10px" }}>132 Shares (Min. Investment: ₹14,916)</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Issue Size</td>
-                    <td style={{ padding: "10px" }}>₹450 Crores (Fresh Issue: ₹180 Cr, OFS: ₹270 Cr)</td>
+                    <td style={{ padding: "10px" }}>₹146 Crores (100% Fresh Issue)</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Listing Exchange</td>
@@ -147,12 +147,15 @@ export default function CsmTechnologiesIpoBlog() {
               </table>
             </div>
 
-            <h2 id="business-profile">About CSM Technologies: GovTech Focus</h2>
+            <h2 id="business-profile">About CSM Technologies: GovTech Focus & Global Reach</h2>
             <p>
-              CSM Technologies has spent over two decades developing software applications for government agencies, public sector undertakings (PSUs), and municipal bodies. Their products include mining lease management trackers, state education portal systems, and agricultural subsidy distribution grids.
+              Incorporated in 1998 and headquartered in Bhubaneswar, Odisha, CSM Technologies has spent over 27 years developing e-governance solutions, IT consultancy applications, and automation systems for government departments, PSUs, and corporate clients.
             </p>
             <p>
-              While this GovTech model ensures defensive revenue (governments rarely go bankrupt), it presents operational hurdles. Tender-based contracts are awarded to the lowest bidder (L1 bidding process), squeezing gross margins. Furthermore, bureaucratic project approvals trigger long receivable holding periods, requiring high cash reserves.
+              Unlike standard IT consultancies focused purely on domestic markets, CSM has developed a strong global footprint. It operates across 14 countries—developing Grievance Redressal systems, Student Scholarship distribution boards, and Mining lease automation systems in India, the USA, Canada, and several African nations including Kenya, Ethiopia, Rwanda, Gabon, and Cape Verde.
+            </p>
+            <p>
+              As a certified CMMi Level 5 software provider, CSM brings solid tech credentials. However, tender-based government contracts (awarded to the lowest L1 bidder) squeeze margin potential. Delayed state approvals also trigger long receivable DSO timelines, requiring high working capital buffers.
             </p>
 
             <h2 id="financials">Financial Performance Check</h2>
@@ -205,9 +208,9 @@ export default function CsmTechnologiesIpoBlog() {
 
             <h2 id="why-49">Why the Score is 49/100 (Drivers)</h2>
             <ul>
-              <li><strong>Aggressive Pricing (Valuation):</strong> At the proposed price of ₹400, the implied post-issue P/E ratio is 34.2x. Commercial IT consulting leaders like Tata Elxsi or L&T Technology Services trade around 32-35x P/E with superior margins and zero government concentration. Placing CSM at 34x leaves no safety margin for retail investors.</li>
+              <li><strong>Aggressive Pricing (Valuation):</strong> At the upper price band of ₹113, the implied post-issue P/E ratio is 28.5x. Peer IT consultancies trade at similar ranges but have much shorter DSO timelines. Setting CSM at 28x leaves no safety margin for retail investors.</li>
               <li><strong>Weak Topline Growth:</strong> FY26 revenue grew by only 8.1% compared to 14.4% in the prior year, suggesting a plateau in state government order pipeline sizes.</li>
-              <li><strong>Muted GMP Sentiment:</strong> Initial grey market premium quotes sit at a flat ₹20 per share (+5% premium). There is very little speculative excitement surrounding the issue.</li>
+              <li><strong>Muted GMP Sentiment:</strong> Initial grey market premium quotes sit at a flat ₹5 per share (+4.4% premium). There is very little speculative excitement surrounding the issue.</li>
             </ul>
 
             <h2 id="key-risks">Major Risk Factors</h2>

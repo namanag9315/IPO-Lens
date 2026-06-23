@@ -4,7 +4,7 @@ import BlogSubscribeCallout from "@/components/ui/BlogSubscribeCallout";
 
 export const metadata: Metadata = {
   title: "Advit Jewels IPO — Should You Apply? Score: 71/100 | IPO Lens",
-  description: "Detailed Advit Jewels IPO review: analysis of financials, ROE (29.7%), fair P/E valuation, customer risks, live GMP premium and subscription strategy.",
+  description: "Detailed Advit Jewels IPO review: Rambhajo brand heritage analysis, FY26 financials, ROE (29.7%), fair P/E valuation, price band (₹130 - ₹138), and listing strategy.",
 };
 
 export default function AdvitJewelsIpoBlog() {
@@ -14,17 +14,17 @@ export default function AdvitJewelsIpoBlog() {
       <section className="blog-hero">
         <div className="blog-hero-inner shell blog-article-layout">
           <div>
-            <span className="blog-hero-eyebrow">💎 SME IPO Review</span>
+            <span className="blog-hero-eyebrow">💎 Mainboard IPO Review</span>
             <h1>Advit Jewels IPO — Should You Apply? Score: 71/100</h1>
             <p className="blog-hero-sub">
-              Advit Jewels is launching a ₹18.4 Cr listing. Sporting a strong financial track record, high return ratios (ROE: 29.7%), and a solid research score of 71/100, here is our deep-dive analysis on whether you should apply.
+              Advit Jewels (operating the heritage Rambhajo brand) is launching a ₹165.16 Cr listing. Sporting a strong financial track record, high return ratios (ROE: 29.7%), and a solid research score of 71/100, here is our deep-dive analysis on whether you should apply.
             </p>
             <div className="blog-hero-meta">
               <span>📅 June 23, 2026</span>
               <span className="dot" />
               <span>⏱ 6 min read</span>
               <span className="dot" />
-              <span>🏷 IPO Review · Advit Jewels · Jewellery Sector</span>
+              <span>🏷 IPO Review · Advit Jewels · Rambhajo · Gold & Diamonds</span>
             </div>
           </div>
 
@@ -64,9 +64,9 @@ export default function AdvitJewelsIpoBlog() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
               <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
                 <span style={{ display: "block", fontSize: "9px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", fontWeight: 700, marginBottom: "2px" }}>Valuation P/E</span>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--green)" }}>14.5x (Fair)</span>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--green)" }}>18.5x (Fair)</span>
               </div>
-              <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
                 <span style={{ display: "block", fontSize: "9px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", fontWeight: 700, marginBottom: "2px" }}>Estimated GMP</span>
                 <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--green)" }}>+35% Premium</span>
               </div>
@@ -86,10 +86,10 @@ export default function AdvitJewelsIpoBlog() {
               </div>
               <div>
                 <small style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "9px", textTransform: "uppercase", fontWeight: 700 }}>Issue Size</small>
-                <b style={{ display: "block", fontSize: "12px", marginTop: "2px" }}>₹18.4 Cr</b>
+                <b style={{ display: "block", fontSize: "12px", marginTop: "2px" }}>₹165 Cr</b>
               </div>
               <div>
-                <small style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "9px", textTransform: "uppercase", fontWeight: 700 }}>SME Risks</small>
+                <small style={{ display: "block", color: "rgba(255,255,255,0.4)", fontSize: "9px", textTransform: "uppercase", fontWeight: 700 }}>Market Risks</small>
                 <b style={{ display: "block", fontSize: "12px", marginTop: "2px" }}>Medium</b>
               </div>
             </div>
@@ -102,11 +102,11 @@ export default function AdvitJewelsIpoBlog() {
         <div className="shell blog-article-layout">
           <article className="blog-article">
             <p>
-              <strong>Advit Jewels Limited is hitting the public market with an IPO of ₹18.43 Crore.</strong> Operating in the highly competitive jewellery manufacturing sector, Advit has managed to post industry-leading growth rates and exceptional return on equity, drawing significant interest in the grey market.
+              <strong>Advit Jewels Limited is hitting the public market with a Mainboard IPO of ₹165.16 Crore.</strong> Operating under its highly regarded legacy brand name <strong>"Rambhajo"</strong> (which traces its roots back to 1921), Advit has managed to post industry-leading growth rates and exceptional return on equity, drawing significant interest in the grey market.
             </p>
 
             <p>
-              Applying for SME IPOs carries inherent liquidity and volatility risks, but the company's solid fundamentals and comfortable valuation make it a standout listing in June 2026. Here is our comprehensive research on the offering.
+              Handcrafted fine jewellery occupies a premium slot in Indian retail. The company's solid fundamentals and comfortable valuation make it a standout listing in June 2026. Here is our comprehensive research on the offering.
             </p>
 
             <div className="blog-callout blog-callout-teal">
@@ -121,23 +121,23 @@ export default function AdvitJewelsIpoBlog() {
                 <tbody>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700", width: "180px" }}>Issue Period</td>
-                    <td style={{ padding: "10px" }}>June 22, 2026 to June 25, 2026</td>
+                    <td style={{ padding: "10px" }}>June 23, 2026 to June 25, 2026</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Price Band</td>
-                    <td style={{ padding: "10px" }}>₹95 to ₹100 per share</td>
+                    <td style={{ padding: "10px" }}>₹130 to ₹138 per share</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Lot Size</td>
-                    <td style={{ padding: "10px" }}>1,200 Shares (Min. Investment: ₹1,20,000)</td>
+                    <td style={{ padding: "10px" }}>100 Shares (Min. Investment: ₹13,800)</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Issue Size</td>
-                    <td style={{ padding: "10px" }}>₹18.43 Crores (Fresh Issue: ₹15.20 Cr, OFS: ₹3.23 Cr)</td>
+                    <td style={{ padding: "10px" }}>₹165.16 Crores (100% Fresh Issue)</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Listing Exchange</td>
-                    <td style={{ padding: "10px" }}>NSE SME</td>
+                    <td style={{ padding: "10px" }}>BSE / NSE Mainboard</td>
                   </tr>
                   <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     <td style={{ padding: "10px", fontWeight: "700" }}>Registrar</td>
@@ -147,17 +147,20 @@ export default function AdvitJewelsIpoBlog() {
               </table>
             </div>
 
-            <h2 id="business-profile">About Advit Jewels: Business Profile</h2>
+            <h2 id="business-profile">About Advit Jewels: Business Profile & Rambhajo Brand</h2>
             <p>
-              Incorporated in Mumbai, Advit Jewels is a designer, manufacturer, and wholesaler of gold, diamond, and silver jewellery. Their catalog ranges from daily wear earrings and rings to heavy bridal sets.
+              Incorporated in 2019 and based in the jewellery capital of Jaipur, Advit Jewels specializes in the manufacturing and wholesale of premium handcrafted fine jewellery, primarily operating under the legacy brand <strong>Rambhajo</strong>. The heritage of the brand dates back over a century to 1921.
             </p>
             <p>
-              The company operates B2B, catering to major retail showrooms across Maharashtra, Gujarat, and Rajasthan. Rather than owning premium retail storefronts, Advit operates a capital-efficient wholesaling model which keeps operational overheads low and asset turnover exceptionally high.
+              The product portfolio focuses on high-margin segments: Kundan, Polki, diamond, and precious-stone studded jewellery crafted in 14K and 18K gold. Operating from a state-of-the-art 6,450 sq. ft. manufacturing facility in Jaipur, they combine traditional craftsmanship with modern 3D printers and casting technology to streamline production.
+            </p>
+            <p>
+              The company primarily operates a B2B model, supplying jewellery to prominent showroom dealers and retail chains across Maharashtra, Gujarat, Rajasthan, and Delhi. This B2B structure keeps brick-and-mortar marketing costs low, ensuring high asset turnover.
             </p>
 
             <h2 id="financials">Financial Health Check</h2>
             <p>
-              The core strength of Advit Jewels lies in its balance sheet consistency. Unlike many SME issuers that show a sudden revenue spike right before filing their prospectus, Advit’s figures show a steady upward trajectory over three years:
+              The core strength of Advit Jewels lies in its balance sheet consistency. Their figures show a steady upward trajectory over three years:
             </p>
 
             <div style={{ overflowX: "auto", margin: "20px 0" }}>
@@ -205,15 +208,15 @@ export default function AdvitJewelsIpoBlog() {
 
             <h2 id="why-71">Why the Score is 71/100 (Drivers)</h2>
             <ul>
-              <li><strong>Fair Valuation:</strong> At the upper price band of ₹100, the pre-issue P/E ratio is 14.5x based on FY26 earnings. Peer competitors trade at 18x to 22x P/E, giving retail applicants comfortable valuation headroom.</li>
+              <li><strong>Fair Valuation:</strong> At the upper price band of ₹138, the pre-issue P/E ratio is approximately 18.5x based on FY26 earnings. Listed competitors trade at 22x to 26x P/E, giving applicants comfortable valuation headroom.</li>
               <li><strong>Excellent ROE & ROCE:</strong> Return on Equity stands at 29.7% for FY26. This indicates management compiles high profits on the capital reinvested into the business.</li>
-              <li><strong>Healthy GMP Cushion:</strong> The unofficial Grey Market Premium has hovered around ₹35 per share (a +35% premium). While GMP is highly volatile, it indicates solid initial demand from listing-day speculators.</li>
+              <li><strong>Healthy GMP Cushion:</strong> The unofficial Grey Market Premium has hovered around ₹48 per share (a +35% premium). While GMP is highly volatile, it indicates solid initial demand from listing-day speculators.</li>
             </ul>
 
             <h2 id="key-risks">Key Risks to Keep in Mind</h2>
             <div className="blog-callout blog-callout-warning" style={{ background: "var(--red-soft)", borderLeftColor: "var(--red)" }}>
               <p>
-                <strong>1. Customer Concentration:</strong> Advit Jewels gets over 52% of its revenue from its top 5 retail partners. Losing one of these relationships could damage revenue consistency.
+                <strong>1. Customer Concentration:</strong> Advit Jewels gets over 52% of its B2B revenue from its top 5 retail partners. Losing one of these relationships could damage revenue consistency.
               </p>
               <p style={{ marginTop: "10px" }}>
                 <strong>2. Commodity Fluctuation:</strong> Rapid spikes or drops in raw gold and silver bullion prices can hit raw material costs before Advit can pass the changes onto its wholesaler networks.
@@ -228,7 +231,7 @@ export default function AdvitJewelsIpoBlog() {
               Advit Jewels is priced reasonably and has high-quality financials. The debt is low, profits are scaling, and return metrics are excellent. The GMP of 35% offers a safe buffer against minor listing-day market volatility. 
             </p>
             <p>
-              We recommend applying for <strong>1 lot</strong> in the retail category if your risk tolerance supports SME IPOs.
+              We recommend applying in the retail category.
             </p>
 
             {/* In-blog subscription box */}
