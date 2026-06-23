@@ -3,16 +3,24 @@
  * Uses the Brevo v3 API with native fetch.
  */
 
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || "updates@ipolens.co.in";
-const SENDER_NAME = process.env.BREVO_SENDER_NAME || "IPO Lens";
-const DEFAULT_LIST_ID = parseInt(process.env.BREVO_NEWSLETTER_LIST_ID || "2", 10);
-
 /**
  * Returns true if Brevo API Key is configured in environment variables.
  */
 export function isBrevoConfigured(): boolean {
-  return typeof BREVO_API_KEY === "string" && BREVO_API_KEY.trim().length > 0;
+  const apiKey = process.env.BREVO_API_KEY;
+  return typeof apiKey === "string" && apiKey.trim().length > 0;
+}
+
+function getSenderEmail(): string {
+  return process.env.BREVO_SENDER_EMAIL || "updates@ipolens.co.in";
+}
+
+function getSenderName(): string {
+  return process.env.BREVO_SENDER_NAME || "IPO Lens";
+}
+
+function getDefaultListId(): number {
+  return parseInt(process.env.BREVO_NEWSLETTER_LIST_ID || "2", 10);
 }
 
 /**
@@ -24,10 +32,11 @@ async function brevoRequest(endpoint: string, body: Record<string, any>) {
     return { mock: true, success: true };
   }
 
+  const apiKey = process.env.BREVO_API_KEY;
   const response = await fetch(`https://api.brevo.com/v3${endpoint}`, {
     method: "POST",
     headers: {
-      "api-key": BREVO_API_KEY!,
+      "api-key": apiKey!,
       "Content-Type": "application/json",
       "Accept": "application/json",
     },
@@ -55,10 +64,11 @@ async function brevoRequest(endpoint: string, body: Record<string, any>) {
  * Subscribes a new email address to a Brevo newsletter contact list.
  * Adds/updates the contact and attaches them to the specified list ID.
  */
-export async function subscribeEmail(email: string, listId: number = DEFAULT_LIST_ID) {
+export async function subscribeEmail(email: string, listId?: number) {
+  const targetListId = listId ?? getDefaultListId();
   return brevoRequest("/contacts", {
     email: email.trim().toLowerCase(),
-    listIds: [listId],
+    listIds: [targetListId],
     updateEnabled: true,
   });
 }
@@ -66,18 +76,22 @@ export async function subscribeEmail(email: string, listId: number = DEFAULT_LIS
 /**
  * Creates and queues a mass email campaign to a contact list.
  */
-export async function sendCampaign(subject: string, htmlContent: string, listId: number = DEFAULT_LIST_ID) {
+export async function sendCampaign(subject: string, htmlContent: string, listId?: number) {
+  const targetListId = listId ?? getDefaultListId();
+  const senderEmail = getSenderEmail();
+  const senderName = getSenderName();
+
   // 1. Create the campaign
   const campaignResponse = await brevoRequest("/emailCampaigns", {
     sender: {
-      name: SENDER_NAME,
-      email: SENDER_EMAIL,
+      name: senderName,
+      email: senderEmail,
     },
     name: `${subject} - ${new Date().toLocaleDateString()}`,
     htmlContent: htmlContent,
     subject: subject,
     recipients: {
-      listIds: [listId],
+      listIds: [targetListId],
     },
   });
 
@@ -86,20 +100,21 @@ export async function sendCampaign(subject: string, htmlContent: string, listId:
     return campaignResponse; // Might be in mock mode
   }
 
-  // 2. Queue the campaign to be sent immediately
-  return brevoRequest(`/emailCampaigns/${campaignId}/status`, {
-    status: "queued",
-  });
+  // 2. Send the campaign immediately
+  return brevoRequest(`/emailCampaigns/${campaignId}/sendNow`, {});
 }
 
 /**
  * Sends a single transactional email to a recipient.
  */
 export async function sendTransactionalEmail(toEmail: string, subject: string, htmlContent: string) {
+  const senderEmail = getSenderEmail();
+  const senderName = getSenderName();
+
   return brevoRequest("/smtp/email", {
     sender: {
-      name: SENDER_NAME,
-      email: SENDER_EMAIL,
+      name: senderName,
+      email: senderEmail,
     },
     to: [
       {
