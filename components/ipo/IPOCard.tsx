@@ -156,16 +156,9 @@ export default function IPOCard({ ipo, index }: IPOCardProps) {
           <span className="verdict-dot" />
           {verdictText}
         </span>
-        <button
-          className="bookmark-btn"
-          aria-label="Bookmark IPO"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
+        <div className="bookmark-btn" aria-hidden="true">
           <Bookmark size={15} />
-        </button>
+        </div>
       </div>
     </Card>
   );
