@@ -103,7 +103,7 @@ export default function Navbar() {
             <Sparkles size={13} />
             Get Alerts
           </button>
-          <ButtonLink href="/#ipos" variant="primary">
+          <ButtonLink href="/#ipos" variant="primary" className="premium-navbar-explore-btn">
             Explore IPOs →
           </ButtonLink>
           <Link aria-label="Account" className="premium-user-button" href="/#watchlist">

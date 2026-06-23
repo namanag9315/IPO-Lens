@@ -622,7 +622,8 @@ select {
   display: flex;
   gap: 10px;
   height: 42px;
-  min-width: 330px;
+  min-width: 200px;
+  width: clamp(200px, 18vw, 320px);
   padding: 0 12px;
 }
 
@@ -8580,6 +8581,20 @@ svg:focus {
 
 @media (max-width: 1024px) {
   .premium-navbar-subscribe-btn {
+    display: none !important;
+  }
+}
+
+/* Hide redundant Explore button on medium/standard desktops */
+@media (max-width: 1380px) {
+  .premium-navbar-explore-btn {
+    display: none !important;
+  }
+}
+
+/* Hide search kbd shortcut on medium desktops to save space */
+@media (max-width: 1200px) {
+  .premium-search-kbd {
     display: none !important;
   }
 }
