@@ -1,7 +1,11 @@
+import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import FooterSubscribeForm from "@/components/ui/FooterSubscribeForm";
+import { getWhatsAppTrialHref } from "@/lib/updateLinks";
 
 export default function Footer() {
+  const whatsappTrialHref = getWhatsAppTrialHref();
+
   return (
     <footer className="site-footer">
       <div className="shell site-footer-inner">
@@ -48,10 +52,21 @@ export default function Footer() {
             <Link href="/privacy-policy">Privacy Policy</Link>
           </div>
 
-          <div className="site-footer-column site-footer-updates">
+          <div className="site-footer-column site-footer-updates" id="email-updates">
             <h4>Stay Updated</h4>
-            <p>Get IPO alerts, research and insights delivered to your inbox.</p>
+            <p>Get IPO alerts, research and insights delivered to your inbox or try WhatsApp updates free for 15 days.</p>
             <FooterSubscribeForm />
+            <a
+              aria-label="Start 15-day free WhatsApp IPO updates trial"
+              className="footer-whatsapp-trial"
+              href={whatsappTrialHref}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <MessageCircle size={15} />
+              WhatsApp updates
+              <span>Free 15 days</span>
+            </a>
           </div>
         </div>
 
