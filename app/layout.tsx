@@ -4,6 +4,7 @@ import MarketTicker from "@/components/layout/MarketTicker";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FloatingSubscribe from "@/components/ui/FloatingSubscribe";
+import { Analytics } from "@vercel/analytics/react";
 import { getTickerItems, getLiveIndices } from "@/lib/ipoData";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,7 @@ export default async function RootLayout({
         <div style={{ flex: 1 }}>{children}</div>
         <Footer />
         <FloatingSubscribe />
+        <Analytics />
       </body>
     </html>
   );
