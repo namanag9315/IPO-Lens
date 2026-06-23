@@ -9,31 +9,20 @@ export default function FloatingSubscribe() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [isVisible, setIsVisible] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [whatsappHref, setWhatsappHref] = useState("");
 
   useEffect(() => {
     // Set WhatsApp link on client side
     setWhatsappHref(getWhatsAppTrialHref());
 
-    // Check localStorage for subscription or dismissal
+    // Check localStorage for subscription
     const isSubscribed = localStorage.getItem("ipo_lens_subscribed") === "true";
-    const dismissedTime = localStorage.getItem("ipo_lens_dismissed");
 
-    let shouldShow = !isSubscribed;
-
-    if (dismissedTime) {
-      const parsedTime = parseInt(dismissedTime, 10);
-      const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
-      // If dismissed less than 7 days ago, don't auto-show
-      if (Date.now() - parsedTime < sevenDaysInMs) {
-        shouldShow = false;
-      }
-    }
-
-    if (shouldShow) {
+    if (!isSubscribed) {
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, 2500);
+      }, 1400);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -42,6 +31,7 @@ export default function FloatingSubscribe() {
     // Listen for custom window event to force-open
     const handleForceOpen = () => {
       setIsVisible(true);
+      setIsExpanded(true);
     };
 
     window.addEventListener("open-subscription-banner", handleForceOpen);
@@ -51,8 +41,13 @@ export default function FloatingSubscribe() {
   }, []);
 
   const handleDismiss = () => {
-    setIsVisible(false);
+    setIsExpanded(false);
     localStorage.setItem("ipo_lens_dismissed", Date.now().toString());
+  };
+
+  const handleOpen = () => {
+    setIsVisible(true);
+    setIsExpanded(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,23 +93,73 @@ export default function FloatingSubscribe() {
 
   if (!isVisible) return null;
 
+  if (!isExpanded) {
+    return (
+      <>
+        <button
+          aria-label="Open IPO Lens email and WhatsApp alerts"
+          className="floating-subscribe-pill"
+          onClick={handleOpen}
+          type="button"
+        >
+          <Sparkles size={17} />
+          <span>Get Alerts</span>
+        </button>
+
+        <style dangerouslySetInnerHTML={{ __html: `
+          .floating-subscribe-pill {
+            align-items: center;
+            background: linear-gradient(180deg, #2563ff, #0b4fd8);
+            border: 1px solid rgba(37, 99, 255, 0.8);
+            border-radius: 999px;
+            bottom: 22px;
+            box-shadow: 0 18px 34px rgba(37, 99, 255, 0.26);
+            color: #ffffff;
+            cursor: pointer;
+            display: inline-flex;
+            font-family: Inter, sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            gap: 8px;
+            min-height: 48px;
+            padding: 0 18px;
+            position: fixed;
+            right: 22px;
+            z-index: 9999;
+          }
+          .floating-subscribe-pill:hover {
+            transform: translateY(-1px);
+          }
+          @media (max-width: 760px) {
+            .floating-subscribe-pill {
+              bottom: 16px;
+              right: 16px;
+            }
+          }
+        `}} />
+      </>
+    );
+  }
+
   return (
     <div 
       style={{
         position: "fixed",
-        bottom: "24px",
-        right: "24px",
-        width: "380px",
+        bottom: "22px",
+        left: "22px",
+        width: "340px",
         maxWidth: "calc(100vw - 48px)",
         background: "linear-gradient(135deg, #0B132B 0%, #1c2a4f 100%)",
         color: "#ffffff",
-        borderRadius: "20px",
-        padding: "24px",
+        borderRadius: "18px",
+        padding: "18px",
         boxShadow: "0 20px 40px rgba(11, 19, 43, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)",
         zIndex: 9999,
         fontFamily: "Inter, sans-serif",
         animation: "slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        maxHeight: "calc(100vh - 112px)",
+        overflowY: "auto"
       }}
       className="floating-subscribe-widget"
     >
@@ -123,8 +168,8 @@ export default function FloatingSubscribe() {
         aria-label="Dismiss subscription promo"
         style={{
           position: "absolute",
-          top: "16px",
-          right: "16px",
+          top: "14px",
+          right: "14px",
           background: "rgba(255, 255, 255, 0.1)",
           border: "none",
           color: "#94a3b8",
@@ -142,19 +187,19 @@ export default function FloatingSubscribe() {
         <X size={15} />
       </button>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
         <span style={{ display: "inline-flex", background: "rgba(37, 99, 255, 0.25)", color: "#93c5fd", border: "1px solid rgba(37, 99, 255, 0.4)", borderRadius: "999px", padding: "4px 10px", fontSize: "11px", fontWeight: "700" }}>
           <Sparkles size={11} style={{ marginRight: "4px", display: "inline-block", verticalAlign: "middle" }} />
           Stay Ahead
         </span>
       </div>
 
-      <h4 style={{ fontSize: "18px", fontWeight: "800", letterSpacing: "-0.02em", color: "#ffffff", margin: "0 0 8px 0", lineHeight: "1.25", paddingRight: "24px" }}>
-        Get Instant GMP Alerts & AI IPO Research
+      <h4 style={{ fontSize: "17px", fontWeight: "800", letterSpacing: "-0.02em", color: "#ffffff", margin: "0 0 7px 0", lineHeight: "1.25", paddingRight: "24px" }}>
+        Get IPO alerts in your inbox
       </h4>
       
-      <p style={{ fontSize: "13px", color: "#cbd5e1", margin: "0 0 16px 0", lineHeight: "1.5" }}>
-        Join smart investors who get real-time Grey Market Premium updates, Plain-English analysis summaries, and risk signals sent direct.
+      <p style={{ fontSize: "12px", color: "#cbd5e1", margin: "0 0 14px 0", lineHeight: "1.45" }}>
+        GMP updates, plain-English research summaries and risk signals sent direct.
       </p>
 
       {status === "success" ? (
@@ -244,7 +289,7 @@ export default function FloatingSubscribe() {
 
       {/* WhatsApp channel alternative */}
       {whatsappHref && (
-        <div style={{ marginTop: "16px", borderTop: "1px solid rgba(255, 255, 255, 0.1)", paddingTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255, 255, 255, 0.1)", paddingTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
           <span style={{ fontSize: "11px", color: "#94a3b8" }}>Prefer WhatsApp alerts?</span>
           <a 
             href={whatsappHref} 
@@ -292,6 +337,15 @@ export default function FloatingSubscribe() {
         .whatsapp-float-link:hover {
           color: #00e0a1 !important;
           text-decoration: underline !important;
+        }
+        @media (max-width: 760px) {
+          .floating-subscribe-widget {
+            bottom: 16px !important;
+            left: 16px !important;
+            max-width: calc(100vw - 32px) !important;
+            padding: 16px !important;
+            width: calc(100vw - 32px) !important;
+          }
         }
       `}} />
     </div>
