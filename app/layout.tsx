@@ -3,6 +3,7 @@ import "./globals.css";
 import MarketTicker from "@/components/layout/MarketTicker";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import FloatingSubscribe from "@/components/ui/FloatingSubscribe";
 import { getTickerItems, getLiveIndices } from "@/lib/ipoData";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ export default async function RootLayout({
         <Navbar />
         <div style={{ flex: 1 }}>{children}</div>
         <Footer />
+        <FloatingSubscribe />
       </body>
     </html>
   );

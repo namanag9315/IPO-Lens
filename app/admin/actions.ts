@@ -286,4 +286,15 @@ export async function sendBrevoCampaignAction(subject: string, htmlContent: stri
   }
 }
 
+export async function fetchSubscribersAction(limit = 50, offset = 0) {
+  verifyAuth();
+  const { getContactsInList, isBrevoConfigured } = await import("@/lib/brevo");
+  try {
+    const result = await getContactsInList(undefined, limit, offset);
+    return { success: true, data: result, isMock: !isBrevoConfigured() };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to fetch subscribers" };
+  }
+}
+
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Menu, Search, UserRound, X } from "lucide-react";
+import { ChevronDown, Menu, Search, UserRound, X, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
@@ -96,6 +96,13 @@ export default function Navbar() {
             <input aria-label="Search IPOs" name="q" placeholder="Search for IPO, company or sector..." />
             <span className="premium-search-kbd">⌘K</span>
           </form>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("open-subscription-banner"))}
+            className="premium-navbar-subscribe-btn"
+          >
+            <Sparkles size={13} />
+            Get Alerts
+          </button>
           <ButtonLink href="/#ipos" variant="primary">
             Explore IPOs →
           </ButtonLink>
@@ -148,6 +155,34 @@ export default function Navbar() {
               <Search size={16} />
               <input aria-label="Search IPOs" name="q" placeholder="Search for IPO, company or sector..." />
             </form>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("open-subscription-banner"));
+                }, 300);
+              }}
+              style={{
+                width: "100%",
+                background: "linear-gradient(135deg, #2563FF 0%, #1d4ed8 100%)",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "10px",
+                padding: "12px",
+                fontSize: "14px",
+                fontWeight: "750",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                marginBottom: "8px",
+                boxShadow: "0 4px 12px rgba(37, 99, 255, 0.25)"
+              }}
+            >
+              <Sparkles size={14} />
+              Subscribe to Alerts
+            </button>
             <ButtonLink href="/#ipos" variant="primary" onClick={() => setMobileMenuOpen(false)}>
               Explore IPOs →
             </ButtonLink>

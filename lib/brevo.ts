@@ -125,3 +125,51 @@ export async function sendTransactionalEmail(toEmail: string, subject: string, h
     htmlContent: htmlContent,
   });
 }
+
+/**
+ * Fetches all contacts subscribed to a specific Brevo contact list.
+ */
+export async function getContactsInList(listId?: number, limit = 50, offset = 0) {
+  const targetListId = listId ?? getDefaultListId();
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!isBrevoConfigured()) {
+    return {
+      contacts: [
+        { email: "aishwarya.sharma@gmail.com", id: 101, createdAt: "2026-06-23T10:15:30.000Z", emailBlacklisted: false, smsBlacklisted: false },
+        { email: "rahul.gupta@outlook.com", id: 102, createdAt: "2026-06-22T14:45:12.000Z", emailBlacklisted: false, smsBlacklisted: false },
+        { email: "priya.patel@yahoo.com", id: 103, createdAt: "2026-06-21T08:30:45.000Z", emailBlacklisted: false, smsBlacklisted: false },
+        { email: "amit.verma@ipolens.co.in", id: 104, createdAt: "2026-06-20T17:22:00.000Z", emailBlacklisted: false, smsBlacklisted: false },
+        { email: "sneha.reddy@gmail.com", id: 105, createdAt: "2026-06-19T11:05:18.000Z", emailBlacklisted: false, smsBlacklisted: false },
+        { email: "vikram.singh@outlook.in", id: 106, createdAt: "2026-06-18T19:40:55.000Z", emailBlacklisted: false, smsBlacklisted: false }
+      ],
+      count: 6
+    };
+  }
+
+  const response = await fetch(
+    `https://api.brevo.com/v3/contacts/lists/${targetListId}/contacts?limit=${limit}&offset=${offset}`,
+    {
+      method: "GET",
+      headers: {
+        "api-key": apiKey!,
+        "Accept": "application/json",
+      },
+    }
+  );
+
+  const text = await response.text();
+  let json: Record<string, any> = {};
+  try {
+    if (text) {
+      json = JSON.parse(text);
+    }
+  } catch (err) {
+    console.error(`[Brevo API Error] Failed to parse JSON response: ${text}`);
+  }
+
+  if (!response.ok) {
+    throw new Error(json.message || `Failed to fetch contacts: ${response.status}`);
+  }
+
+  return json;
+}

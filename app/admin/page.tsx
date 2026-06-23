@@ -15,13 +15,14 @@ import {
   verifyAndLoginAdmin,
   logoutAdmin,
   checkAdminSession,
-  sendBrevoCampaignAction
+  sendBrevoCampaignAction,
+  fetchSubscribersAction
 } from "./actions";
 
 export default function AdminPortal() {
   const [ipos, setIpos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"ipos" | "override" | "sync" | "logs" | "email">("ipos");
+  const [activeTab, setActiveTab] = useState<"ipos" | "override" | "sync" | "logs" | "email" | "subscribers">("ipos");
   const [syncLogs, setSyncLogs] = useState<any[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
 
@@ -71,6 +72,40 @@ export default function AdminPortal() {
   const [authError, setAuthError] = useState("");
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [loggingIn, setLoggingIn] = useState(false);
+
+  // Subscriber List States
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [subscribersCount, setSubscribersCount] = useState(0);
+  const [subscribersIsMock, setSubscribersIsMock] = useState(false);
+  const [loadingSubscribers, setLoadingSubscribers] = useState(false);
+  const [subscribersError, setSubscribersError] = useState("");
+  const [subscribersLimit] = useState(50);
+  const [subscribersOffset, setSubscribersOffset] = useState(0);
+
+  async function loadSubscribers(offsetVal = subscribersOffset) {
+    try {
+      setLoadingSubscribers(true);
+      setSubscribersError("");
+      const res = await fetchSubscribersAction(subscribersLimit, offsetVal);
+      if (res.success && res.data) {
+        setSubscribers(res.data.contacts || []);
+        setSubscribersCount(res.data.count || 0);
+        setSubscribersIsMock(Boolean(res.isMock));
+      } else {
+        setSubscribersError(res.error || "Failed to retrieve subscribers.");
+      }
+    } catch (err: any) {
+      setSubscribersError(err.message || "Failed to retrieve subscribers.");
+    } finally {
+      setLoadingSubscribers(false);
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === "subscribers" && (isAuthenticated || !isPasswordConfigured)) {
+      loadSubscribers(subscribersOffset);
+    }
+  }, [activeTab, subscribersOffset, isAuthenticated, isPasswordConfigured]);
 
   useEffect(() => {
     async function initAuth() {
@@ -655,6 +690,13 @@ export default function AdminPortal() {
               style={{ padding: "6px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "13px" }}
             >
               Email Marketing
+            </button>
+            <button 
+              className={`btn ${activeTab === "subscribers" ? "" : "btn-secondary"}`}
+              onClick={() => setActiveTab("subscribers")}
+              style={{ padding: "6px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "13px" }}
+            >
+              Subscribers
             </button>
           </div>
         </div>
@@ -1368,6 +1410,117 @@ export default function AdminPortal() {
               </details>
             </div>
             
+          </div>
+        )}
+
+        {/* Tab 6: Subscribers List */}
+        {activeTab === "subscribers" && (
+          <div className="card" style={{ padding: "20px", display: "grid", gap: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: "12px" }}>
+              <div>
+                <h3 style={{ fontSize: "18px", color: "var(--ink)", margin: 0 }}>Newsletter Subscribers</h3>
+                <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "4px" }}>
+                  Manage and view contacts subscribed to the main newsletter list
+                </p>
+              </div>
+              <div style={{ background: "var(--blue-soft)", color: "var(--blue)", padding: "6px 12px", borderRadius: "20px", fontSize: "13px", fontWeight: "700" }}>
+                Total: {subscribersCount} Contacts
+              </div>
+            </div>
+
+            {subscribersIsMock && (
+              <div style={{ background: "var(--blue-soft)", border: "1px solid rgba(37, 99, 255, 0.2)", color: "#1e3a8a", padding: "12px 16px", borderRadius: "8px", display: "flex", gap: "10px", alignItems: "center", fontSize: "13px" }}>
+                <span style={{ fontSize: "16px" }}>ℹ️</span>
+                <span><strong>Developer Mode:</strong> Brevo API key is not configured. Showing sample/mock subscribers.</span>
+              </div>
+            )}
+
+            {subscribersError && (
+              <div style={{ background: "var(--red-soft)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "var(--red)", padding: "12px 16px", borderRadius: "8px", fontSize: "13px" }}>
+                ⚠️ {subscribersError}
+              </div>
+            )}
+
+            {loadingSubscribers ? (
+              <div style={{ padding: "40px", textAlign: "center", color: "var(--muted)" }}>
+                <div className="spinner" style={{ border: "3px solid rgba(0,0,0,0.05)", width: "24px", height: "24px", borderRadius: "50%", borderLeftColor: "var(--blue)", animation: "spin 1s linear infinite", margin: "0 auto 12px" }} />
+                <span>Loading subscribers...</span>
+              </div>
+            ) : subscribers.length === 0 ? (
+              <div style={{ padding: "40px", textAlign: "center", color: "var(--muted)", border: "1px dashed var(--border)", borderRadius: "8px" }}>
+                No subscribers found in this list.
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid var(--border)", textAlign: "left" }}>
+                      <th style={{ padding: "10px", width: "80px" }}>ID</th>
+                      <th style={{ padding: "10px" }}>Email Address</th>
+                      <th style={{ padding: "10px", width: "200px" }}>Joined On</th>
+                      <th style={{ padding: "10px", width: "120px", textAlign: "center" }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {subscribers.map((contact: any) => (
+                      <tr key={contact.id} style={{ borderBottom: "1px solid var(--border)", height: "46px" }}>
+                        <td style={{ padding: "10px", color: "var(--muted)" }} className="mono">{contact.id}</td>
+                        <td style={{ padding: "10px", fontWeight: "600", color: "var(--ink)" }}>{contact.email}</td>
+                        <td style={{ padding: "10px", color: "var(--text)" }} className="mono">
+                          {contact.createdAt ? new Date(contact.createdAt).toLocaleString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          }) : "-"}
+                        </td>
+                        <td style={{ padding: "10px", textAlign: "center" }}>
+                          <span 
+                            style={{ 
+                              background: contact.emailBlacklisted ? "var(--red-soft)" : "var(--green-soft)", 
+                              color: contact.emailBlacklisted ? "var(--red)" : "var(--green)", 
+                              padding: "4px 8px", 
+                              borderRadius: "12px", 
+                              fontSize: "11px", 
+                              fontWeight: "700",
+                              display: "inline-block"
+                            }}
+                          >
+                            {contact.emailBlacklisted ? "BOUNCED" : "SUBSCRIBED"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Pagination */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px", borderTop: "1px solid var(--border)", paddingTop: "16px" }}>
+                  <span style={{ fontSize: "12px", color: "var(--muted)" }}>
+                    Showing {subscribersOffset + 1} to {subscribersOffset + subscribers.length} of {subscribersCount} subscribers
+                  </span>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      className="btn btn-secondary"
+                      disabled={subscribersOffset === 0}
+                      onClick={() => setSubscribersOffset(Math.max(0, subscribersOffset - subscribersLimit))}
+                      style={{ padding: "6px 12px", fontSize: "12px", cursor: subscribersOffset === 0 ? "not-allowed" : "pointer" }}
+                    >
+                      ← Previous
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      disabled={subscribersOffset + subscribers.length >= subscribersCount}
+                      onClick={() => setSubscribersOffset(subscribersOffset + subscribersLimit)}
+                      style={{ padding: "6px 12px", fontSize: "12px", cursor: subscribersOffset + subscribers.length >= subscribersCount ? "not-allowed" : "pointer" }}
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

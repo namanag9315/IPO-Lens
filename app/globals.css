@@ -8553,3 +8553,31 @@ svg:focus {
   cursor: pointer;
 }
 
+/* Premium Navbar Subscribe Button */
+.premium-navbar-subscribe-btn {
+  display: flex !important;
+  background: linear-gradient(135deg, #2563FF 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(37, 99, 255, 0.25);
+  transition: all 0.2s ease;
+}
+.premium-navbar-subscribe-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 255, 0.35);
+  background: linear-gradient(135deg, #1d4ed8 0%, #173eab 100%) !important;
+}
+
+@media (max-width: 1024px) {
+  .premium-navbar-subscribe-btn {
+    display: none !important;
+  }
+}
+
