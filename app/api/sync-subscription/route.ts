@@ -20,7 +20,8 @@ function isAuthorized(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   const authorization = request.headers.get("authorization");
 
-  return Boolean(cronSecret && authorization === cronSecret);
+  if (!cronSecret || !authorization) return false;
+  return authorization === cronSecret || authorization === `Bearer ${cronSecret}`;
 }
 
 function normalizeForMatch(value: string) {

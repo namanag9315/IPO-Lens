@@ -116,18 +116,64 @@ export default function IPOJourneyMap() {
         <div className="learn-journey-layout">
           <div className="learn-journey-sticky" aria-hidden="true">
             <div className="learn-orbital-map">
-              <div className="learn-orbital-core">
-                <span>{String(activeStage + 1).padStart(2, "0")}</span>
-                <strong>{journeyStages[activeStage].title}</strong>
-              </div>
+              <motion.div
+                className="learn-orbital-core"
+                animate={{
+                  y: [0, -6, 0],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <motion.div
+                  key={activeStage}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <span>{String(activeStage + 1).padStart(2, "0")}</span>
+                  <strong>{journeyStages[activeStage].title}</strong>
+                </motion.div>
+              </motion.div>
               {journeyStages.map((stage, index) => {
                 const Icon = stageIcons[stage.icon as keyof typeof stageIcons];
                 const isActive = activeStage === index;
 
                 return (
-                  <div className={`learn-orbit-node node-${index + 1} ${isActive ? "active" : ""}`} key={stage.title}>
-                    <Icon size={18} />
-                  </div>
+                  <motion.div
+                    className={`learn-orbit-node node-${index + 1} ${isActive ? "active" : ""}`}
+                    key={stage.title}
+                    animate={
+                      isActive
+                        ? {
+                            scale: [1, 1.08, 1],
+                          }
+                        : { scale: 1 }
+                    }
+                    transition={
+                      isActive
+                        ? {
+                            scale: { repeat: Infinity, duration: 2, ease: "easeInOut" },
+                          }
+                        : {}
+                    }
+                  >
+                    {isActive && (
+                      <motion.div
+                        className="learn-orbit-ripple"
+                        initial={{ scale: 0.8, opacity: 0.6 }}
+                        animate={{ scale: 2.0, opacity: 0 }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeOut",
+                        }}
+                      />
+                    )}
+                    <Icon size={18} style={{ zIndex: 3 }} />
+                  </motion.div>
                 );
               })}
             </div>

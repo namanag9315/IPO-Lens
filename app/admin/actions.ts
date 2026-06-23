@@ -275,3 +275,15 @@ export async function fetchSyncLogs() {
   return data || [];
 }
 
+export async function sendBrevoCampaignAction(subject: string, htmlContent: string, listId?: number) {
+  verifyAuth();
+  const { sendCampaign } = await import("@/lib/brevo");
+  try {
+    const result = await sendCampaign(subject, htmlContent, listId);
+    return { success: true, data: result };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to send Brevo campaign" };
+  }
+}
+
+

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { TickerItem, LiveIndexItem } from "@/lib/ipoData";
 
 interface MarketTickerProps {
@@ -17,6 +20,12 @@ function topGmpAlert(items: TickerItem[]) {
 }
 
 export default function MarketTicker({ items, indices }: MarketTickerProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const alert = topGmpAlert(items);
   const activeIndices = indices && indices.length > 0 ? indices : marketItems;
   const tickerRows = [
@@ -35,16 +44,31 @@ export default function MarketTicker({ items, indices }: MarketTickerProps) {
     },
   ];
 
+  if (!mounted) {
+    return (
+      <div className="market-ticker" style={{ height: "32px", background: "#0f172a" }}></div>
+    );
+  }
+
   return (
     <div className="market-ticker" aria-label="Market ticker">
       <div className="market-ticker-track">
-        {[...tickerRows, ...tickerRows].map((item, index) => (
-          <div className="market-ticker-item" key={`${item.label}-${index}`}>
-            <span className="market-ticker-label">{item.label}</span>
-            <span className="market-ticker-value mono">{item.value}</span>
-            <span className={`market-ticker-change ${item.tone}`}>{item.change}</span>
-          </div>
-        ))}
+        {[...tickerRows, ...tickerRows].map((item, index) => {
+          const changeText = item.change;
+          const isPositive = changeText.startsWith("+");
+          const isNegative = changeText.startsWith("-");
+          const arrow = isPositive ? "▲ " : isNegative ? "▼ " : "";
+          const cleanChange = changeText.replace(/^[+-]/, "");
+          const displayText = `${arrow}${cleanChange}`;
+
+          return (
+            <div className="market-ticker-item" key={`${item.label}-${index}`}>
+              <span className="market-ticker-label">{item.label}</span>
+              <span className="market-ticker-value mono">{item.value}</span>
+              <span className={`market-ticker-change ${item.tone}`}>{displayText}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

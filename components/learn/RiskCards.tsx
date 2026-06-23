@@ -50,20 +50,41 @@ export default function RiskCards() {
             const Icon = riskIconMap[risk.icon as keyof typeof riskIconMap];
 
             return (
-              <motion.article
-                className={`learn-risk-card ${risk.tone}`}
-                key={risk.title}
-                variants={{
-                  hidden: { opacity: 0, y: 18 },
-                  show: { opacity: 1, y: 0 },
-                }}
-              >
-                <span>
-                  <Icon size={20} />
-                </span>
-                <h3>{risk.title}</h3>
-                <p>{risk.body}</p>
-              </motion.article>
+              <div className="learn-risk-card-container" key={risk.title}>
+                <motion.article
+                  className={`learn-risk-card learn-risk-card-tilt ${risk.tone}`}
+                  variants={{
+                    hidden: { opacity: 0, y: 18 },
+                    show: { opacity: 1, y: 0 },
+                  }}
+                  onMouseMove={(e) => {
+                    const card = e.currentTarget;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty("--mouse-x", `${x}px`);
+                    card.style.setProperty("--mouse-y", `${y}px`);
+                  }}
+                  whileHover={
+                    shouldReduceMotion
+                      ? {}
+                      : {
+                          y: -6,
+                          rotateX: 4,
+                          rotateY: -4,
+                          scale: 1.015,
+                        }
+                  }
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <div className="learn-risk-card-glow" />
+                  <span style={{ position: "relative", zIndex: 3 }}>
+                    <Icon size={20} />
+                  </span>
+                  <h3 style={{ position: "relative", zIndex: 3, marginTop: 0 }}>{risk.title}</h3>
+                  <p style={{ position: "relative", zIndex: 3, flex: 1, marginTop: 12 }}>{risk.body}</p>
+                </motion.article>
+              </div>
             );
           })}
         </motion.div>

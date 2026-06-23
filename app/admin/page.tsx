@@ -14,7 +14,8 @@ import {
   fetchSyncLogs,
   verifyAndLoginAdmin,
   logoutAdmin,
-  checkAdminSession
+  checkAdminSession,
+  sendBrevoCampaignAction
 } from "./actions";
 
 export default function AdminPortal() {
@@ -33,6 +34,13 @@ export default function AdminPortal() {
   const [emailSelectedIpoId, setEmailSelectedIpoId] = useState("");
   const [emailCopySuccess, setEmailCopySuccess] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<"announcement" | "upcoming" | "allotment" | "listing">("announcement");
+
+  // Brevo marketing states
+  const [brevoSubject, setBrevoSubject] = useState("");
+  const [brevoListId, setBrevoListId] = useState("2");
+  const [brevoIsSending, setBrevoIsSending] = useState(false);
+  const [brevoStatusMessage, setBrevoStatusMessage] = useState("");
+  const [brevoStatusType, setBrevoStatusType] = useState<"success" | "error" | "">("");
 
   // Override Form States
   const [selectedIpoId, setSelectedIpoId] = useState("");
@@ -100,6 +108,30 @@ export default function AdminPortal() {
       }
     }
   }, [emailSelectedIpoId, ipos]);
+
+  useEffect(() => {
+    if (emailSelectedIpoId && ipos.length > 0) {
+      const selectedIpo = ipos.find(i => i.id === emailSelectedIpoId);
+      if (selectedIpo) {
+        let subject = "";
+        switch (selectedTemplate) {
+          case "announcement":
+            subject = "Introducing IPO Lens: Smarter IPO Research & GMP Tracker";
+            break;
+          case "upcoming":
+            subject = `Upcoming IPO Alert: ${selectedIpo.name} details & GMP inside!`;
+            break;
+          case "allotment":
+            subject = `Allotment Status Out: Check status for ${selectedIpo.name}!`;
+            break;
+          case "listing":
+            subject = `Listing Day Performance: ${selectedIpo.name} listing gains & analysis`;
+            break;
+        }
+        setBrevoSubject(subject);
+      }
+    }
+  }, [emailSelectedIpoId, selectedTemplate, ipos]);
 
   async function loadLogs() {
     try {
@@ -287,6 +319,43 @@ export default function AdminPortal() {
       }
     } catch (err) {
       setAiStatus(prev => ({ ...prev, [id]: "Failed to run." }));
+    }
+  };
+
+  const handleSendBrevoCampaign = async () => {
+    if (!emailSelectedIpoId) {
+      alert("Please select an IPO first.");
+      return;
+    }
+    if (!brevoSubject.trim()) {
+      alert("Please enter a subject line.");
+      return;
+    }
+
+    const confirmSend = window.confirm(`Are you sure you want to send this campaign to Brevo List #${brevoListId}?`);
+    if (!confirmSend) return;
+
+    setBrevoIsSending(true);
+    setBrevoStatusMessage("");
+    setBrevoStatusType("");
+
+    try {
+      const htmlContent = generateEmailHtml();
+      const listId = parseInt(brevoListId, 10) || 2;
+      const res = await sendBrevoCampaignAction(brevoSubject, htmlContent, listId);
+
+      if (res.success) {
+        setBrevoStatusType("success");
+        setBrevoStatusMessage("Campaign queued successfully in Brevo!");
+      } else {
+        setBrevoStatusType("error");
+        setBrevoStatusMessage(res.error || "Failed to queue campaign.");
+      }
+    } catch (err: any) {
+      setBrevoStatusType("error");
+      setBrevoStatusMessage(err.message || "An unexpected error occurred.");
+    } finally {
+      setBrevoIsSending(false);
     }
   };
 
@@ -1177,6 +1246,69 @@ export default function AdminPortal() {
                 >
                   {emailCopySuccess ? "✓ Copied to Clipboard!" : "Copy HTML Code"}
                 </button>
+
+                {/* Brevo Campaign Sender Block */}
+                <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--border)", display: "grid", gap: "12px" }}>
+                  <h4 style={{ fontSize: "14px", fontWeight: "700", color: "var(--ink)", margin: 0 }}>
+                    Send via Brevo API
+                  </h4>
+                  
+                  <div style={{ display: "grid", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "var(--muted)" }}>Email Subject Line</label>
+                    <input 
+                      type="text" 
+                      value={brevoSubject}
+                      onChange={(e) => setBrevoSubject(e.target.value)}
+                      placeholder="Enter campaign subject line"
+                      style={{ padding: "8px", border: "1px solid var(--border)", borderRadius: "6px", width: "100%", fontSize: "13px" }}
+                      required
+                    />
+                  </div>
+
+                  <div style={{ display: "grid", gap: "4px" }}>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "var(--muted)" }}>Brevo Contact List ID</label>
+                    <input 
+                      type="number" 
+                      value={brevoListId}
+                      onChange={(e) => setBrevoListId(e.target.value)}
+                      placeholder="e.g. 2"
+                      style={{ padding: "8px", border: "1px solid var(--border)", borderRadius: "6px", width: "100%", fontSize: "13px" }}
+                      required
+                    />
+                  </div>
+
+                  <button 
+                    onClick={handleSendBrevoCampaign}
+                    className="btn" 
+                    style={{ 
+                      background: "#00C48C", 
+                      color: "#fff", 
+                      padding: "10px", 
+                      cursor: "pointer", 
+                      border: "none",
+                      fontWeight: "600",
+                      borderColor: "#00C48C",
+                      opacity: brevoIsSending ? 0.7 : 1
+                    }}
+                    disabled={brevoIsSending || !emailSelectedIpoId}
+                  >
+                    {brevoIsSending ? "Sending Campaign..." : "Send Brevo Campaign"}
+                  </button>
+
+                  {brevoStatusMessage && (
+                    <div style={{ 
+                      color: brevoStatusType === "success" ? "#00C48C" : "#ef4444", 
+                      fontSize: "12px", 
+                      fontWeight: "600", 
+                      padding: "8px 10px", 
+                      background: brevoStatusType === "success" ? "#ecfdf5" : "#fef2f2", 
+                      borderRadius: "6px", 
+                      border: `1px solid ${brevoStatusType === "success" ? "#a7f3d0" : "#fecaca"}` 
+                    }}>
+                      {brevoStatusMessage}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Right Side: Live Preview IFrame */}

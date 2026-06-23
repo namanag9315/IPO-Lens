@@ -86,30 +86,76 @@ export default function AllotmentExplainer() {
             <div className="learn-machine-top">
               <span>
                 <UsersRound size={15} />
-                Retail applications
+                Allotment Probability Meter
               </span>
-              <strong>{scenario.multiple}</strong>
+              <strong style={{
+                color: scenario.tone === "green" ? "var(--green)" : scenario.tone === "amber" ? "var(--amber)" : "var(--red)",
+                transition: "color 0.4s ease"
+              }}>{scenario.label}</strong>
             </div>
 
-            <div className="learn-ticket-field" aria-label="Animated IPO application tickets">
-              {tickets.map((ticket) => {
-                const isAllotted = ticket < scenario.allotted;
-
-                return (
-                  <motion.span
-                    className={isAllotted ? "allotted" : "waiting"}
-                    key={`${scenario.multiple}-${ticket}`}
-                    initial={shouldReduceMotion ? false : { opacity: 0, y: 16, scale: 0.84 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: ticket * 0.012, duration: 0.22 }}
+            {/* SVG Gauge Probability Meter */}
+            <div className="learn-allotment-gauge-wrap">
+              <div className="learn-allotment-gauge">
+                <svg viewBox="0 0 200 110">
+                  {/* Background arc */}
+                  <path
+                    d="M 20 95 A 80 80 0 0 1 180 95"
+                    className="learn-gauge-bg"
+                  />
+                  {/* Active colored filling arc */}
+                  <motion.path
+                    d="M 20 95 A 80 80 0 0 1 180 95"
+                    className="learn-gauge-fill"
+                    style={{
+                      stroke: scenario.tone === "green" ? "var(--green)" : scenario.tone === "amber" ? "var(--amber)" : "var(--red)"
+                    }}
+                    initial={{ strokeDasharray: 251.2, strokeDashoffset: 251.2 }}
+                    animate={{
+                      // Low (0): 75% filled -> offset: 251.2 * 0.25 = 62.8
+                      // High (1): 33% filled -> offset: 251.2 * 0.67 = 168.3
+                      // Very High (2): 12% filled -> offset: 251.2 * 0.88 = 221.0
+                      strokeDashoffset: active === 0 ? 62.8 : active === 1 ? 168.3 : 221.0
+                    }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                  {/* Needle pointing at current value */}
+                  <motion.g
+                    className="learn-gauge-needle"
+                    animate={{
+                      // Rotation from -90deg (0% filled) to 90deg (100% filled)
+                      // Low (0): 75% -> -90 + 180 * 0.75 = 45deg
+                      // High (1): 33% -> -90 + 180 * 0.33 = -30.6deg
+                      // Very High (2): 12% -> -90 + 180 * 0.12 = -68.4deg
+                      rotate: active === 0 ? 45 : active === 1 ? -30.6 : -68.4
+                    }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <Ticket size={14} />
-                  </motion.span>
-                );
-              })}
+                    <line
+                      x1="100"
+                      y1="95"
+                      x2="100"
+                      y2="25"
+                      stroke="var(--ink)"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                    />
+                    <circle cx="100" cy="95" r="8" fill="var(--ink)" />
+                  </motion.g>
+                </svg>
+                <div className="learn-gauge-center">
+                  <strong style={{
+                    color: scenario.tone === "green" ? "var(--green)" : scenario.tone === "amber" ? "var(--amber)" : "var(--red)",
+                    transition: "color 0.4s ease"
+                  }}>
+                    {active === 0 ? "75%" : active === 1 ? "33%" : "12%"}
+                  </strong>
+                  <span>Success Rate</span>
+                </div>
+              </div>
             </div>
 
-            <div className="learn-registrar-engine">
+            <div className="learn-registrar-engine" style={{ marginTop: "16px" }}>
               <div className="learn-engine-ring">
                 <RotateCcw size={26} />
               </div>

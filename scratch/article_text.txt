@@ -1,0 +1,183 @@
+<USER_REQUEST>
+add the bekow blog too making its font styling theme consistant with our other blog <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why IPO Lens Does Not Judge IPOs Only by GMP</title>
+  <meta name="description" content="Learn how IPO Lens reads an IPO score beyond GMP by combining subscription demand, financials, valuation, issue structure, risks, SME liquidity and plain-English research signals." />
+  <style>
+    :root {
+      --navy:#071225;
+      --ink:#0b132b;
+      --muted:#64748b;
+      --soft:#f6f8fb;
+      --card:#ffffff;
+      --border:#e5eaf2;
+      --blue:#2563eb;
+      --blue-soft:#eff6ff;
+      --green:#00c48c;
+      --green-dark:#059669;
+      --green-soft:#ecfdf5;
+      --amber:#f59e0b;
+      --amber-soft:#fff7ed;
+      --red:#ef4444;
+      --shadow:0 22px 70px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:linear-gradient(180deg,#ffffff 0%,#f7f9fc 42%,#ffffff 100%);font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;color:var(--ink);}
+    a{color:inherit}
+    .ticker{background:var(--navy);color:#fff;padding:10px 0;font-size:12px;font-weight:800;letter-spacing:.04em;overflow:hidden}
+    .ticker-inner{max-width:1180px;margin:0 auto;display:flex;gap:38px;align-items:center;white-space:nowrap;padding:0 22px}
+    .ticker span{color:#93a4bc;font-weight:700}
+    .ticker b.pos{color:#10b981}
+    .ticker b.neg{color:#fb7185}
+    .nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    .nav-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:18px 22px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand img{height:52px;width:auto;object-fit:contain}
+    .nav-links{display:flex;align-items:center;gap:22px;font-size:14px;font-weight:800;color:#334155}
+    .nav-links a{text-decoration:none}
+    .cta-small{background:var(--navy);color:#fff;padding:12px 17px;border-radius:14px;text-decoration:none;box-shadow:0 10px 24px rgba(7,18,37,.12)}
+    .container{max-width:1180px;margin:0 auto;padding:0 22px}
+    .hero{padding:62px 0 44px;position:relative;overflow:hidden}
+    .hero:before{content:"";position:absolute;inset:-20% -10% auto auto;width:620px;height:620px;background:radial-gradient(circle,rgba(37,99,235,.10),transparent 58%);pointer-events:none}
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+    .kicker{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--border);border-radius:999px;padding:9px 14px;color:#475569;font-weight:800;font-size:13px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+    .dot{width:9px;height:9px;border-radius:999px;background:var(--green)}
+    h1{font-size:64px;line-height:.96;letter-spacing:-.055em;margin:24px 0 20px;color:#0b132b}
+    .lead{font-size:20px;line-height:1.72;color:#5f6f88;max-width:700px;margin:0 0 24px}
+    .hero-buttons{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px}
+    .btn{display:inline-flex;align-items:center;gap:10px;border-radius:15px;text-decoration:none;font-weight:900;padding:15px 19px;border:1px solid var(--border)}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:white;box-shadow:0 18px 32px rgba(37,99,235,.18)}
+    .btn.secondary{background:white;color:var(--navy)}
+    .visual-card{background:#fff;border:1px solid var(--border);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+    .visual-card-head{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;border-bottom:1px solid var(--border);font-weight:900}
+    .live{display:flex;gap:10px;align-items:center;color:#607086;font-weight:600}
+    .visual-card img{width:100%;display:block}
+    .score-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+    .score-strip div{padding:15px;border-right:1px solid var(--border)}
+    .score-strip div:last-child{border-right:none}
+    .score-strip small{display:block;color:#64748b;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+    .score-strip b{display:block;margin-top:4px;font-size:18px;color:#0b132b}
+    .meta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+    .meta-chip{background:white;border:1px solid var(--border);padding:11px 13px;border-radius:14px;color:#475569;font-size:13px;font-weight:800}
+    .section{padding:46px 0}
+    .article-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:34px;align-items:start}
+    .article{background:white;border:1px solid var(--border);border-radius:30px;box-shadow:0 18px 50px rgba(15,23,42,.05);padding:46px}
+    .article h2{font-size:35px;line-height:1.1;letter-spacing:-.035em;margin:44px 0 14px;color:#0b132b}
+    .article h3{font-size:22px;line-height:1.25;margin:30px 0 10px;color:#101828}
+    .article p{font-size:17px;line-height:1.82;color:#475569;margin:14px 0}
+    .article ul{padding-left:22px;margin:18px 0;color:#475569;font-size:16px;line-height:1.75}
+    .article li{margin:7px 0}
+    .article strong{color:#0b132b}
+    .callout{border-radius:22px;border:1px solid #bfdbfe;background:linear-gradient(135deg,#eff6ff,#ffffff);padding:22px;margin:28px 0}
+    .callout.green{background:linear-gradient(135deg,#ecfdf5,#ffffff);border-color:#bbf7d0}
+    .callout.amber{background:linear-gradient(135deg,#fff7ed,#ffffff);border-color:#fed7aa}
+    .takeaway{border-left:4px solid var(--blue);padding:18px 20px;background:#f8fbff;border-radius:0 18px 18px 0;margin:26px 0;color:#334155}
+    .score-model{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:28px 0}
+    .score-item{border:1px solid var(--border);background:#fff;border-radius:19px;padding:18px;position:relative;overflow:hidden}
+    .score-item:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--blue)}
+    .score-item.green:before{background:var(--green)}
+    .score-item.amber:before{background:var(--amber)}
+    .score-item.red:before{background:var(--red)}
+    .score-item b{display:block;font-size:17px;margin-bottom:7px;color:#0b132b}
+    .score-item span{font-size:14px;color:#64748b;line-height:1.55}
+    .compare-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:18px;overflow:hidden;margin:24px 0;background:white}
+    .compare-table th,.compare-table td{padding:16px;text-align:left;border-bottom:1px solid var(--border);font-size:14px;vertical-align:top}
+    .compare-table th{background:#f8fafc;color:#475569;text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+    .compare-table tr:last-child td{border-bottom:none}
+    .mini-dashboard{border:1px solid var(--border);border-radius:24px;overflow:hidden;margin:32px 0;background:white;box-shadow:0 12px 36px rgba(15,23,42,.05)}
+    .mini-dashboard img{width:100%;display:block}
+    .caption{font-size:13px;color:#64748b;background:#f8fafc;padding:13px 16px;border-top:1px solid var(--border)}
+    .sidebar{position:sticky;top:96px;display:flex;flex-direction:column;gap:18px}
+    .side-card{background:white;border:1px solid var(--border);border-radius:24px;padding:22px;box-shadow:0 12px 36px rgba(15,23,42,.05)}
+    .side-card h4{font-size:16px;margin:0 0 12px;color:#0b132b}
+    .side-card a{display:block;text-decoration:none;color:#475569;font-size:14px;font-weight:700;padding:9px 0;border-bottom:1px solid #f1f5f9}
+    .side-card a:last-child{border-bottom:none}
+    .score-card-demo{border:1px solid var(--border);border-radius:22px;background:linear-gradient(180deg,#ffffff,#f8fbff);padding:22px}
+    .score-big{font-size:56px;font-weight:950;letter-spacing:-.04em;color:#0b132b;line-height:1}
+    .score-big span{font-size:20px;color:#64748b}
+    .signal{display:inline-flex;background:var(--green-soft);color:var(--green-dark);border:1px solid #bbf7d0;border-radius:999px;padding:8px 12px;font-weight:900;font-size:13px;margin-top:10px}
+    .progress{height:10px;background:#e5eaf2;border-radius:999px;overflow:hidden;margin:18px 0}
+    .progress span{display:block;height:100%;width:73%;background:linear-gradient(90deg,var(--green),#22c55e);border-radius:999px}
+    .check-list{list-style:none;padding:0;margin:0}
+    .check-list li{display:flex;gap:9px;align-items:flex-start;font-size:14px;line-height:1.45;color:#475569;margin:10px 0}
+    .tick{color:var(--green);font-weight:900}
+    .warn{color:var(--amber);font-weight:900}
+    .footer-cta{background:var(--navy);color:white;border-radius:32px;padding:38px;margin-top:40px;overflow:hidden;position:relative}
+    .footer-cta:after{content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;background:radial-gradient(circle,rgba(37,99,235,.36),transparent 60%)}
+    .footer-cta h2{color:white;margin-top:0}
+    .footer-cta p{color:#cbd5e1}
+    .source-list{font-size:14px;color:#475569;line-height:1.7}
+    .source-list a{color:#2563eb;text-decoration:none;font-weight:800}
+    .disclaimer{font-size:12px;line-height:1.65;color:#64748b;background:#f8fafc;border:1px solid var(--border);border-radius:18px;padding:16px;margin-top:26px}
+    @media(max-width:900px){
+      .hero-grid,.article-layout{grid-template-columns:1fr}
+      h1{font-size:46px}
+      .article{padding:28px}
+      .sidebar{position:static}
+      .score-model{grid-template-columns:1fr}
+      .nav-links{display:none}
+      .score-strip{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:560px){
+      .hero{padding-top:40px}
+      h1{font-size:39px}
+      .lead{font-size:17px}
+      .article h2{font-size:29px}
+      .article p{font-size:16px}
+      .nav-inner{padding:14px}
+      .brand img{height:44px}
+      .ticker-inner{gap:20px}
+    }
+  </style>
+</head>
+<body>
+  <div class="ticker">
+    <div class="ticker-inner">
+      <div>NIFTY 50 <span>23,420.35</span> <b class="pos">+0.42%</b></div>
+      <div>SENSEX <span>76,812.20</span> <b class="pos">+0.38%</b></div>
+      <div>IPO WATCH <span>Rule-based signals</span></div>
+      <div>GMP ALERT <span>Sentiment, not guarantee</span></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="https://ipo-lens.vercel.app/" class="brand" style="text-decoration:none">
+        <img src="[BASE64_IMAGE]" alt="IPO Lens logo" />
+      </a>
+      <div class="nav-links">
+        <a href="https://ipo-lens.vercel.app/">Live IPOs</a>
+        <a href="https://ipo-lens.vercel.app/learn">Learn</a>
+        <a href="https://ipo-lens.vercel.app/blog">Blog</a>
+        <a class="cta-small" href="https://ipo-lens.vercel.app/">Explore IPOs →</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="kicker"><span class="dot"></span> IPO Lens Education • Score Methodology • GMP Reality Check</div>
+        <h1>Why IPO Lens does not judge IPOs only by GMP.</h1>
+        <p class="lead">A high GMP can create excitement, but it cannot explain business quality, valuation comfort, subscription depth, SME liquidity risk, or what the company will actually do with IPO money. That is why IPO Lens uses a broader score.</p>
+        <div class="hero-buttons">
+          <a class="btn primary" href="#score-model">Understand the Score →</a>
+          <a class="btn secondary" href="https://ipo-lens.vercel.app/">Open IPO Lens</a>
+        </div>
+        <div class="meta-row">
+          <div class="meta-chip">Reading time: 8–10 min</div>
+          <div class="meta-chip">Beginner-friendly</div>
+          <div class="meta-chip">Educational only</div>
+        </div>
+      </div>
+      <div class="visual-card">
+        <div class="visual-card-head">
+          <span>Featured IPO signal view</span>
+          <span class="live"><span class="dot"></span> Live research view</span>
+        </div>
+        <img src="[BASE64_IMAGE]<truncated 448845 bytes>
+
+NOTE: The output was truncated because it was too long. Use a more targeted query or a smaller range to get the information you need.

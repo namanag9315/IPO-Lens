@@ -63,8 +63,30 @@ function buildComputedIPO(
   const latestGMP = sortedGMP[0]?.gmp_value ?? null;
   const latestSubscription = sortedSubscription[0] ?? null;
 
+  // Dynamically compute the correct status based on current date in IST (Asia/Kolkata)
+  let status = ipo.status;
+  const today = new Date();
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  });
+  const todayStr = formatter.format(today); // e.g. "2026-06-23"
+
+  if (ipo.listing_date && ipo.listing_date <= todayStr) {
+    status = "listed";
+  } else if (ipo.close_date && ipo.close_date < todayStr) {
+    status = "closed";
+  } else if (ipo.open_date && ipo.close_date && ipo.open_date <= todayStr && ipo.close_date >= todayStr) {
+    status = "open";
+  } else if (ipo.open_date && ipo.open_date > todayStr) {
+    status = "upcoming";
+  }
+
   return {
     ...ipo,
+    status: status as any,
     gmp_history: sortedGMP,
     subscription_data: sortedSubscription,
     ai_analysis: sortedAnalysis[0] ?? null,

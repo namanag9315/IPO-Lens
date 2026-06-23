@@ -6,6 +6,7 @@ import TodayIPOCalendar from "@/components/ipo/TodayIPOCalendar";
 import WatchlistPanel from "@/components/ipo/WatchlistPanel";
 import HeroWatermark from "@/components/ui/HeroWatermark";
 import { ButtonLink } from "@/components/ui/Button";
+import NewsletterForm from "@/components/ui/NewsletterForm";
 import { getComputedIPOs } from "@/lib/ipoData";
 import { calculateScore, estimateListingGainPct } from "@/lib/scoring";
 import { cleanAndFilterFinancials } from "@/lib/mappers/researchMapper";
@@ -177,16 +178,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <section className="premium-hero">
         {/* Animated watermark in background */}
         <HeroWatermark />
+        <div className="premium-hero-ambient" aria-hidden="true">
+          <span className="ambient-orb ambient-orb-blue" />
+          <span className="ambient-orb ambient-orb-green" />
+          <span className="ambient-beam ambient-beam-one" />
+          <span className="ambient-beam ambient-beam-two" />
+        </div>
 
         <div className="shell premium-hero-grid">
           <div className="premium-hero-copy">
             <div className="premium-pill">
               <span />
-              Indian IPO dashboard • AI-powered analysis & rule-based signals
+              Indian IPO research dashboard • Educational only
             </div>
-            <h1>Smarter IPO research for retail investors.</h1>
+            <h1>IPO research, without the market noise.</h1>
             <p>
-              Understand GMP, subscription demand, financials, risks and AI summaries before you apply.
+              Track live IPOs, GMP sentiment, subscription demand, financials, risks and plain-English summaries in one calm research view.
             </p>
 
             {/* Custom Premium Feature Pills */}
@@ -217,9 +224,38 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 Open Sample Analysis
               </ButtonLink>
             </div>
+
+            <div className="premium-hero-stats" aria-label="IPO Lens market snapshot">
+              <div>
+                <span>Open IPOs</span>
+                <strong>{openCount}</strong>
+              </div>
+              <div>
+                <span>Strong signals</span>
+                <strong>{strongCount}</strong>
+              </div>
+              <div>
+                <span>Avg GMP</span>
+                <strong>{avgGMP >= 0 ? "+" : ""}{avgGMP.toFixed(1)}%</strong>
+                <em>unofficial</em>
+              </div>
+            </div>
           </div>
 
-          <FeaturedIPOCard ipo={featured} label={featuredScore.label} score={featuredScore.score} />
+          <div className="premium-hero-showcase">
+            <div className="premium-showcase-halo" aria-hidden="true" />
+            <div className="premium-floating-badge premium-floating-badge-top" aria-hidden="true">
+              <Activity size={16} />
+              <span>Live IPOs</span>
+              <strong>{openCount}</strong>
+            </div>
+            <div className="premium-floating-badge premium-floating-badge-bottom" aria-hidden="true">
+              <TrendingUp size={16} />
+              <span>Avg GMP</span>
+              <strong>{avgGMP >= 0 ? "+" : ""}{avgGMP.toFixed(1)}%</strong>
+            </div>
+            <FeaturedIPOCard ipo={featured} label={featuredScore.label} score={featuredScore.score} />
+          </div>
         </div>
       </section>
 
@@ -313,6 +349,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
 
           <WatchlistPanel ipos={allIPOs} />
+        </div>
+      </section>
+
+      {/* Newsletter Signup Form */}
+      <section className="section" style={{ padding: "0 0 48px 0" }}>
+        <div className="shell">
+          <NewsletterForm />
         </div>
       </section>
 
