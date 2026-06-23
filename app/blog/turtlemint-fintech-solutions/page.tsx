@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import BlogSubscribeCallout from "@/components/ui/BlogSubscribeCallout";
 
 export const metadata: Metadata = {
   title: "Turtlemint Fintech Solutions IPO — Should You Apply? Score: 20/100 | IPO Lens",
@@ -231,26 +232,10 @@ export default function TurtlemintFintechIpoBlog() {
             </p>
 
             {/* In-blog subscription box */}
-            <div style={{
-              background: "var(--blue-soft)",
-              border: "1px solid rgba(37,99,255,0.15)",
-              borderRadius: "16px",
-              padding: "24px",
-              marginTop: "40px",
-              textAlign: "center"
-            }}>
-              <h4 style={{ margin: "0 0 8px 0", color: "var(--ink)", fontSize: "16px", fontWeight: "800" }}>🚨 Avoid Listing Losses! Subscribe to Live Risk Signals</h4>
-              <p style={{ margin: "0 0 16px 0", fontSize: "13px", color: "var(--muted)" }}>
-                We analyze SEBI filings and audit reports for high-risk flags, debt traps, and valuation bubbles.
-              </p>
-              <button 
-                onClick={() => window.dispatchEvent(new CustomEvent("open-subscription-banner"))}
-                className="premium-navbar-subscribe-btn"
-                style={{ margin: "0 auto", display: "inline-flex" }}
-              >
-                Subscribe to Live Alerts
-              </button>
-            </div>
+            <BlogSubscribeCallout 
+              title="🚨 Avoid Listing Losses! Subscribe to Live Risk Signals"
+              description="We analyze SEBI filings and audit reports for high-risk flags, debt traps, and valuation bubbles."
+            />
           </article>
         </div>
       </main>

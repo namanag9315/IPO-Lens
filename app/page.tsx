@@ -39,6 +39,9 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "IPO Lens — Indian IPO Intelligence, Live GMP & AI Analysis",
   description: "Track live Grey Market Premium (GMP), daily subscription status, listing performance, and AI-powered strength/weakness analysis for Indian Mainboard & SME IPOs.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 
