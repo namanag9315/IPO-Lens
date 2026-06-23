@@ -1,76 +1,65 @@
 import Link from "next/link";
+import FooterSubscribeForm from "@/components/ui/FooterSubscribeForm";
 
 export default function Footer() {
   return (
-    <footer style={{
-      background: "var(--primary-navy)",
-      color: "rgba(255, 255, 255, 0.7)",
-      padding: "48px 24px 32px",
-      fontSize: "13px",
-      borderTop: "1px solid var(--surface-soft)",
-      marginTop: "auto"
-    }}>
-      <div className="shell" style={{ display: "grid", gap: "32px" }}>
-        
-        {/* Footer Top: Brand and Disclaimer */}
-        <div style={{ display: "grid", gap: "16px", maxWidth: "800px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <img src="/logo.png" alt="IPO Lens Logo" style={{ width: "28px", height: "28px", borderRadius: "8px", objectFit: "cover" }} />
-            <span style={{ fontWeight: "800", fontSize: "16px", color: "#fff", letterSpacing: "-0.02em" }}>IPO Lens</span>
-          </div>
-          <p style={{ lineHeight: "1.6", color: "rgba(255, 255, 255, 0.55)" }}>
-            <strong>Disclaimer:</strong> IPO Lens is for educational and informational purposes only. We do not provide investment advice or IPO recommendations. IPO Lens is not a SEBI-registered investment adviser or research analyst. IPO investments are subject to market risks. GMP is unofficial, unregulated, and not guaranteed. Please read the official offer documents (DRHP/RHP) fully before making any investment decision.
-          </p>
-        </div>
-
-        {/* Footer Middle: Compliance Links Grid */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-          gap: "24px",
-          borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-          paddingTop: "24px"
-        }}>
-          <div>
-            <h4 style={{ color: "#fff", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "12px" }}>Compliance</h4>
-            <div style={{ display: "grid", gap: "8px" }}>
-              <Link href="/disclaimer" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">Main Disclaimer</Link>
-              <Link href="/risk-disclosure" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">Risk Disclosure</Link>
-              <Link href="/grievance-redressal" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">Grievance Redressal</Link>
+    <footer className="site-footer">
+      <div className="shell site-footer-inner">
+        <div className="site-footer-grid">
+          <div className="site-footer-brand">
+            <div className="site-footer-logo-row">
+              <img src="/logo.png" alt="IPO Lens Logo" />
+              <div>
+                <strong>IPO Lens</strong>
+                <span>Smarter IPO Research</span>
+              </div>
+            </div>
+            <p>
+              Helping retail investors make informed decisions with data, research and clarity.
+            </p>
+            <div className="site-footer-socials" aria-label="Social links">
+              <a href="#" aria-label="IPO Lens on X">X</a>
+              <a href="#" aria-label="IPO Lens on YouTube">▶</a>
+              <a href="#" aria-label="IPO Lens updates">↗</a>
             </div>
           </div>
 
-          <div>
-            <h4 style={{ color: "#fff", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "12px" }}>Policies</h4>
-            <div style={{ display: "grid", gap: "8px" }}>
-              <Link href="/terms" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">Terms & Conditions</Link>
-              <Link href="/privacy-policy" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">Privacy Policy</Link>
-              <Link href="/cookie-policy" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">Cookie Policy</Link>
-            </div>
+          <div className="site-footer-column">
+            <h4>Quick Links</h4>
+            <Link href="/calendar">IPO Calendar</Link>
+            <Link href="/#ipos">Live Research</Link>
+            <Link href="/#watchlist">Watchlist</Link>
+            <Link href="/blog">Blog</Link>
           </div>
 
-          <div>
-            <h4 style={{ color: "#fff", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "12px" }}>Transparency</h4>
-            <div style={{ display: "grid", gap: "8px" }}>
-              <Link href="/methodology" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">Data & Methodology</Link>
-              <Link href="/ai-disclosure" style={{ color: "rgba(255, 255, 255, 0.6)", textDecoration: "none" }} className="footer-link">AI Disclosure Policy</Link>
-            </div>
+          <div className="site-footer-column">
+            <h4>Learn</h4>
+            <Link href="/learn#what-is-ipo">IPO Basics</Link>
+            <Link href="/learn#key-terms">Glossary</Link>
+            <Link href="/learn#analyze-ipo">How IPO Score Works</Link>
+            <Link href="/learn#sme-ipo">SME IPOs</Link>
+          </div>
+
+          <div className="site-footer-column">
+            <h4>Company</h4>
+            <Link href="/methodology">Methodology</Link>
+            <Link href="/ai-disclosure">AI Disclosure</Link>
+            <Link href="/terms">Terms of Use</Link>
+            <Link href="/privacy-policy">Privacy Policy</Link>
+          </div>
+
+          <div className="site-footer-column site-footer-updates">
+            <h4>Stay Updated</h4>
+            <p>Get IPO alerts, research and insights delivered to your inbox.</p>
+            <FooterSubscribeForm />
           </div>
         </div>
 
-        {/* Footer Bottom: Copyright */}
-        <div style={{
-          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
-          paddingTop: "16px",
-          display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "12px",
-          color: "rgba(255, 255, 255, 0.4)",
-          fontSize: "11px"
-        }}>
+        <div className="site-footer-bottom">
           <span>© {new Date().getFullYear()} IPO Lens. All rights reserved.</span>
-          <span>Created for educational review and retail investor awareness. GMP and subscription data sourced from <a href="https://ipoguru.in" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255, 255, 255, 0.5)", textDecoration: "underline" }}>IPO Guru API</a>.</span>
+          <span>
+            Disclaimer: IPO Lens is an educational platform. We do not provide investment advice or recommendations.
+          </span>
         </div>
       </div>
     </footer>

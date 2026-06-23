@@ -1,15 +1,32 @@
-import { Activity, AlertTriangle, BarChart3, Search, Signal, TrendingUp, ShieldCheck, Sparkles, GraduationCap } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  FileText,
+  GraduationCap,
+  PieChart,
+  Search,
+  ShieldAlert,
+  ShieldCheck,
+  Signal,
+  Sparkles,
+  Target,
+  TrendingUp,
+  UsersRound,
+} from "lucide-react";
+import Link from "next/link";
 import IPOCard from "@/components/ipo/IPOCard";
-import FeaturedIPOCard from "@/components/ipo/FeaturedIPOCard";
-import MarketSummaryCard from "@/components/ipo/MarketSummaryCard";
 import TodayIPOCalendar from "@/components/ipo/TodayIPOCalendar";
-import WatchlistPanel from "@/components/ipo/WatchlistPanel";
 import HeroWatermark from "@/components/ui/HeroWatermark";
 import { ButtonLink } from "@/components/ui/Button";
-import NewsletterForm from "@/components/ui/NewsletterForm";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 import { getComputedIPOs } from "@/lib/ipoData";
 import { calculateScore, estimateListingGainPct } from "@/lib/scoring";
-import { cleanAndFilterFinancials } from "@/lib/mappers/researchMapper";
+import { cleanAndFilterFinancials, extractDomain, guessCompanyDomain } from "@/lib/mappers/researchMapper";
 import type { ComputedIPO } from "@/types/ipo";
 export const dynamic = "force-dynamic";
 
@@ -21,27 +38,95 @@ interface DashboardPageProps {
   };
 }
 
-type DashboardFilter = "all" | "open" | "upcoming" | "closed" | "sme" | "strong" | "watchlist";
+type DashboardFilter = "all" | "mainboard" | "sme" | "open" | "upcoming" | "listed";
 type DashboardSort = "score" | "gmp" | "close";
 
 const filters: { label: string; value: DashboardFilter }[] = [
   { label: "All", value: "all" },
-  { label: "Open", value: "open" },
-  { label: "Upcoming", value: "upcoming" },
-  { label: "Closed", value: "closed" },
+  { label: "Mainboard", value: "mainboard" },
   { label: "SME", value: "sme" },
-  { label: "Strong", value: "strong" },
-  { label: "Watchlist", value: "watchlist" },
+  { label: "Open Now", value: "open" },
+  { label: "Upcoming", value: "upcoming" },
+  { label: "Listed", value: "listed" },
+];
+
+const thinkingSteps = [
+  {
+    icon: CalendarDays,
+    title: "IPO Opens",
+    copy: "We track issue dates, price band and initial signals.",
+    tone: "green",
+  },
+  {
+    icon: TrendingUp,
+    title: "GMP Moves",
+    copy: "Grey market premium gives early sentiment, not certainty.",
+    tone: "blue",
+  },
+  {
+    icon: UsersRound,
+    title: "Demand Builds",
+    copy: "Subscription data shows interest across investor categories.",
+    tone: "purple",
+  },
+  {
+    icon: FileText,
+    title: "Fundamentals Checked",
+    copy: "Financials, business model and peer context are reviewed.",
+    tone: "cyan",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Risks Flagged",
+    copy: "Key risks and caution areas are surfaced in plain English.",
+    tone: "amber",
+  },
+  {
+    icon: Target,
+    title: "Final Score",
+    copy: "All factors combine into an educational IPO score.",
+    tone: "emerald",
+  },
+];
+
+const learnCards = [
+  {
+    icon: BookOpen,
+    href: "/learn#gmp",
+    title: "Why GMP is not enough",
+    copy: "Understand the limits of grey market premium.",
+    tone: "green",
+  },
+  {
+    icon: PieChart,
+    href: "/learn#analyze-ipo",
+    title: "How IPO Score works",
+    copy: "Learn the factors behind our rule-based score.",
+    tone: "blue",
+  },
+  {
+    icon: Activity,
+    href: "/learn#sme-ipo",
+    title: "Mainboard vs SME IPO",
+    copy: "Key differences every investor should know.",
+    tone: "purple",
+  },
+  {
+    icon: BarChart3,
+    href: "/learn#key-terms",
+    title: "How to read subscription data",
+    copy: "Retail, HNI, QIB and total demand in simple terms.",
+    tone: "amber",
+  },
 ];
 
 function filterValue(value: string | undefined): DashboardFilter {
   if (
+    value === "mainboard" ||
     value === "open" ||
     value === "upcoming" ||
-    value === "closed" ||
     value === "sme" ||
-    value === "strong" ||
-    value === "watchlist"
+    value === "listed"
   ) {
     return value;
   }
@@ -87,20 +172,16 @@ function filteredIPOs(ipos: ComputedIPO[], filter: DashboardFilter, query: strin
     rows = rows.filter((ipo) => ipo.status === filter);
   }
 
-  if (filter === "closed") {
-    rows = rows.filter((ipo) => ipo.status === "closed" || ipo.status === "listed");
-  }
-
   if (filter === "sme") {
     rows = rows.filter((ipo) => ipo.category === "sme");
   }
 
-  if (filter === "strong") {
-    rows = rows.filter((ipo) => calculatedScore(ipo).score >= 71);
+  if (filter === "mainboard") {
+    rows = rows.filter((ipo) => ipo.category === "mainboard");
   }
 
-  if (filter === "watchlist") {
-    rows = rows.filter((ipo) => calculatedScore(ipo).score >= 60 || ipo.status === "open");
+  if (filter === "listed") {
+    rows = rows.filter((ipo) => ipo.status === "listed" || ipo.status === "closed");
   }
 
   if (!normalizedQuery) {
@@ -159,6 +240,159 @@ function strongestIPO(ipos: ComputedIPO[]) {
   return sortedIPOs(ipos, "score")[0] ?? null;
 }
 
+function scoreSignalLabel(score: number) {
+  if (score >= 71) {
+    return "Positive Outlook";
+  }
+
+  if (score >= 51) {
+    return "Balanced Outlook";
+  }
+
+  return "Needs More Research";
+}
+
+function scoreToneClass(score: number) {
+  if (score >= 71) {
+    return "strong";
+  }
+
+  if (score >= 51) {
+    return "moderate";
+  }
+
+  return "weak";
+}
+
+function priceBandLabel(ipo: ComputedIPO | null) {
+  if (!ipo?.price_band_low || !ipo.price_band_high) {
+    return "—";
+  }
+
+  return `₹${ipo.price_band_low} - ₹${ipo.price_band_high}`;
+}
+
+function lotSizeLabel(ipo: ComputedIPO | null) {
+  if (!ipo?.lot_size) {
+    return "—";
+  }
+
+  return `${ipo.lot_size.toLocaleString("en-IN")} Shares`;
+}
+
+function ipoSubtitle(ipo: ComputedIPO | null) {
+  if (!ipo) {
+    return "Indian IPO research";
+  }
+
+  const sector = ipo.company_profile?.sector ?? ipo.company_profile?.industry ?? "IPO research";
+  const location = ipo.company_profile?.headquarters;
+
+  return location ? `${sector} · ${location}` : sector;
+}
+
+function ipoDescription(ipo: ComputedIPO | null) {
+  if (!ipo) {
+    return "A clean IPO research view with score, GMP, subscription demand, risks and plain-English summaries.";
+  }
+
+  return (
+    ipo.company_profile?.company_overview ||
+    ipo.company_profile?.business_model ||
+    "Research this IPO through GMP, demand, financials, valuation comfort and risk signals before making your own decision."
+  );
+}
+
+function homeScorePoints(ipo: ComputedIPO | null, score: number) {
+  const premium = ipo ? gmpPct(ipo) : 0;
+  const totalDemand = ipo?.latest_subscription?.total_x ?? 0;
+
+  return [
+    totalDemand > 0 ? "Subscription demand is tracked across investor categories" : "Subscription data will update as bidding progresses",
+    premium > 0 ? "GMP momentum is visible, but remains unofficial" : "GMP is currently muted or unavailable",
+    score >= 60 ? "Financial and issue details support the current score" : "Available fundamentals need more careful review",
+    ipo?.category === "sme" ? "SME IPO needs extra caution on liquidity and volatility" : "Risks and valuation comfort are reviewed together",
+  ];
+}
+
+function HomeFeaturedIPO({ ipo, score }: { ipo: ComputedIPO | null; score: number }) {
+  const premium = ipo ? gmpPct(ipo) : 0;
+  const totalDemand = ipo?.latest_subscription?.total_x ?? 0;
+  const domain = ipo ? extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name) : null;
+  const scoreTone = scoreToneClass(score);
+  const points = homeScorePoints(ipo, score);
+
+  return (
+    <article className="home-featured-card">
+      <div className="home-featured-company">
+        <p className="home-section-kicker">Today&apos;s Featured IPO</p>
+        <div className="home-featured-title-row">
+          <div className="home-company-logo">
+            {ipo ? <CompanyLogo domain={domain} name={ipo.name} /> : <span>IPO</span>}
+          </div>
+          <div>
+            <h2>{ipo?.name ?? "Featured IPO"}</h2>
+            <p>{ipoSubtitle(ipo)}</p>
+          </div>
+          <span className="home-category-pill">{ipo?.category === "sme" ? "SME" : "Mainboard"}</span>
+        </div>
+        <p className="home-featured-description">{ipoDescription(ipo)}</p>
+        <div className="home-featured-status-row">
+          <span className={`home-signal-pill ${scoreTone}`}>Good</span>
+          <span className={`home-signal-pill ${scoreTone}`}>{scoreSignalLabel(score)}</span>
+          {ipo ? (
+            <Link href={`/ipo/${ipo.slug}`}>View Full Analysis <ArrowRight size={14} /></Link>
+          ) : null}
+        </div>
+      </div>
+
+      <div className={`home-featured-score ${scoreTone}`} aria-label={`IPO score ${score} out of 100`}>
+        <div className="home-featured-score-ring" style={{ ["--score" as string]: `${Math.min(Math.max(score, 0), 100) * 3.6}deg` }}>
+          <div>
+            <strong>{score}</strong>
+            <span>/100</span>
+          </div>
+        </div>
+        <p>IPO Score</p>
+      </div>
+
+      <div className="home-featured-details">
+        <div className="home-featured-metrics">
+          <div>
+            <span>GMP</span>
+            <strong>{premium >= 0 ? "+" : ""}{premium.toFixed(1)}%</strong>
+            <small>{ipo?.latest_gmp ? `₹${ipo.latest_gmp}` : "Unofficial"}</small>
+          </div>
+          <div>
+            <span>Subscription</span>
+            <strong>{totalDemand ? `${totalDemand.toFixed(totalDemand >= 10 ? 0 : 1)}x` : "—"}</strong>
+            <small>Demand</small>
+          </div>
+          <div>
+            <span>Price Band</span>
+            <strong>{priceBandLabel(ipo)}</strong>
+            <small>Per share</small>
+          </div>
+          <div>
+            <span>Lot Size</span>
+            <strong>{lotSizeLabel(ipo)}</strong>
+            <small>Minimum lot</small>
+          </div>
+        </div>
+
+        <div className="home-why-score">
+          <h3>Why this score?</h3>
+          <div>
+            {points.map((point) => (
+              <p key={point}><CheckCircle2 size={15} /> {point}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const filter = filterValue(searchParams?.filter);
   const sort = sortValue(searchParams?.sort);
@@ -169,9 +403,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const featuredScore = featured ? calculatedScore(featured) : { label: "Neutral signal", score: 0 };
   const openCount = allIPOs.filter((ipo) => ipo.status === "open").length;
   const strongCount = allIPOs.filter((ipo) => calculatedScore(ipo).score >= 71).length;
-  const dataAlerts = allIPOs.filter((ipo) => ipo.latest_gmp === null || !ipo.latest_subscription).length;
   const avgGMP = averageGMP(allIPOs);
-  const sparkline = allIPOs.map((ipo) => Math.max(0, gmpPct(ipo)));
+  const featuredPremium = featured ? gmpPct(featured) : avgGMP;
+  const featuredSubscription = featured?.latest_subscription?.total_x ?? 0;
+  const featuredScoreTone = scoreToneClass(featuredScore.score);
+  const featuredSignalLabel = scoreSignalLabel(featuredScore.score);
+  const featuredRiskLabel = featured?.category === "sme" ? "SME Caution" : "Moderate";
 
   return (
     <main className="dashboard-page">
@@ -187,42 +424,46 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         <div className="shell premium-hero-grid">
           <div className="premium-hero-copy">
-            <div className="premium-pill">
-              <span />
-              Indian IPO research dashboard • Educational only
+            <div className="home-hero-pill-row">
+              <div className="premium-pill">
+                <span />
+                INDIAN IPO INTELLIGENCE
+              </div>
+              <span className="home-hero-mini-pill">Rule-based Score</span>
+              <span className="home-hero-mini-pill">Educational Only</span>
             </div>
-            <h1>IPO research, without the market noise.</h1>
+            <h1>See the full IPO story <span>before you apply.</span></h1>
             <p>
-              Track live IPOs, GMP sentiment, subscription demand, financials, risks and plain-English summaries in one calm research view.
+              Track GMP, demand, fundamentals, valuation comfort, risks and AI summaries in one clean research view.
             </p>
-
-            {/* Custom Premium Feature Pills */}
-            <div className="premium-feature-pills">
-              <div className="feature-pill">
-                <ShieldCheck size={16} className="text-blue-600" />
-                <span>Rule-based score</span>
-              </div>
-              <div className="feature-pill">
-                <Sparkles size={16} className="text-purple-600" />
-                <span>AI summaries</span>
-              </div>
-              <div className="feature-pill">
-                <TrendingUp size={16} className="text-green-600" />
-                <span>GMP tracking</span>
-              </div>
-              <div className="feature-pill">
-                <GraduationCap size={16} className="text-amber-500" />
-                <span>Educational only</span>
-              </div>
-            </div>
 
             <div className="premium-hero-actions">
               <ButtonLink href="#ipos" variant="primary">
                 Explore Live IPOs →
               </ButtonLink>
-              <ButtonLink href={featured ? `/ipo/${featured.slug}` : "/calendar"} variant="secondary">
-                Open Sample Analysis
+              <ButtonLink href="#methodology" variant="secondary">
+                See How Score Works
               </ButtonLink>
+            </div>
+
+            {/* Custom Premium Feature Pills */}
+            <div className="premium-feature-pills">
+              <div className="feature-pill">
+                <ShieldCheck size={16} className="text-blue-600" />
+                <span>Live Market Data</span>
+              </div>
+              <div className="feature-pill">
+                <Signal size={16} className="text-blue-600" />
+                <span>Rule-based Score</span>
+              </div>
+              <div className="feature-pill">
+                <Sparkles size={16} className="text-purple-600" />
+                <span>AI Summaries</span>
+              </div>
+              <div className="feature-pill">
+                <GraduationCap size={16} className="text-amber-500" />
+                <span>Retail Focused</span>
+              </div>
             </div>
 
             <div className="premium-hero-stats" aria-label="IPO Lens market snapshot">
@@ -242,54 +483,97 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </div>
           </div>
 
-          <div className="premium-hero-showcase">
-            <div className="premium-showcase-halo" aria-hidden="true" />
-            <div className="premium-floating-badge premium-floating-badge-top" aria-hidden="true">
-              <Activity size={16} />
-              <span>Live IPOs</span>
-              <strong>{openCount}</strong>
+          <div className="home-score-stage" aria-label={`IPO Lens score ${featuredScore.score} out of 100`}>
+            <div className="home-score-halo" aria-hidden="true" />
+            <div className="home-score-orbit home-score-orbit-one" aria-hidden="true" />
+            <div className="home-score-orbit home-score-orbit-two" aria-hidden="true" />
+            <div className="home-score-orbit home-score-orbit-three" aria-hidden="true" />
+            <div className={`home-score-center ${featuredScoreTone}`}>
+              <span>IPO Score</span>
+              <strong>{featuredScore.score}<em>/100</em></strong>
+              <p>{featuredSignalLabel}</p>
             </div>
-            <div className="premium-floating-badge premium-floating-badge-bottom" aria-hidden="true">
-              <TrendingUp size={16} />
-              <span>Avg GMP</span>
-              <strong>{avgGMP >= 0 ? "+" : ""}{avgGMP.toFixed(1)}%</strong>
+            <div className="home-score-arc home-score-arc-green" aria-hidden="true" />
+            <div className="home-score-arc home-score-arc-blue" aria-hidden="true" />
+            <div className="home-score-arc home-score-arc-amber" aria-hidden="true" />
+            <div className="home-score-dot home-score-dot-one" aria-hidden="true" />
+            <div className="home-score-dot home-score-dot-two" aria-hidden="true" />
+            <div className="home-score-dot home-score-dot-three" aria-hidden="true" />
+            <div className="home-score-dot home-score-dot-four" aria-hidden="true" />
+
+            <div className="home-signal-card home-signal-gmp">
+              <TrendingUp size={18} />
+              <span>GMP Momentum</span>
+              <strong>{featuredPremium >= 0 ? "+" : ""}{featuredPremium.toFixed(1)}%</strong>
             </div>
-            <FeaturedIPOCard ipo={featured} label={featuredScore.label} score={featuredScore.score} />
+            <div className="home-signal-card home-signal-subscription">
+              <UsersRound size={18} />
+              <span>Subscription</span>
+              <strong>{featuredSubscription ? `${featuredSubscription.toFixed(0)}x` : "TBA"}</strong>
+            </div>
+            <div className="home-signal-card home-signal-fundamentals">
+              <FileText size={18} />
+              <span>Fundamentals</span>
+              <strong>{featuredScore.score >= 60 ? "Strong" : "Review"}</strong>
+            </div>
+            <div className="home-signal-card home-signal-valuation">
+              <Target size={18} />
+              <span>Valuation</span>
+              <strong>{featuredScore.score >= 60 ? "Comfortable" : "Review"}</strong>
+            </div>
+            <div className="home-signal-card home-signal-risk">
+              <AlertTriangle size={18} />
+              <span>Risk Assessment</span>
+              <strong>{featuredRiskLabel}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section home-featured-section">
+        <div className="shell">
+          <HomeFeaturedIPO ipo={featured} score={featuredScore.score} />
+        </div>
+      </section>
+
+      <section className="section home-thinking-section" id="methodology">
+        <div className="shell">
+          <div className="section-head home-centered-head">
+            <div>
+              <h2>How <span>IPO Lens</span> thinks</h2>
+              <p>Our research process turns scattered IPO data into a clearer educational view.</p>
+            </div>
+          </div>
+
+          <div className="home-thinking-card" aria-label="IPO Lens research process">
+            {thinkingSteps.map((step, index) => {
+              const Icon = step.icon;
+
+              return (
+                <div className="home-thinking-step" data-tone={step.tone} key={step.title}>
+                  <div className="home-thinking-icon">
+                    <Icon size={24} />
+                    <small>{index + 1}</small>
+                  </div>
+                  <h3>{step.title}</h3>
+                  <p>{step.copy}</p>
+                  {index < thinkingSteps.length - 1 ? <span className="home-thinking-arrow" aria-hidden="true" /> : null}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       <TodayIPOCalendar ipos={allIPOs} />
 
-      <section className="section market-summary-section">
-        <div className="shell market-summary-grid">
-          <MarketSummaryCard accent="blue" explanation="Mainboard + SME" icon={<Activity size={22} />} label="Open IPOs" value={openCount.toString()} />
-          <MarketSummaryCard
-            accent={avgGMP >= 0 ? "green" : "red"}
-            explanation="Unofficial premium"
-            icon={<TrendingUp size={22} />}
-            label="Average GMP"
-            sparkline={sparkline}
-            value={`${avgGMP >= 0 ? "+" : ""}${avgGMP.toFixed(1)}%`}
-          />
-          <MarketSummaryCard accent="blue" explanation="Score above 70" icon={<Signal size={22} />} label="Strong Research Signals" value={strongCount.toString()} />
-          <MarketSummaryCard
-            accent={dataAlerts > 0 ? "amber" : "blue"}
-            explanation="Stale or incomplete data"
-            icon={<AlertTriangle size={22} />}
-            label="Data Alerts"
-            value={dataAlerts.toString()}
-          />
-        </div>
-      </section>
-
       <section className="section" id="ipos">
-        <div className="shell signals-layout">
+        <div className="shell home-research-layout">
           <div>
             <div className="section-head compact">
               <div>
                 <h2>Live IPO Research</h2>
-                <p>Real-time tracking of open and upcoming issues. Click a card to view full analysis.</p>
+                <p>Track open and upcoming issues through score, GMP, demand and risk context.</p>
                 <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "6px", fontWeight: "600" }}>
                   Last updated: {new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}. IPO data changes frequently. Please verify final details from official sources before applying.
                 </div>
@@ -331,11 +615,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             {visibleIPOs.length > 0 ? (
               <>
                 <div className="ipo-grid premium-ipo-grid">
-                  {visibleIPOs.slice(0, 8).map((ipo, index) => (
+                  {visibleIPOs.slice(0, 12).map((ipo, index) => (
                     <IPOCard index={index} ipo={ipo} key={ipo.id} />
                   ))}
                 </div>
-                {visibleIPOs.length > 8 ? (
+                {visibleIPOs.length > 12 ? (
                   <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
                     <ButtonLink href="/#ipos" variant="secondary">
                       View more IPO signals →
@@ -347,30 +631,61 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <div className="empty-card">No IPOs found for this filter.</div>
             )}
           </div>
-
-          <WatchlistPanel ipos={allIPOs} />
         </div>
       </section>
 
-      {/* Newsletter Signup Form */}
-      <section className="section" style={{ padding: "0 0 48px 0" }}>
+      <section className="section home-learn-section">
         <div className="shell">
-          <NewsletterForm />
+          <div className="section-head compact">
+            <div>
+              <h2>New to IPOs? Learn before you apply.</h2>
+              <p>Simple guides that explain IPO terms, risks and process in beginner-friendly English.</p>
+            </div>
+            <ButtonLink href="/learn" variant="secondary">
+              Explore Learn <ArrowRight size={15} />
+            </ButtonLink>
+          </div>
+
+          <div className="home-learn-grid">
+            {learnCards.map((card) => {
+              const Icon = card.icon;
+
+              return (
+                <a className="home-learn-card" data-tone={card.tone} href={card.href} key={card.title}>
+                  <span className="home-learn-icon">
+                    <Icon size={26} />
+                  </span>
+                  <h3>{card.title}</h3>
+                  <p>{card.copy}</p>
+                  <strong>Read More <ArrowRight size={14} /></strong>
+                </a>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      <section className="section methodology-section" id="methodology">
-        <div className="shell methodology-card" id="analysis-engine">
+      <section className="section home-trust-section">
+        <div className="shell home-trust-grid">
           <div>
-            <h2>Score Methodology</h2>
-            <p>
-              IPO Lens combines fundamentals, subscription demand, valuation comfort, GMP momentum, anchor quality, risk and objects of the issue.
-              GMP is unofficial market sentiment, not a guaranteed listing outcome.
-            </p>
+            <ShieldCheck size={22} />
+            <strong>Rule-based & transparent</strong>
+            <span>No hidden recommendation language</span>
           </div>
-          <div className="methodology-metrics">
-            <span><BarChart3 size={16} /> Rule-based score</span>
-            <span><AlertTriangle size={16} /> Educational research only</span>
+          <div>
+            <FileText size={22} />
+            <strong>Data from trusted sources</strong>
+            <span>BSE, NSE, SEBI and public filings</span>
+          </div>
+          <div>
+            <GraduationCap size={22} />
+            <strong>For educational purposes</strong>
+            <span>Not investment advice</span>
+          </div>
+          <div>
+            <CheckCircle2 size={22} />
+            <strong>Trusted by retail investors</strong>
+            <span>Plain-English research clarity</span>
           </div>
         </div>
       </section>

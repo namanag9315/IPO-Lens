@@ -7,7 +7,6 @@ import { calculateScore, estimateListingGainPct } from "@/lib/scoring";
 import type { AIAnalysisLabel, ComputedIPO, IPOStatus } from "@/types/ipo";
 import { extractDomain, cleanAndFilterFinancials, guessCompanyDomain } from "@/lib/mappers/researchMapper";
 import CompanyLogo from "@/components/ui/CompanyLogo";
-import LearnButton from "@/components/learn/LearnButton";
 import ScoreRing from "@/components/ui/ScoreRing";
 
 interface IPOCardProps {
@@ -71,6 +70,30 @@ function formatDateRange(openDate: string | null, closeDate: string | null) {
   }
 }
 
+function priceBand(ipo: ComputedIPO) {
+  if (!ipo.price_band_low || !ipo.price_band_high) {
+    return "—";
+  }
+
+  return `₹${ipo.price_band_low} - ₹${ipo.price_band_high}`;
+}
+
+function closeLabel(ipo: ComputedIPO) {
+  if (ipo.status === "listed") {
+    return "Listed";
+  }
+
+  if (!ipo.close_date) {
+    return ipo.status === "upcoming" ? "Upcoming" : "—";
+  }
+
+  try {
+    return format(new Date(ipo.close_date), "dd MMM yyyy");
+  } catch {
+    return "—";
+  }
+}
+
 function cleanLabelForUI(label: string): string {
   const l = label.trim();
   if (l === "Strong Apply") return "Strong Research";
@@ -116,16 +139,18 @@ export default function IPOCard({ ipo, index }: IPOCardProps) {
         <Badge tone={statusTone(ipo.status)}>{ipo.status.toUpperCase()}</Badge>
       </div>
 
-      <div className="ipo-signal-metrics">
-        <div>
-          <span className="tooltip-trigger" data-tooltip="IPO Lens Score is a rule-based educational signal based on available data such as financials, valuation, GMP, subscription, issue details and risk factors. It is not a recommendation or guarantee of returns.">
-            Score ⓘ
-          </span>
-          <div className="flex flex-col items-center gap-1.5 mt-1">
-            <ScoreRing score={signal.score} size={48} />
-            <em className={tone}>{cleanLabelForUI(signal.label)}</em>
-          </div>
+      <div className="ipo-card-score-panel">
+        <div className="ipo-card-score-ring">
+          <ScoreRing score={signal.score} size={72} />
         </div>
+        <div>
+          <span>IPO Score</span>
+          <strong>{signal.score}<em>/100</em></strong>
+          <p className={tone}>{cleanLabelForUI(signal.label)}</p>
+        </div>
+      </div>
+
+      <div className="ipo-signal-metrics">
         <div>
           <span className="tooltip-trigger" data-tooltip="GMP is unofficial grey market information and may be inaccurate, volatile or misleading. It is not a guaranteed indicator of listing price or returns.">
             GMP ⓘ
@@ -136,20 +161,22 @@ export default function IPOCard({ ipo, index }: IPOCardProps) {
           </strong>
         </div>
         <div>
-          <span>Subs. (x)</span>
-          <strong className="mono">{totalSubscription ? `${totalSubscription.toFixed(0)}x` : "NA"}</strong>
+          <span>Subscription</span>
+          <strong className="mono">{totalSubscription ? `${totalSubscription.toFixed(0)}x` : "—"}</strong>
+        </div>
+        <div>
+          <span>Price Band</span>
+          <strong className="mono">{priceBand(ipo)}</strong>
+        </div>
+        <div>
+          <span>Closes On</span>
+          <strong className="mono">{closeLabel(ipo)}</strong>
         </div>
       </div>
 
       <div className="ipo-signal-foot">
-        <span>{ipo.company_profile?.sector ?? "Sector NA"}</span>
+        <span className={`home-signal-pill ${tone}`}>{cleanLabelForUI(signal.label)}</span>
         <Bookmark aria-hidden="true" size={16} />
-      </div>
-
-      <div aria-label="Learn IPO terms" className="ipo-card-learn-actions">
-        <LearnButton topic="ipoScore" variant="link" />
-        <LearnButton topic="gmp" variant="icon" />
-        <LearnButton topic="subscription" variant="icon" />
       </div>
     </Card>
   );

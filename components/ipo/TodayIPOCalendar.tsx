@@ -65,7 +65,7 @@ export default function TodayIPOCalendar({ ipos }: { ipos: ComputedIPO[] }) {
       <div className="shell">
         <div className="section-head compact">
           <div>
-            <h2 id="today-ipo-calendar">Today&apos;s IPO Calendar</h2>
+            <h2 id="today-ipo-calendar">Today&apos;s IPO Command Center</h2>
             <p>Snapshot of today&apos;s IPO activity · <span className="mono">{format(new Date(), "dd MMM yyyy")}</span></p>
           </div>
         </div>
