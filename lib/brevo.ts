@@ -69,7 +69,6 @@ export async function subscribeEmail(email: string, listId: number = DEFAULT_LIS
 export async function sendCampaign(subject: string, htmlContent: string, listId: number = DEFAULT_LIST_ID) {
   // 1. Create the campaign
   const campaignResponse = await brevoRequest("/emailCampaigns", {
-    tag: "IPO Updates",
     sender: {
       name: SENDER_NAME,
       email: SENDER_EMAIL,
