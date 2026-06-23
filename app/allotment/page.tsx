@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import AllotmentCheckForm from "@/components/allotment/AllotmentCheckForm";
 import AllotmentPrivacyNotice from "@/components/allotment/AllotmentPrivacyNotice";
 import RecentAllotments from "@/components/allotment/RecentAllotments";
 import { getAllotmentEligibleIPOs } from "@/lib/allotment/data";
+
+export const metadata: Metadata = {
+  title: "IPO Allotment Status Checker - IPO Lens",
+  description: "Check your IPO allotment status online. Instant checks for all recent Indian IPOs using PAN or application number.",
+};
 
 export default async function AllotmentPage({ searchParams }: { searchParams: { ipo?: string } }) {
   const ipos = await getAllotmentEligibleIPOs();

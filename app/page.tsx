@@ -8,6 +8,8 @@ import {
   CheckCircle2,
   FileText,
   GraduationCap,
+  Mail,
+  MessageCircle,
   PieChart,
   Search,
   ShieldAlert,
@@ -27,8 +29,17 @@ import CompanyLogo from "@/components/ui/CompanyLogo";
 import { getComputedIPOs } from "@/lib/ipoData";
 import { calculateScore, estimateListingGainPct } from "@/lib/scoring";
 import { cleanAndFilterFinancials, extractDomain, guessCompanyDomain } from "@/lib/mappers/researchMapper";
+import { getWhatsAppTrialHref } from "@/lib/updateLinks";
+import type { Metadata } from "next";
 import type { ComputedIPO } from "@/types/ipo";
+
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "IPO Lens — Indian IPO Intelligence, Live GMP & AI Analysis",
+  description: "Track live Grey Market Premium (GMP), daily subscription status, listing performance, and AI-powered strength/weakness analysis for Indian Mainboard & SME IPOs.",
+};
+
 
 interface DashboardPageProps {
   searchParams?: {
@@ -409,6 +420,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const featuredScoreTone = scoreToneClass(featuredScore.score);
   const featuredSignalLabel = scoreSignalLabel(featuredScore.score);
   const featuredRiskLabel = featured?.category === "sme" ? "SME Caution" : "Moderate";
+  const whatsappTrialHref = getWhatsAppTrialHref();
 
   return (
     <main className="dashboard-page">
@@ -444,6 +456,24 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <ButtonLink href="#methodology" variant="secondary">
                 See How Score Works
               </ButtonLink>
+            </div>
+
+            <div aria-label="IPO update subscriptions" className="home-updates-actions">
+              <ButtonLink className="home-email-updates" href="#email-updates" variant="secondary">
+                <Mail size={16} />
+                Email updates
+              </ButtonLink>
+              <a
+                aria-label="Start 15-day free WhatsApp IPO updates trial"
+                className="ui-button ui-button-whatsapp home-whatsapp-updates"
+                href={whatsappTrialHref}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <MessageCircle size={16} />
+                <span>WhatsApp updates</span>
+                <small>Free 15 days</small>
+              </a>
             </div>
 
             {/* Custom Premium Feature Pills */}

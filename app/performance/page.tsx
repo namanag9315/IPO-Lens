@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { getPerformanceRows } from "@/lib/ipoData";
+
+export const metadata: Metadata = {
+  title: "IPO Listing Performance Tracker & Listing Gains - IPO Lens",
+  description: "Analyze the listing performance, listing gains, and AI analysis accuracy of recent Indian IPOs. Track listing gains against closed GMP details.",
+};
 
 type PerformanceRows = Awaited<ReturnType<typeof getPerformanceRows>>;
 

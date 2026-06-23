@@ -45,6 +45,8 @@ import {
 import AskAIInteractive from "@/components/ipo/AskAIInteractive";
 import LearnButton from "@/components/learn/LearnButton";
 
+import type { Metadata } from "next";
+
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -52,6 +54,25 @@ interface PageProps {
     slug: string;
   };
 }
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const ipo = await getComputedIPOBySlug(params.slug);
+  if (!ipo) {
+    return {
+      title: "IPO Details - IPO Lens",
+    };
+  }
+
+  const name = ipo.name || "IPO";
+  const gmpText = ipo.latest_gmp ? ` (GMP: ₹${ipo.latest_gmp})` : "";
+  const typeText = ipo.category === "sme" ? "SME IPO" : "Mainboard IPO";
+
+  return {
+    title: `${name} ${typeText} Details, GMP, Subscription & AI Analysis - IPO Lens`,
+    description: `Track live GMP, daily subscription status, lot size, listing performance, and AI-powered strength/weakness analysis for ${name}${gmpText}.`,
+  };
+}
+
 
 function formatDateLabel(val: string | null | undefined) {
   if (!val) return "TBA";
