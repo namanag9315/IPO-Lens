@@ -94,11 +94,13 @@ export default function IPOCard({ ipo, index }: IPOCardProps) {
     >
       {/* 1. Header Section */}
       <div className="card-header-row">
-        <div className="card-logo-container">
-          <CompanyLogo
-            domain={extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name)}
-            name={ipo.name}
-          />
+        <div className="logo-col">
+          <div className="card-logo-container">
+            <CompanyLogo
+              domain={extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name)}
+              name={ipo.name}
+            />
+          </div>
         </div>
         <div className="info-col">
           <div className="title-row">
