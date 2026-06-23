@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { Bookmark } from "lucide-react";
-import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import { calculateScore, estimateListingGainPct } from "@/lib/scoring";
-import type { AIAnalysisLabel, ComputedIPO, IPOStatus } from "@/types/ipo";
+import type { ComputedIPO } from "@/types/ipo";
 import { extractDomain, cleanAndFilterFinancials, guessCompanyDomain } from "@/lib/mappers/researchMapper";
 import CompanyLogo from "@/components/ui/CompanyLogo";
 import ScoreRing from "@/components/ui/ScoreRing";
@@ -14,7 +13,7 @@ interface IPOCardProps {
   index: number;
 }
 
-function derivedScore(ipo: ComputedIPO): { label: AIAnalysisLabel; score: number } {
+function derivedScore(ipo: ComputedIPO) {
   return calculateScore({
     anchorInvestors: ipo.anchor_investors,
     anchorSummary: ipo.anchor_summary,
@@ -32,49 +31,10 @@ function derivedScore(ipo: ComputedIPO): { label: AIAnalysisLabel; score: number
   });
 }
 
-function scoreTone(score: number) {
-  if (score >= 71) {
-    return "strong";
-  }
-  if (score >= 51) {
-    return "moderate";
-  }
-  return "weak";
-}
-
-function statusTone(status: IPOStatus) {
-  if (status === "open") {
-    return "green";
-  }
-  if (status === "listed") {
-    return "blue";
-  }
-  if (status === "closed") {
-    return "slate";
-  }
-  return "amber";
-}
-
-function exchangeLine(ipo: ComputedIPO) {
-  return `${ipo.category === "sme" ? "SME" : "MAIN"} · NSE/BSE`;
-}
-
-function formatDateRange(openDate: string | null, closeDate: string | null) {
-  if (!openDate && !closeDate) return "";
-  try {
-    const openStr = openDate ? format(new Date(openDate), "d MMM") : "TBA";
-    const closeStr = closeDate ? format(new Date(closeDate), "d MMM") : "TBA";
-    return `${openStr} - ${closeStr}`;
-  } catch {
-    return "";
-  }
-}
-
 function priceBand(ipo: ComputedIPO) {
   if (!ipo.price_band_low || !ipo.price_band_high) {
     return "—";
   }
-
   return `₹${ipo.price_band_low} - ₹${ipo.price_band_high}`;
 }
 
@@ -82,11 +42,9 @@ function closeLabel(ipo: ComputedIPO) {
   if (ipo.status === "listed") {
     return "Listed";
   }
-
   if (!ipo.close_date) {
     return ipo.status === "upcoming" ? "Upcoming" : "—";
   }
-
   try {
     return format(new Date(ipo.close_date), "dd MMM yyyy");
   } catch {
@@ -94,29 +52,38 @@ function closeLabel(ipo: ComputedIPO) {
   }
 }
 
-function cleanLabelForUI(label: string): string {
-  const l = label.trim();
-  if (l === "Strong Apply") return "Strong Research";
-  if (l === "Apply") return "Positive Research";
-  if (l === "Neutral") return "Neutral Research";
-  if (l === "Avoid") return "Weak Research";
-  if (l === "Strong signal") return "Strong Research";
-  if (l === "Positive signal") return "Positive Research";
-  if (l === "Neutral signal") return "Neutral Research";
-  if (l === "Weak signal") return "Weak Research";
-  return l;
-}
-
 export default function IPOCard({ ipo, index }: IPOCardProps) {
   const signal = derivedScore(ipo);
   const premium = estimateListingGainPct(ipo.latest_gmp ?? 0, ipo.price_band_high) ?? 0;
   const totalSubscription = ipo.latest_subscription?.total_x ?? 0;
-  const tone = scoreTone(signal.score);
+
+  // Verdict mapping matching the premium financial layout
+  const cleanLabel = (signal.label ?? "").toLowerCase();
+  let verdictText = "Neutral";
+  let verdictClass = "neutral";
+  
+  if (signal.score >= 68 || cleanLabel.includes("apply") || cleanLabel.includes("strong")) {
+    verdictText = "Positive";
+    verdictClass = "positive";
+  } else if (signal.score <= 45 || cleanLabel.includes("avoid") || cleanLabel.includes("weak")) {
+    verdictText = "Avoid";
+    verdictClass = "avoid";
+  }
+
+  const sector = ipo.company_profile?.sector || "Financial Services";
+  const location = ipo.company_profile?.headquarters
+    ? ipo.company_profile.headquarters.split(",")[0].trim()
+    : "India";
+
+  const retailSubscription = ipo.latest_subscription?.retail_x;
+  const subscriptionSubtext = retailSubscription
+    ? `Retail: ${retailSubscription.toFixed(0)}x`
+    : "Total Demand";
 
   return (
     <Card
       as={Link}
-      className={`ipo-signal-card ${tone} status-${ipo.status}`}
+      className={`ipo-premium-card ${verdictClass}`}
       href={`/ipo/${ipo.slug}`}
       style={{
         animation: "row-in 200ms ease-out both",
@@ -125,58 +92,80 @@ export default function IPOCard({ ipo, index }: IPOCardProps) {
         color: "#1e293b",
       }}
     >
-      <div className="ipo-signal-top">
-        <div className="ipo-avatar relative flex items-center justify-center">
-          <CompanyLogo domain={extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name)} name={ipo.name} />
+      {/* 1. Header Section */}
+      <div className="card-header-row">
+        <div className="card-logo-container">
+          <CompanyLogo
+            domain={extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name)}
+            name={ipo.name}
+          />
         </div>
-        <div>
-          <h3>{ipo.name}</h3>
-          <p>
-            {exchangeLine(ipo)}
-            {formatDateRange(ipo.open_date, ipo.close_date) && ` • ${formatDateRange(ipo.open_date, ipo.close_date)}`}
-          </p>
-        </div>
-        <Badge tone={statusTone(ipo.status)}>{ipo.status.toUpperCase()}</Badge>
-      </div>
-
-      <div className="ipo-card-score-panel">
-        <div className="ipo-card-score-ring">
-          <ScoreRing score={signal.score} size={72} />
-        </div>
-        <div>
-          <span>IPO Score</span>
-          <strong>{signal.score}<em>/100</em></strong>
-          <p className={tone}>{cleanLabelForUI(signal.label)}</p>
+        <div className="info-col">
+          <div className="title-row">
+            <h3>{ipo.name}</h3>
+            <span className="category-badge">{ipo.category === "sme" ? "SME" : "MAIN"}</span>
+          </div>
+          <p className="sector-location-text">{sector} · {location}</p>
         </div>
       </div>
 
-      <div className="ipo-signal-metrics">
-        <div>
-          <span className="tooltip-trigger" data-tooltip="GMP is unofficial grey market information and may be inaccurate, volatile or misleading. It is not a guaranteed indicator of listing price or returns.">
-            GMP ⓘ
-          </span>
-          <strong className={`mono ${premium >= 0 ? "data-positive" : "data-negative"}`}>
-            {premium >= 0 ? "+" : ""}
-            {premium.toFixed(0)}%
-          </strong>
+      {/* 2. Score & Key Metrics Section */}
+      <div className="card-body-row">
+        <div className="score-ring-col">
+          <ScoreRing score={signal.score} size={64} />
+          <span className="score-ring-label">IPO SCORE</span>
         </div>
-        <div>
-          <span>Subscription</span>
-          <strong className="mono">{totalSubscription ? `${totalSubscription.toFixed(0)}x` : "—"}</strong>
-        </div>
-        <div>
-          <span>Price Band</span>
-          <strong className="mono">{priceBand(ipo)}</strong>
-        </div>
-        <div>
-          <span>Closes On</span>
-          <strong className="mono">{closeLabel(ipo)}</strong>
+
+        <div className="metrics-col">
+          <div className="metric-box">
+            <span className="metric-label">GMP</span>
+            <strong className={`metric-value ${premium >= 0 ? "text-green" : "text-red"}`}>
+              {premium >= 0 ? "+" : ""}
+              {premium.toFixed(1)}%
+            </strong>
+            <span className="metric-subtext">
+              {ipo.latest_gmp !== null ? `₹${ipo.latest_gmp}` : "—"}
+            </span>
+          </div>
+
+          <div className="metric-box">
+            <span className="metric-label">Subs</span>
+            <strong className="metric-value">
+              {totalSubscription ? `${totalSubscription.toFixed(1)}x` : "—"}
+            </strong>
+            <span className="metric-subtext">{subscriptionSubtext}</span>
+          </div>
         </div>
       </div>
 
-      <div className="ipo-signal-foot">
-        <span className={`home-signal-pill ${tone}`}>{cleanLabelForUI(signal.label)}</span>
-        <Bookmark aria-hidden="true" size={16} />
+      {/* 3. Details Row (Price Band & Closes On) */}
+      <div className="card-details-row">
+        <div className="detail-box">
+          <span className="detail-label">Price Band</span>
+          <strong className="detail-value">{priceBand(ipo)}</strong>
+        </div>
+        <div className="detail-box">
+          <span className="detail-label">Closes On</span>
+          <strong className="detail-value">{closeLabel(ipo)}</strong>
+        </div>
+      </div>
+
+      {/* 4. Footer Verdict Row */}
+      <div className="card-footer-row">
+        <span className={`verdict-badge ${verdictClass}`}>
+          <span className="verdict-dot" />
+          {verdictText}
+        </span>
+        <button
+          className="bookmark-btn"
+          aria-label="Bookmark IPO"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <Bookmark size={15} />
+        </button>
       </div>
     </Card>
   );
