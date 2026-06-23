@@ -8,6 +8,36 @@ export const metadata: Metadata = {
 
 const blogPosts = [
   {
+    slug: "advit-jewels",
+    title: "Advit Jewels IPO — Should You Apply? Score: 71/100",
+    excerpt: "Advit Jewels is launching a ₹18.4 Cr SME IPO. Backed by solid margins, high return on equity (29.7%), and fair post-issue multiples, here is our full review.",
+    coverIcon: "💎",
+    coverGradient: "linear-gradient(135deg, var(--ink) 0%, var(--green) 100%)",
+    date: "June 23, 2026",
+    readTime: "6 min read",
+    tag: "SME IPO Review",
+  },
+  {
+    slug: "csm-technologies",
+    title: "CSM Technologies IPO — Should You Apply? Score: 49/100",
+    excerpt: "GovTech provider CSM Technologies is launching a ₹450 Cr issue. Steady client contracts are held back by delayed receivables and high P/E valuation demands.",
+    coverIcon: "⚙️",
+    coverGradient: "linear-gradient(135deg, var(--ink) 0%, var(--amber) 100%)",
+    date: "June 23, 2026",
+    readTime: "6 min read",
+    tag: "IPO Review",
+  },
+  {
+    slug: "turtlemint-fintech-solutions",
+    title: "Turtlemint Fintech Solutions IPO — Should You Apply? Score: 20/100",
+    excerpt: "Turtlemint is planning a ₹620 Cr Mainboard IPO. With expanding net losses, negative net worth, and high Price/Sales demands, we analyze the discount risks.",
+    coverIcon: "🚨",
+    coverGradient: "linear-gradient(135deg, var(--ink) 0%, var(--red) 100%)",
+    date: "June 23, 2026",
+    readTime: "6 min read",
+    tag: "High-Risk IPO Review",
+  },
+  {
     slug: "jio-ipo-2026",
     title: "Jio IPO 2026: India's Biggest-Ever Listing, Explained",
     excerpt: "Everything you need to know about Jio Platforms' filing — the switch from OFS to fresh issue, financials, valuation, and what it means for retail investors.",
