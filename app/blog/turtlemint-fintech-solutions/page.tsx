@@ -106,7 +106,7 @@ export default function TurtlemintFintechIpoBlog() {
             </p>
 
             <p>
-              While insurance brokerage is a growing sector in India, Turtlemint’s business is heavily dependent on aggressive marketing spends, advisor commission cashbacks, and technology expenses for its core **Mintpro app** platform. This has pushed the company deep into the red. Earning a score of <strong>20/100</strong>, we analyze why this listing carries substantial capital loss risks.
+              While insurance brokerage is a growing sector in India, Turtlemint&apos;s business is heavily dependent on aggressive marketing spends, advisor commission cashbacks, and technology expenses for its core **Mintpro app** platform. This has pushed the company deep into the red. Earning a score of <strong>20/100</strong>, we analyze why this listing carries substantial capital loss risks.
             </p>
 
             <div className="blog-callout blog-callout-warning" style={{ background: "var(--red-soft)", borderLeftColor: "var(--red)" }}>
@@ -160,7 +160,7 @@ export default function TurtlemintFintechIpoBlog() {
 
             <h2 id="financials">Financial Performance Check: The Cash Burn</h2>
             <p>
-              A review of the company's financial sheets reveals a concerning trend of widening losses and heavy cash outflows:
+              A review of the company&apos;s financial sheets reveals a concerning trend of widening losses and heavy cash outflows:
             </p>
 
             <div style={{ overflowX: "auto", margin: "20px 0" }}>
@@ -203,7 +203,7 @@ export default function TurtlemintFintechIpoBlog() {
             </div>
 
             <p>
-              <strong>Critical Red Flag:</strong> Turtlemint's net worth has turned negative (-₹22.3 Cr) in FY26 due to accumulated losses. Operating cash flows are negative and burning cash faster every year. The company is highly reliant on external funding or this IPO fresh issue to sustain operations.
+              <strong>Critical Red Flag:</strong> Turtlemint&apos;s net worth has turned negative (-₹22.3 Cr) in FY26 due to accumulated losses. Operating cash flows are negative and burning cash faster every year. The company is highly reliant on external funding or this IPO fresh issue to sustain operations.
             </p>
 
             <h2 id="why-20">Why the Score is 20/100 (Drivers)</h2>

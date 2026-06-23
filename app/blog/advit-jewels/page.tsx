@@ -102,11 +102,11 @@ export default function AdvitJewelsIpoBlog() {
         <div className="shell blog-article-layout">
           <article className="blog-article">
             <p>
-              <strong>Advit Jewels Limited is hitting the public market with a Mainboard IPO of ₹165.16 Crore.</strong> Operating under its highly regarded legacy brand name <strong>"Rambhajo"</strong> (which traces its roots back to 1921), Advit has managed to post industry-leading growth rates and exceptional return on equity, drawing significant interest in the grey market.
+              <strong>Advit Jewels Limited is hitting the public market with a Mainboard IPO of ₹165.16 Crore.</strong> Operating under its highly regarded legacy brand name <strong>&quot;Rambhajo&quot;</strong> (which traces its roots back to 1921), Advit has managed to post industry-leading growth rates and exceptional return on equity, drawing significant interest in the grey market.
             </p>
 
             <p>
-              Handcrafted fine jewellery occupies a premium slot in Indian retail. The company's solid fundamentals and comfortable valuation make it a standout listing in June 2026. Here is our comprehensive research on the offering.
+              Handcrafted fine jewellery occupies a premium slot in Indian retail. The company&apos;s solid fundamentals and comfortable valuation make it a standout listing in June 2026. Here is our comprehensive research on the offering.
             </p>
 
             <div className="blog-callout blog-callout-teal">

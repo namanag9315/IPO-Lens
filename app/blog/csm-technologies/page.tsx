@@ -106,7 +106,7 @@ export default function CsmTechnologiesIpoBlog() {
             </p>
 
             <p>
-              However, GovTech consulting differs significantly from commercial software-as-a-service (SaaS) or commercial IT services. E-governance bids feature long payment cycles, low gross margins, and high competition, resulting in slow growth metrics. With a score of <strong>49/100</strong>, we break down why a "wait-and-watch" approach is recommended.
+              However, GovTech consulting differs significantly from commercial software-as-a-service (SaaS) or commercial IT services. E-governance bids feature long payment cycles, low gross margins, and high competition, resulting in slow growth metrics. With a score of <strong>49/100</strong>, we break down why a &quot;wait-and-watch&quot; approach is recommended.
             </p>
 
             <div className="blog-callout blog-callout-warning" style={{ background: "var(--amber-soft)", borderLeftColor: "var(--amber)" }}>
