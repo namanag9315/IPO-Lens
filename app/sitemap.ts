@@ -3,6 +3,8 @@ import { getComputedIPOs } from "@/lib/ipoData";
 
 const siteUrl = "https://ipolens.co.in";
 
+export const dynamic = "force-dynamic";
+
 const staticRoutes: Array<{
   path: string;
   changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];

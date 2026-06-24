@@ -13,6 +13,7 @@ const siteUrl = "https://ipolens.co.in";
 const siteName = "IPO Lens";
 const siteDescription =
   "Track Indian IPO GMP, subscription demand, IPO calendar, allotment links, listing performance and plain-English IPO research in one dashboard.";
+const siteLogoUrl = `${siteUrl}/logo.png`;
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
 export const metadata: Metadata = {
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     description: siteDescription,
     images: [
       {
-        url: "/logo.png",
+        url: siteLogoUrl,
         width: 512,
         height: 512,
         alt: "IPO Lens",
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "IPO Lens - Indian IPO Intelligence",
     description: siteDescription,
-    images: ["/logo.png"],
+    images: [siteLogoUrl],
   },
   ...(googleSiteVerification
     ? {
@@ -83,7 +84,7 @@ const structuredData = {
       "@type": "Organization",
       name: siteName,
       url: siteUrl,
-      logo: `${siteUrl}/logo.png`,
+      logo: siteLogoUrl,
       sameAs: [siteUrl],
     },
     {

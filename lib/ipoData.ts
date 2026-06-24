@@ -1,4 +1,5 @@
 
+import { unstable_cache } from "next/cache";
 import { estimateListingGainPct } from "@/lib/scoring";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase";
 import type {
@@ -166,7 +167,7 @@ function shouldUseMockData() {
   return process.env.USE_MOCK_IPOS === "true" || !process.env.IPO_GURU_API_KEY;
 }
 
-export async function getComputedIPOs(): Promise<ComputedIPO[]> {
+async function getComputedIPOsRaw(): Promise<ComputedIPO[]> {
   if (!isSupabaseConfigured() || shouldUseMockData()) {
     return [];
   }
@@ -268,7 +269,7 @@ export async function getComputedIPOs(): Promise<ComputedIPO[]> {
   }
 }
 
-export async function getComputedIPOBySlug(slug: string): Promise<ComputedIPO | null> {
+async function getComputedIPOBySlugRaw(slug: string): Promise<ComputedIPO | null> {
   if (!isSupabaseConfigured() || shouldUseMockData()) {
     return null;
   }
@@ -386,7 +387,7 @@ export async function getTickerItems(): Promise<TickerItem[]> {
     });
 }
 
-export async function getPerformanceRows(): Promise<PerformanceRow[]> {
+async function getPerformanceRowsRaw(): Promise<PerformanceRow[]> {
   if (!isSupabaseConfigured() || shouldUseMockData()) {
     return [];
   }
@@ -513,7 +514,7 @@ export interface LiveIndexItem {
   tone: "positive" | "negative";
 }
 
-export async function getLiveIndices(): Promise<LiveIndexItem[]> {
+async function getLiveIndicesRaw(): Promise<LiveIndexItem[]> {
   const defaultIndices: LiveIndexItem[] = [
     { label: "NIFTY 50", value: "23,420.35", change: "+0.42%", tone: "positive" },
     { label: "SENSEX", value: "76,812.20", change: "+0.38%", tone: "positive" },
@@ -680,3 +681,28 @@ export async function fetchYahooStockInfo(symbol: string): Promise<YahooStockInf
     return null;
   }
 }
+
+// Cached wrappers for database and live API fetches to prevent load delays
+export const getComputedIPOs = unstable_cache(
+  async () => getComputedIPOsRaw(),
+  ["computed-ipos-list"],
+  { revalidate: 60, tags: ["ipos"] }
+);
+
+export const getComputedIPOBySlug = unstable_cache(
+  async (slug: string) => getComputedIPOBySlugRaw(slug),
+  ["computed-ipo-by-slug"],
+  { revalidate: 60, tags: ["ipos"] }
+);
+
+export const getPerformanceRows = unstable_cache(
+  async () => getPerformanceRowsRaw(),
+  ["performance-rows-list"],
+  { revalidate: 60, tags: ["ipos"] }
+);
+
+export const getLiveIndices = unstable_cache(
+  async () => getLiveIndicesRaw(),
+  ["live-indices-list"],
+  { revalidate: 60 }
+);
