@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import MarketTicker from "@/components/layout/MarketTicker";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -15,6 +17,7 @@ const siteDescription =
   "Track Indian IPO GMP, subscription demand, IPO calendar, allotment links, listing performance and plain-English IPO research in one dashboard.";
 const siteLogoUrl = `${siteUrl}/logo.png`;
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -123,6 +126,11 @@ export default async function RootLayout({
         <Footer />
         <FloatingSubscribe />
         <Analytics />
+        {gaMeasurementId ? (
+          <Suspense fallback={null}>
+            <GoogleAnalytics measurementId={gaMeasurementId} />
+          </Suspense>
+        ) : null}
         <script
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
           type="application/ld+json"
