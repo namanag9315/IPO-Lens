@@ -33,6 +33,7 @@ export interface IPO {
   close_date: string | null;
   listing_date: string | null;
   status: IPOStatus;
+  symbol?: string | null;
   exchange?: string | null;
   created_at: string;
   enriched_data: Record<string, unknown> | null;
@@ -86,6 +87,32 @@ export interface ListingPerformance {
   listing_gain_pct: number | null;
   final_gmp_at_close: number | null;
   recorded_at: string;
+}
+
+export interface IPOListingPerformance {
+  id: string;
+  ipo_id: string;
+  symbol: string | null;
+  exchange: "NSE" | "BSE" | string | null;
+  issue_price: number | null;
+  listing_price: number | null;
+  listing_gain_pct: number | null;
+  listing_day_high: number | null;
+  listing_day_low: number | null;
+  listing_day_volume: number | null;
+  listing_day_close: number | null;
+  price_1w: number | null;
+  price_1m: number | null;
+  price_3m: number | null;
+  current_price?: number | null;
+  return_1w_pct: number | null;
+  return_1m_pct: number | null;
+  return_3m_pct: number | null;
+  return_current_pct?: number | null;
+  ipo_lens_score: number | null;
+  score_validated: boolean | null;
+  data_updated_at: string | null;
+  created_at: string;
 }
 
 export interface IPOCompanyProfile {
@@ -232,6 +259,7 @@ export interface ComputedIPO extends IPO {
   subscription_data: SubscriptionData[];
   ai_analysis: AIAnalysis | null;
   listing_performance: ListingPerformance | null;
+  post_listing_performance?: IPOListingPerformance | null;
   company_profile?: IPOCompanyProfile | null;
   financials_yearly?: IPOFinancialYearly[];
   anchor_investors?: IPOAnchorInvestor[];
@@ -296,6 +324,11 @@ export type ListingPerformanceInsert = Omit<ListingPerformance, "id" | "recorded
   recorded_at?: string;
 };
 
+export type IPOListingPerformanceInsert = Omit<IPOListingPerformance, "id" | "created_at"> & {
+  id?: string;
+  created_at?: string;
+};
+
 export type IPOCompanyProfileInsert = Omit<IPOCompanyProfile, "id" | "updated_at"> & {
   id?: string;
   updated_at?: string;
@@ -357,6 +390,12 @@ export interface Database {
         Row: ListingPerformance;
         Insert: ListingPerformanceInsert;
         Update: Partial<ListingPerformanceInsert>;
+        Relationships: [];
+      };
+      ipo_listing_performance: {
+        Row: IPOListingPerformance;
+        Insert: IPOListingPerformanceInsert;
+        Update: Partial<IPOListingPerformanceInsert>;
         Relationships: [];
       };
       ipo_company_profiles: {

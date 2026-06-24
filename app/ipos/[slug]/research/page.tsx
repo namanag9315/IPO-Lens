@@ -43,6 +43,7 @@ import {
   LeadManagerPerformanceCard
 } from "@/components/ipo/ResearchComponents";
 import AskAIInteractive from "@/components/ipo/AskAIInteractive";
+import PostListingPerformance from "@/components/ipo/PostListingPerformance";
 import LearnButton from "@/components/learn/LearnButton";
 
 import type { Metadata } from "next";
@@ -1153,6 +1154,12 @@ export default async function IPOResearchPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        <PostListingPerformance
+          listingDate={ipo.listing_date}
+          performance={ipo.post_listing_performance ?? null}
+          score={data.score?.total ?? null}
+        />
 
         {/* 11. Source Quality footer */}
         {data.dataHealth && (

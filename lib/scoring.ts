@@ -180,22 +180,30 @@ function gmpScore(gmp: number, issuePrice: number) {
   }
 
   if (pct >= 35) {
-    return 15;
+    return 25;
   }
 
-  if (pct >= 20) {
+  if (pct >= 25) {
+    return 22;
+  }
+
+  if (pct >= 15) {
+    return 17;
+  }
+
+  if (pct >= 8) {
     return 12;
   }
 
-  if (pct >= 10) {
-    return 8;
-  }
-
-  if (pct >= 5) {
-    return 5;
+  if (pct >= 3) {
+    return 6;
   }
 
   return 2;
+}
+
+function weightedScore(value: number, max: number, target: number) {
+  return Math.round((value / max) * target);
 }
 
 function anchorScore(input: ScoringInput) {
@@ -303,13 +311,19 @@ export function getScoreLabel(score: number): ResearchSignalLabel {
 }
 
 export function calculateScore(data: ScoringInput): ScoringResult {
+  const fundamentals = fundamentalsScore(data.financials);
+  const subscriptionDemand = subscriptionScore(data.totalX, data.qibX, data.retailX);
+  const valuationComfort = valuationScore(data.issuePrice, data.financials, data.peers);
+  const anchorInvestorQuality = anchorScore(data);
+  const riskAndGovernance = riskScore(data);
+
   const breakdown: ScoreBreakdown = {
-    fundamentals: fundamentalsScore(data.financials),
-    subscriptionDemand: subscriptionScore(data.totalX, data.qibX, data.retailX),
-    valuationComfort: valuationScore(data.issuePrice, data.financials, data.peers),
+    fundamentals: weightedScore(fundamentals, 25, 22),
+    subscriptionDemand: weightedScore(subscriptionDemand, 20, 18),
+    valuationComfort: weightedScore(valuationComfort, 15, 13),
     gmpMomentum: gmpScore(data.gmp, data.issuePrice),
-    anchorInvestorQuality: anchorScore(data),
-    riskAndGovernance: riskScore(data),
+    anchorInvestorQuality: weightedScore(anchorInvestorQuality, 10, 8),
+    riskAndGovernance: weightedScore(riskAndGovernance, 10, 9),
     objectsOfIssue: objectsScore(data.objectsOfIssue),
     penalties: 0,
   };

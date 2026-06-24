@@ -10,6 +10,7 @@ import { guessCompanyDomain } from "@/lib/mappers/researchMapper";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 function isAuthorized(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
@@ -17,6 +18,19 @@ function isAuthorized(request: Request) {
 
   if (!cronSecret || !authorization) return false;
   return authorization === cronSecret || authorization === `Bearer ${cronSecret}`;
+}
+
+function getLinkInfoFromUrl(url: string | null | undefined) {
+  if (!url) return null;
+  const match = url.match(/\/ipo\/([a-zA-Z0-9\-]+)\/(\d+)/);
+  if (match) {
+    return {
+      slug: match[1],
+      id: match[2],
+      url
+    };
+  }
+  return null;
 }
 
 async function syncIPOs(request: Request) {
@@ -31,7 +45,31 @@ async function syncIPOs(request: Request) {
   let syncLogId: string | undefined = undefined;
   let recordsSavedCount = 0;
 
+  // 1. Concurrency check: check if another sync job was started in the last 3 minutes
   try {
+    const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+    const { data: activeLogs } = await supabaseAdmin
+      .from("ipo_data_sync_logs")
+      .select("id, started_at")
+      .eq("status", "running")
+      .gt("started_at", threeMinutesAgo)
+      .limit(1);
+
+    if (activeLogs && activeLogs.length > 0) {
+      console.log("[Sync] Another sync job is already running (started within last 3 minutes). Skipping.");
+      return NextResponse.json({ error: "Another sync job is already in progress." }, { status: 409 });
+    }
+  } catch (err) {
+    console.error("[Sync] Concurrency check error (non-fatal):", err);
+  }
+
+  const timeoutSecs = process.env.SYNC_TIMEOUT_SECONDS ? parseInt(process.env.SYNC_TIMEOUT_SECONDS, 10) : 50;
+
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout: Sync execution exceeded time limit.")), timeoutSecs * 1000)
+  );
+
+  const performSync = async () => {
     const ipos = await fetchAllIPOs();
     
     // Start Sync Log
@@ -143,6 +181,10 @@ async function syncIPOs(request: Request) {
       .select("id, slug, enriched_data, face_value, lot_size, registrar_name");
     const existingIpoMap = new Map((existingIPOs ?? []).map(item => [item.slug, item]));
 
+    // Throttles to prevent timeout
+    const MAX_SCRAPES_PER_RUN = 3;
+    let scrapeCount = 0;
+
     for (const ipo of ipos) {
       const ipoId = ipoBySlug.get(ipo.slug);
 
@@ -193,18 +235,24 @@ async function syncIPOs(request: Request) {
         });
       }
 
-      // 1. Scrape layers (skipped if already scraped)
+      // 1. Scrape layers (skipped if already scraped or limit reached)
       const alreadyScraped = hasFinancials.has(ipoId) && hasProfile.has(ipoId);
       let platformData = null;
       let details = null;
 
       if (alreadyScraped) {
         console.log(`[Sync] Skipping scrape layers for ${ipo.name} (static financials & profile already present)`);
+      } else if (scrapeCount >= MAX_SCRAPES_PER_RUN) {
+        console.log(`[Sync] Scrape limit (${MAX_SCRAPES_PER_RUN}) reached. Skipping scrape layers for ${ipo.name} in this run.`);
       } else {
+        scrapeCount++;
         // 1. Scrape IPOPlatform (Medium priority layer)
         try {
-          console.log(`[Sync] Attempting to scrape IPOPlatform for ${ipo.name}...`);
-          platformData = await scrapeIPOPlatform(ipo.name);
+          const ipoPlatformUrl = currentEnriched.ipoplatform_url;
+          const linkInfo = getLinkInfoFromUrl(ipoPlatformUrl);
+
+          console.log(`[Sync] Attempting to scrape IPOPlatform for ${ipo.name}... (Cached Link: ${linkInfo ? "Yes" : "No"})`);
+          platformData = await scrapeIPOPlatform(ipo.name, linkInfo);
         } catch (err) {
           console.error(`[Sync] IPOPlatform scrape failed for ${ipo.name}:`, err);
         }
@@ -402,7 +450,7 @@ async function syncIPOs(request: Request) {
       }
 
       // 4. Update basic details and enriched_data payload
-      if (!alreadyScraped) {
+      if (!alreadyScraped && scrapeCount <= MAX_SCRAPES_PER_RUN) {
         const updatePayload: any = {};
         if (ipo.face_value === null && details?.faceValue !== null && details?.faceValue !== undefined) {
           updatePayload.face_value = details.faceValue;
@@ -438,6 +486,7 @@ async function syncIPOs(request: Request) {
           pe_ratio: platformData?.peRatio || (currentEnriched as any)?.pe_ratio || null,
           ev_ebitda: platformData?.evEbitda || (currentEnriched as any)?.ev_ebitda || null,
           leverage_ratio: platformData?.leverageRatio || (currentEnriched as any)?.leverage_ratio || null,
+          ipoplatform_url: platformData?.url || (currentEnriched as any)?.ipoplatform_url || null,
           sources: {
             ...((currentEnriched as any)?.sources || {}),
             ...sources
@@ -469,7 +518,22 @@ async function syncIPOs(request: Request) {
 
     if (listingPerformanceRows.length > 0) {
       for (const row of listingPerformanceRows) {
-        await supabaseAdmin.from("listing_performance").upsert(row, { onConflict: "id" });
+        const { data: existingLP } = await supabaseAdmin
+          .from("listing_performance")
+          .select("id")
+          .eq("ipo_id", row.ipo_id)
+          .maybeSingle();
+
+        if (existingLP) {
+          await supabaseAdmin
+            .from("listing_performance")
+            .update(row)
+            .eq("id", existingLP.id);
+        } else {
+          await supabaseAdmin
+            .from("listing_performance")
+            .insert(row);
+        }
       }
     }
 
@@ -480,6 +544,9 @@ async function syncIPOs(request: Request) {
       .from("ai_analysis")
       .select("ipo_id, generated_at");
     const analysisMap = new Map((existingAnalyses ?? []).map(a => [a.ipo_id, new Date(a.generated_at).getTime()]));
+
+    const MAX_ANALYSES_PER_RUN = 3;
+    let analysisCount = 0;
 
     for (const ipo of ipos) {
       const ipoId = ipoBySlug.get(ipo.slug);
@@ -501,7 +568,13 @@ async function syncIPOs(request: Request) {
         continue;
       }
 
+      if (analysisCount >= MAX_ANALYSES_PER_RUN) {
+        console.log(`[Sync] AI Analysis limit (${MAX_ANALYSES_PER_RUN}) reached. Skipping AI generation for ${ipo.name} in this run.`);
+        continue;
+      }
+
       try {
+        analysisCount++;
         // Run analysis (force recalculate since we filtered manually)
         await generateAndSaveAnalysis(ipoId, true);
         console.log(`[Sync] AI Analysis auto-generated/updated for ${ipo.name}`);
@@ -523,6 +596,10 @@ async function syncIPOs(request: Request) {
     }
 
     return NextResponse.json({ synced: ipoRows.length, timestamp: new Date().toISOString() });
+  };
+
+  try {
+    return await Promise.race([performSync(), timeoutPromise]);
   } catch (error: any) {
     const errorMessage = error instanceof Error ? error.message : "Unexpected error during IPO sync.";
     console.error(`[Sync] Sync job failed:`, errorMessage);

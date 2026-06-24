@@ -11,7 +11,7 @@ import { getTickerItems, getLiveIndices } from "@/lib/ipoData";
 
 export const dynamic = "force-dynamic";
 
-const siteUrl = "https://ipolens.co.in";
+const siteUrl = "https://www.ipolens.co.in";
 const siteName = "IPO Lens";
 const siteDescription =
   "Track Indian IPO GMP, subscription demand, IPO calendar, allotment links, listing performance and plain-English IPO research in one dashboard.";
@@ -21,6 +21,9 @@ const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: "/",
+  },
   applicationName: siteName,
   title: {
     default: "IPO Lens - Indian IPO Intelligence",

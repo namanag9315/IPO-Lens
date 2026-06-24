@@ -7,6 +7,10 @@
     {
       "path": "/api/sync-subscription",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/update-listing-performance",
+      "schedule": "30 11 * * 1-5"
     }
   ]
 }

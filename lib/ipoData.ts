@@ -1,5 +1,6 @@
 
 import { unstable_cache } from "next/cache";
+import { findRecentIPOSeedPerformanceByName } from "@/lib/data/recentIpoPerformanceSeed";
 import { estimateListingGainPct } from "@/lib/scoring";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase";
 import type {
@@ -11,6 +12,7 @@ import type {
   IPOAnchorSummary,
   IPOCompanyProfile,
   IPOFinancialYearly,
+  IPOListingPerformance,
   IPOObjectOfIssue,
   IPOPeerComparison,
   ListingPerformance,
@@ -55,6 +57,7 @@ function buildComputedIPO(
     anchorSummary?: IPOAnchorSummary | null;
     peerComparisons?: IPOPeerComparison[];
     objectsOfIssue?: IPOObjectOfIssue[];
+    postListingPerformance?: IPOListingPerformance | null;
   },
 ): ComputedIPO {
   const sortedGMP = sortByNewest(gmpHistory);
@@ -92,6 +95,7 @@ function buildComputedIPO(
     subscription_data: sortedSubscription,
     ai_analysis: sortedAnalysis[0] ?? null,
     listing_performance: sortedPerformance[0] ?? null,
+    post_listing_performance: research?.postListingPerformance ?? null,
     company_profile: research?.companyProfile ?? null,
     financials_yearly: research?.financialsYearly ?? [],
     anchor_investors: research?.anchorInvestors ?? [],
@@ -319,6 +323,17 @@ async function getComputedIPOBySlugRaw(slug: string): Promise<ComputedIPO | null
       }
     }
 
+    const postListingPerformance =
+      (await safeSingle<IPOListingPerformance>(
+        supabaseAdmin
+          .from("ipo_listing_performance")
+          .select("*")
+          .eq("ipo_id", ipoRow.id)
+          .order("data_updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      )) ?? findRecentIPOSeedPerformanceByName(ipoRow.id, ipoRow.name);
+
     const computedIpo = buildComputedIPO(
       ipoRow,
       (gmpResponse.data ?? []) as GMPHistory[],
@@ -346,6 +361,7 @@ async function getComputedIPOBySlugRaw(slug: string): Promise<ComputedIPO | null
         objectsOfIssue: await safeRows<IPOObjectOfIssue>(
           supabaseAdmin.from("ipo_objects_of_issue").select("*").eq("ipo_id", ipoRow.id).order("amount_cr", { ascending: false }),
         ),
+        postListingPerformance,
       },
     );
 
@@ -402,7 +418,16 @@ async function getPerformanceRowsRaw(): Promise<PerformanceRow[]> {
       throw performanceError;
     }
 
-    const rows = (performanceRows ?? []) as ListingPerformance[];
+    const rawRows = (performanceRows ?? []) as ListingPerformance[];
+
+    // Filter duplicates keeping only the latest entry per ipo_id
+    const uniqueMap = new Map<string, ListingPerformance>();
+    for (const r of rawRows) {
+      if (!uniqueMap.has(r.ipo_id)) {
+        uniqueMap.set(r.ipo_id, r);
+      }
+    }
+    const rows = Array.from(uniqueMap.values());
 
     if (rows.length === 0) {
       return [];
@@ -579,19 +604,19 @@ async function getLiveIndicesRaw(): Promise<LiveIndexItem[]> {
 
 export function getYahooTickerForCompany(name: string): string | null {
   const clean = name.toLowerCase();
-  if (clean.includes("utkal speciality")) return "AWFIS.NS";
-  if (clean.includes("susan electricals")) return "GODIGIT.NS";
-  if (clean.includes("horizon reclaim")) return "INDGN.NS";
-  if (clean.includes("leapfrog engineering")) return "TBOTEK.NS";
-  if (clean.includes("liotech")) return "AADHARHFC.NS";
-  if (clean.includes("clay craft")) return "ZOMATO.NS";
-  if (clean.includes("diksha polymers")) return "RELIANCE.NS";
-  if (clean.includes("avience biomedical")) return "INFY.NS";
-  if (clean.includes("turtlemint")) return "TCS.NS";
-  if (clean.includes("advit jewels")) return "TATAMOTORS.NS";
-  if (clean.includes("saffron speciality")) return "WIPRO.NS";
-  if (clean.includes("anubhav plast")) return "HDFCBANK.NS";
-  if (clean.includes("riyaasat")) return "ICICIBANK.NS";
+  if (clean.includes("utkal speciality")) return "UTKAL-SM.NS";
+  if (clean.includes("susan electricals")) return "SUSAN.BO";
+  if (clean.includes("horizon reclaim")) return "HORIZON.BO";
+  if (clean.includes("leapfrog engineering")) return "544797.BO";
+  if (clean.includes("liotech")) return "LIOTECH.BO";
+  if (clean.includes("clay craft")) return "CLAYCRAFT-SM.NS";
+  if (clean.includes("diksha polymers")) return "DIKSHA.BO";
+  if (clean.includes("avience biomedical")) return "AVIENCE.NS";
+  if (clean.includes("turtlemint")) return "TURTLEMINT.NS";
+  if (clean.includes("advit jewels")) return "ADVIT.NS";
+  if (clean.includes("saffron speciality")) return "SAFFRON.BO";
+  if (clean.includes("anubhav plast")) return "ANUBHAV.BO";
+  if (clean.includes("riyaasat")) return "RIYA.BO";
   return null;
 }
 

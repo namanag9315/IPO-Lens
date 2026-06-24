@@ -6,6 +6,7 @@ import type { GMPHistoryInsert } from "@/types/ipo";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 interface IPOReference {
   id: string;
@@ -54,11 +55,18 @@ async function syncGMP(request: Request) {
     return NextResponse.json({ error: "Supabase environment variables are not configured." }, { status: 503 });
   }
 
-  try {
+  const timeoutSecs = process.env.SYNC_TIMEOUT_SECONDS ? parseInt(process.env.SYNC_TIMEOUT_SECONDS, 10) : 50;
+
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout: Sync execution exceeded time limit.")), timeoutSecs * 1000)
+  );
+
+  const performSync = async () => {
     const [ipoGuruUpdates, backupUpdates, ipoResponse] = await Promise.all([
       fetchGMPUpdates(),
       scrapeBackupGMP(),
-      supabaseAdmin.from("ipos").select("id, slug, name"),
+      // Only check GMP for active IPOs to save time and DB load
+      supabaseAdmin.from("ipos").select("id, slug, name").in("status", ["upcoming", "open", "closed"]),
     ]);
 
     if (ipoResponse.error) {
@@ -66,6 +74,29 @@ async function syncGMP(request: Request) {
     }
 
     const ipos = (ipoResponse.data ?? []) as IPOReference[];
+    const ipoIds = ipos.map(i => i.id);
+
+    // Fetch latest GMP values for these active IPOs in a single query to avoid N+1 queries
+    const latestGmpMap = new Map<string, number>();
+    if (ipoIds.length > 0) {
+      const { data: latestGMPs, error: gmpErr } = await supabaseAdmin
+        .from("gmp_history")
+        .select("ipo_id, gmp_value, captured_at")
+        .in("ipo_id", ipoIds)
+        .order("captured_at", { ascending: false });
+
+      if (gmpErr) {
+        console.error("[Sync-GMP] Error fetching latest GMP values:", gmpErr);
+      } else if (latestGMPs) {
+        // Build map of ipo_id -> latest gmp_value
+        for (const row of latestGMPs) {
+          if (!latestGmpMap.has(row.ipo_id)) {
+            latestGmpMap.set(row.ipo_id, row.gmp_value);
+          }
+        }
+      }
+    }
+
     const primaryBySlug = new Map(ipoGuruUpdates.map((update) => [update.slug, update.gmp]));
     const backupBySlug = new Map(backupUpdates.map((update) => [slugify(update.name), update.gmp]));
     const rows: GMPHistoryInsert[] = [];
@@ -79,7 +110,7 @@ async function syncGMP(request: Request) {
         continue;
       }
 
-      const lastGMP = await getLastGMP(ipo.id);
+      const lastGMP = latestGmpMap.get(ipo.id) ?? null;
 
       if (lastGMP === gmp) {
         continue;
@@ -103,8 +134,13 @@ async function syncGMP(request: Request) {
     }
 
     return NextResponse.json({ updated: rows.length });
-  } catch (error) {
+  };
+
+  try {
+    return await Promise.race([performSync(), timeoutPromise]);
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : "Unable to sync GMP data.";
+    console.error("[Sync-GMP] Sync job failed:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

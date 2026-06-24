@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getComputedIPOs } from "@/lib/ipoData";
 
-const siteUrl = "https://ipolens.co.in";
+const siteUrl = "https://www.ipolens.co.in";
 
 export const dynamic = "force-dynamic";
 

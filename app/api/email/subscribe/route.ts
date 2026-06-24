@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { subscribeEmail, isBrevoConfigured, getUpdatesListId } from "@/lib/brevo";
+import { subscribeEmail, isBrevoConfigured, getUpdatesListId, sendOnboardingEmail } from "@/lib/brevo";
 
 export async function POST(request: Request) {
   try {
@@ -15,6 +15,13 @@ export async function POST(request: Request) {
 
     const listId = getUpdatesListId();
     await subscribeEmail(email, listId);
+
+    // Send the welcoming onboarding email
+    try {
+      await sendOnboardingEmail(email);
+    } catch (emailErr) {
+      console.error("[Subscribe API] Onboarding email dispatch failed:", emailErr);
+    }
 
     return NextResponse.json({
       success: true,
