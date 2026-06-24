@@ -19,8 +19,15 @@ function getSenderName(): string {
   return process.env.BREVO_SENDER_NAME || "IPO Lens";
 }
 
+const IPO_UPDATES_LIST_ID = 3;
+
+export function getUpdatesListId(): number {
+  const parsed = Number.parseInt(process.env.BREVO_UPDATES_LIST_ID || String(IPO_UPDATES_LIST_ID), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : IPO_UPDATES_LIST_ID;
+}
+
 function getDefaultListId(): number {
-  return parseInt(process.env.BREVO_NEWSLETTER_LIST_ID || "2", 10);
+  return getUpdatesListId();
 }
 
 /**
@@ -134,6 +141,7 @@ export async function getContactsInList(listId?: number, limit = 50, offset = 0)
   const apiKey = process.env.BREVO_API_KEY;
   if (!isBrevoConfigured()) {
     return {
+      listId: targetListId,
       contacts: [
         { email: "aishwarya.sharma@gmail.com", id: 101, createdAt: "2026-06-23T10:15:30.000Z", emailBlacklisted: false, smsBlacklisted: false },
         { email: "rahul.gupta@outlook.com", id: 102, createdAt: "2026-06-22T14:45:12.000Z", emailBlacklisted: false, smsBlacklisted: false },
@@ -171,5 +179,5 @@ export async function getContactsInList(listId?: number, limit = 50, offset = 0)
     throw new Error(json.message || `Failed to fetch contacts: ${response.status}`);
   }
 
-  return json;
+  return { ...json, listId: targetListId };
 }

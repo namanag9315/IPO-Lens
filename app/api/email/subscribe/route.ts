@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { subscribeEmail, isBrevoConfigured } from "@/lib/brevo";
+import { subscribeEmail, isBrevoConfigured, getUpdatesListId } from "@/lib/brevo";
 
 export async function POST(request: Request) {
   try {
@@ -13,11 +13,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Call Brevo API
-    await subscribeEmail(email);
+    const listId = getUpdatesListId();
+    await subscribeEmail(email, listId);
 
     return NextResponse.json({
       success: true,
+      listId,
       message: isBrevoConfigured()
         ? "Subscribed successfully to updates!"
         : "Subscription mock triggered successfully (Brevo key not configured).",

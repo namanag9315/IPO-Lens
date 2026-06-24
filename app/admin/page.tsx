@@ -19,6 +19,8 @@ import {
   fetchSubscribersAction
 } from "./actions";
 
+const IPO_UPDATES_LIST_ID = "3";
+
 export default function AdminPortal() {
   const [ipos, setIpos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function AdminPortal() {
 
   // Brevo marketing states
   const [brevoSubject, setBrevoSubject] = useState("");
-  const [brevoListId, setBrevoListId] = useState("2");
+  const [brevoListId, setBrevoListId] = useState(IPO_UPDATES_LIST_ID);
   const [brevoIsSending, setBrevoIsSending] = useState(false);
   const [brevoStatusMessage, setBrevoStatusMessage] = useState("");
   const [brevoStatusType, setBrevoStatusType] = useState<"success" | "error" | "">("");
@@ -81,6 +83,7 @@ export default function AdminPortal() {
   const [subscribersError, setSubscribersError] = useState("");
   const [subscribersLimit] = useState(50);
   const [subscribersOffset, setSubscribersOffset] = useState(0);
+  const [subscribersListId, setSubscribersListId] = useState(IPO_UPDATES_LIST_ID);
 
   async function loadSubscribers(offsetVal = subscribersOffset) {
     try {
@@ -90,6 +93,7 @@ export default function AdminPortal() {
       if (res.success && res.data) {
         setSubscribers(res.data.contacts || []);
         setSubscribersCount(res.data.count || 0);
+        setSubscribersListId(String(res.data.listId || IPO_UPDATES_LIST_ID));
         setSubscribersIsMock(Boolean(res.isMock));
       } else {
         setSubscribersError(res.error || "Failed to retrieve subscribers.");
@@ -367,7 +371,7 @@ export default function AdminPortal() {
       return;
     }
 
-    const confirmSend = window.confirm(`Are you sure you want to send this campaign to Brevo List #${brevoListId}?`);
+    const confirmSend = window.confirm(`Are you sure you want to send this campaign to Brevo IPO updates List #${brevoListId}?`);
     if (!confirmSend) return;
 
     setBrevoIsSending(true);
@@ -376,7 +380,7 @@ export default function AdminPortal() {
 
     try {
       const htmlContent = generateEmailHtml();
-      const listId = parseInt(brevoListId, 10) || 2;
+      const listId = parseInt(brevoListId, 10) || Number(IPO_UPDATES_LIST_ID);
       const res = await sendBrevoCampaignAction(brevoSubject, htmlContent, listId);
 
       if (res.success) {
@@ -1308,12 +1312,12 @@ export default function AdminPortal() {
                   </div>
 
                   <div style={{ display: "grid", gap: "4px" }}>
-                    <label style={{ fontSize: "11px", fontWeight: "600", color: "var(--muted)" }}>Brevo Contact List ID</label>
+                    <label style={{ fontSize: "11px", fontWeight: "600", color: "var(--muted)" }}>Brevo Contact List ID (IPO updates)</label>
                     <input 
                       type="number" 
                       value={brevoListId}
                       onChange={(e) => setBrevoListId(e.target.value)}
-                      placeholder="e.g. 2"
+                      placeholder="3"
                       style={{ padding: "8px", border: "1px solid var(--border)", borderRadius: "6px", width: "100%", fontSize: "13px" }}
                       required
                     />
@@ -1418,20 +1422,34 @@ export default function AdminPortal() {
           <div className="card" style={{ padding: "20px", display: "grid", gap: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: "12px" }}>
               <div>
-                <h3 style={{ fontSize: "18px", color: "var(--ink)", margin: 0 }}>Newsletter Subscribers</h3>
+                <h3 style={{ fontSize: "18px", color: "var(--ink)", margin: 0 }}>IPO Updates Subscribers</h3>
                 <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "4px" }}>
-                  Manage and view contacts subscribed to the main newsletter list
+                  Contacts collected from the website email update forms in Brevo List #{subscribersListId}
                 </p>
               </div>
-              <div style={{ background: "var(--blue-soft)", color: "var(--blue)", padding: "6px 12px", borderRadius: "20px", fontSize: "13px", fontWeight: "700" }}>
-                Total: {subscribersCount} Contacts
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <button
+                  className="btn btn-secondary"
+                  disabled={loadingSubscribers}
+                  onClick={() => {
+                    setSubscribersOffset(0);
+                    loadSubscribers(0);
+                  }}
+                  style={{ padding: "6px 12px", fontSize: "12px" }}
+                  type="button"
+                >
+                  Refresh
+                </button>
+                <div style={{ background: "var(--blue-soft)", color: "var(--blue)", padding: "6px 12px", borderRadius: "20px", fontSize: "13px", fontWeight: "700" }}>
+                  List #{subscribersListId} • {subscribersCount} Contacts
+                </div>
               </div>
             </div>
 
             {subscribersIsMock && (
               <div style={{ background: "var(--blue-soft)", border: "1px solid rgba(37, 99, 255, 0.2)", color: "#1e3a8a", padding: "12px 16px", borderRadius: "8px", display: "flex", gap: "10px", alignItems: "center", fontSize: "13px" }}>
                 <span style={{ fontSize: "16px" }}>ℹ️</span>
-                <span><strong>Developer Mode:</strong> Brevo API key is not configured. Showing sample/mock subscribers.</span>
+                <span><strong>Developer Mode:</strong> Brevo API key is not configured. Showing sample subscribers for List #{subscribersListId}.</span>
               </div>
             )}
 
@@ -1448,7 +1466,7 @@ export default function AdminPortal() {
               </div>
             ) : subscribers.length === 0 ? (
               <div style={{ padding: "40px", textAlign: "center", color: "var(--muted)", border: "1px dashed var(--border)", borderRadius: "8px" }}>
-                No subscribers found in this list.
+                No subscribers found in Brevo List #{subscribersListId}.
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
@@ -2376,4 +2394,3 @@ const EMAIL_TEMPLATE_LISTING = `<!DOCTYPE html>
 </body>
 </html>
 `;
-
