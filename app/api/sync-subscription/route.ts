@@ -74,6 +74,7 @@ async function syncSubscription(request: Request) {
     return NextResponse.json({ error: "Supabase environment variables are not configured." }, { status: 503 });
   }
 
+  const startTime = Date.now();
   const timeoutSecs = process.env.SYNC_TIMEOUT_SECONDS ? parseInt(process.env.SYNC_TIMEOUT_SECONDS, 10) : 50;
 
   const timeoutPromise = new Promise<never>((_, reject) =>
@@ -133,6 +134,14 @@ async function syncSubscription(request: Request) {
 
     // --- Step 1: Process IPOPlatform scraper (Primary/Strict for active IPOs) ---
     for (const ipo of ipoRows) {
+      // Time-budget check: Exit early if we have exceeded budget
+      const elapsedMs = Date.now() - startTime;
+      const budgetMs = Math.max(5, timeoutSecs - 5) * 1000;
+      if (elapsedMs > budgetMs) {
+        console.log(`[Sync-Sub] Approaching time limit (${elapsedMs}ms). Terminating subscription scrape loop early.`);
+        break;
+      }
+
       const isActive = !ipo.status || ipo.status === "open" || ipo.status === "upcoming" || ipo.status === "closed";
       if (isActive) {
         try {

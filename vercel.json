@@ -1,4 +1,15 @@
 {
+  "functions": {
+    "app/api/sync-ipos/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/sync-subscription/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/cron/update-listing-performance/route.ts": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/sync-ipos",

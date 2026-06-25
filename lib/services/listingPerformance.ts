@@ -331,6 +331,10 @@ export async function updateListingPerformanceForListedIPOs() {
     throw new Error("Supabase environment variables are not configured.");
   }
 
+  const startTime = Date.now();
+  const maxDurationSec = process.env.MAX_SYNC_DURATION_SECONDS ? parseInt(process.env.MAX_SYNC_DURATION_SECONDS, 10) : 50;
+  const budgetMs = maxDurationSec * 1000;
+
   const today = dateOnlyInIST();
   const { data: ipos, error } = await supabaseAdmin
     .from("ipos")
@@ -349,6 +353,13 @@ export async function updateListingPerformanceForListedIPOs() {
   let skipped = 0;
 
   for (const ipo of listedIPOs) {
+    // Time-budget check
+    const elapsedMs = Date.now() - startTime;
+    if (elapsedMs > budgetMs) {
+      console.log(`[Perf-Sync] Approaching time limit (${elapsedMs}ms). Terminating update loop early to prevent timeout.`);
+      break;
+    }
+
     let rawSymbol = resolveRawSymbol(ipo);
 
     // Fallback: If not set, resolve ticker dynamically and save it

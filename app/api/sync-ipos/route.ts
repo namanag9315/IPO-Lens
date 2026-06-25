@@ -42,8 +42,31 @@ async function syncIPOs(request: Request) {
     return NextResponse.json({ error: "Supabase environment variables are not configured." }, { status: 503 });
   }
 
+  const startTime = Date.now();
   let syncLogId: string | undefined = undefined;
   let recordsSavedCount = 0;
+
+  // 0. Auto-clean stuck logs: mark any log in 'running' status started > 10 minutes ago as 'error'
+  try {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const { error: cleanupErr } = await supabaseAdmin
+      .from("ipo_data_sync_logs")
+      .update({
+        status: "error",
+        error_message: "Job timed out or was terminated abruptly by serverless container.",
+        finished_at: new Date().toISOString()
+      })
+      .eq("status", "running")
+      .lt("started_at", tenMinutesAgo);
+
+    if (cleanupErr) {
+      console.error("[Sync] Stuck logs cleanup error:", cleanupErr);
+    } else {
+      console.log("[Sync] Cleaned up any stale/stuck sync logs.");
+    }
+  } catch (err) {
+    console.error("[Sync] Stuck logs cleanup exception (non-fatal):", err);
+  }
 
   // 1. Concurrency check: check if another sync job was started in the last 3 minutes
   try {
@@ -190,6 +213,14 @@ async function syncIPOs(request: Request) {
 
       if (!ipoId) {
         continue;
+      }
+
+      // Time-budget check: Exit early if we have exceeded budget
+      const elapsedMs = Date.now() - startTime;
+      const budgetMs = Math.max(5, timeoutSecs - 5) * 1000;
+      if (elapsedMs > budgetMs) {
+        console.log(`[Sync] Approaching time limit (${elapsedMs}ms). Terminating scrape loop early to save progress.`);
+        break;
       }
 
       const dbIpo = existingIpoMap.get(ipo.slug);
@@ -551,6 +582,14 @@ async function syncIPOs(request: Request) {
     for (const ipo of ipos) {
       const ipoId = ipoBySlug.get(ipo.slug);
       if (!ipoId) continue;
+
+      // Time-budget check: Exit early if we have exceeded budget
+      const elapsedMs = Date.now() - startTime;
+      const budgetMs = Math.max(5, timeoutSecs - 5) * 1000;
+      if (elapsedMs > budgetMs) {
+        console.log(`[Sync] Approaching time limit (${elapsedMs}ms). Terminating AI analysis loop early.`);
+        break;
+      }
 
       const lastGenerated = analysisMap.get(ipoId);
       const isClosedOrListed = ipo.status === "closed" || ipo.status === "listed";

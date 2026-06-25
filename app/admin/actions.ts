@@ -262,6 +262,22 @@ export async function runAIAnalysis(ipoId: string) {
 export async function fetchSyncLogs() {
   verifyAuth();
 
+  // Auto-resolve stuck runs: any run in 'running' status started > 10 minutes ago is marked as 'error'
+  try {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    await supabaseAdmin
+      .from("ipo_data_sync_logs")
+      .update({
+        status: "error",
+        error_message: "Job timed out or was terminated abruptly by serverless container.",
+        finished_at: new Date().toISOString()
+      })
+      .eq("status", "running")
+      .lt("started_at", tenMinutesAgo);
+  } catch (err) {
+    console.error("Failed to auto-resolve stuck runs:", err);
+  }
+
   const { data, error } = await supabaseAdmin
     .from("ipo_data_sync_logs")
     .select("*")
