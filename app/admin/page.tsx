@@ -57,6 +57,7 @@ export default function AdminPortal() {
   // Edit IPO States
   const [editingIpoId, setEditingIpoId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
+  const [showWarningsOnly, setShowWarningsOnly] = useState(false);
 
   // Sync statuses
   const [syncStatus, setSyncStatus] = useState<Record<string, string>>({
@@ -268,6 +269,9 @@ export default function AdminPortal() {
       listing_date: ipo.listing_date ?? "",
       status: ipo.status ?? "upcoming",
       registrar_name: ipo.registrar_name ?? "",
+      symbol: ipo.symbol ?? "",
+      exchange: ipo.exchange ?? "",
+      ipoplatform_url: ipo.enriched_data?.ipoplatform_url ?? "",
     });
   };
 
@@ -284,6 +288,9 @@ export default function AdminPortal() {
         listing_date: editForm.listing_date || null,
         status: editForm.status,
         registrar_name: editForm.registrar_name || null,
+        symbol: editForm.symbol === "" ? null : editForm.symbol,
+        exchange: editForm.exchange === "" ? null : editForm.exchange,
+        ipoplatform_url: editForm.ipoplatform_url === "" ? null : editForm.ipoplatform_url,
       };
 
       await updateIPODetails(id, payload);
@@ -625,6 +632,27 @@ export default function AdminPortal() {
     );
   }
 
+  const getIpoWarnings = (ipo: any) => {
+    const hasFinancials = ipo.ipo_financials_yearly && ipo.ipo_financials_yearly.length > 0;
+    const hasPeers = ipo.ipo_peer_comparisons && ipo.ipo_peer_comparisons.length > 0;
+    
+    // Subscription is only expected for open/closed/listed IPOs, not upcoming
+    const hasSubscription = ipo.subscription_data && ipo.subscription_data.length > 0;
+    const needsSubscription = ipo.status === "open" || ipo.status === "closed" || ipo.status === "listed";
+    const subscriptionWarning = needsSubscription && !hasSubscription;
+
+    const warnings = [];
+    if (!hasFinancials) warnings.push("No Financials");
+    if (!hasPeers) warnings.push("No Peers");
+    if (subscriptionWarning) warnings.push("No Subscription");
+    return warnings;
+  };
+
+  const iposWithWarnings = ipos.filter(ipo => getIpoWarnings(ipo).length > 0);
+  const totalWarningsCount = iposWithWarnings.length;
+
+  const displayedIpos = showWarningsOnly ? iposWithWarnings : ipos;
+
   return (
     <main style={{ padding: "24px 0", minHeight: "90vh", background: "var(--bg)" }}>
       <div className="shell">
@@ -708,7 +736,44 @@ export default function AdminPortal() {
         {/* Tab 1: IPO List */}
         {activeTab === "ipos" && (
           <div className="card" style={{ padding: "20px", display: "grid", gap: "20px", overflowX: "auto" }}>
-            <h3 style={{ fontSize: "18px", color: "var(--ink)", borderBottom: "1px solid var(--border)", paddingBottom: "8px" }}>All IPOs</h3>
+            {totalWarningsCount > 0 && (
+              <div style={{
+                background: "#fffbeb",
+                border: "1px solid #fef3c7",
+                borderRadius: "12px",
+                padding: "16px",
+                marginBottom: "8px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                color: "#b45309"
+              }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <span style={{ fontSize: "20px" }}>⚠️</span>
+                  <span style={{ fontWeight: "800", fontSize: "14px" }}>
+                    Data Integrity Warning: {totalWarningsCount} IPO{totalWarningsCount > 1 ? "s" : ""} missing critical data
+                  </span>
+                </div>
+                <p style={{ fontSize: "12px", margin: 0, color: "#b45309", opacity: 0.9 }}>
+                  Some listings are missing yearly financials, peer comparison data, or live subscriptions. Please click "Edit" on flagged rows to add their manual URL override or enter data manually.
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: "10px" }}>
+              <h3 style={{ fontSize: "18px", color: "var(--ink)", margin: 0 }}>All IPOs</h3>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", cursor: "pointer", userSelect: "none" }}>
+                <input 
+                  type="checkbox" 
+                  checked={showWarningsOnly} 
+                  onChange={(e) => setShowWarningsOnly(e.target.checked)}
+                  style={{ cursor: "pointer" }}
+                />
+                <span style={{ fontWeight: "700", color: showWarningsOnly ? "#ef4444" : "var(--muted)" }}>
+                  Show Warnings Only ({totalWarningsCount})
+                </span>
+              </label>
+            </div>
             
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
@@ -723,7 +788,7 @@ export default function AdminPortal() {
                 </tr>
               </thead>
               <tbody>
-                {ipos.map((ipo) => {
+                {displayedIpos.map((ipo) => {
                   const isEditing = editingIpoId === ipo.id;
                   const latestGmp = ipo.gmp_history?.[0]?.gmp_value ?? "NA";
                   const aiAnalysis = ipo.ai_analysis?.[0];
@@ -732,31 +797,108 @@ export default function AdminPortal() {
                     <tr key={ipo.id} style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "10px", fontWeight: "600" }}>
                         {ipo.name}
-                        <div style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "normal" }}>
-                          {ipo.category?.toUpperCase() || "SME"} · {ipo.registrar_name || "No registrar"}
-                          {ipo.enriched_data && (ipo.enriched_data as any).lead_manager && ` · LM: ${(ipo.enriched_data as any).lead_manager}`}
-                        </div>
-                        {ipo.enriched_data && 
-                         (ipo.enriched_data as any).sources && 
-                         typeof (ipo.enriched_data as any).sources === "object" && 
-                         !Array.isArray((ipo.enriched_data as any).sources) && (
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
-                            {Object.entries((ipo.enriched_data as any).sources).map(([sec, src]: [string, any]) => (
-                              <span 
-                                key={sec} 
-                                style={{ 
-                                  fontSize: "9px", 
-                                  padding: "2px 5px", 
-                                  background: "#f1f5f9", 
-                                  color: "#475569", 
-                                  borderRadius: "4px", 
-                                  border: "1px solid #cbd5e1" 
-                                }}
-                              >
-                                {sec.replace("_", " ")}: <strong style={{ color: "#0f172a" }}>{typeof src === "object" ? JSON.stringify(src) : String(src)}</strong>
-                              </span>
-                            ))}
+                        {isEditing ? (
+                          <div style={{ marginTop: "6px", display: "grid", gap: "6px", fontWeight: "normal", fontSize: "11px" }}>
+                            <div style={{ display: "flex", gap: "6px" }}>
+                              <input 
+                                type="text" 
+                                value={editForm.symbol} 
+                                onChange={(e) => setEditForm({ ...editForm, symbol: e.target.value })}
+                                placeholder="Symbol"
+                                style={{ width: "100px", padding: "4px", border: "1px solid var(--border)", borderRadius: "4px" }}
+                              />
+                              <input 
+                                type="text" 
+                                value={editForm.exchange} 
+                                onChange={(e) => setEditForm({ ...editForm, exchange: e.target.value })}
+                                placeholder="Exchange"
+                                style={{ width: "100px", padding: "4px", border: "1px solid var(--border)", borderRadius: "4px" }}
+                              />
+                            </div>
+                            <input 
+                              type="text" 
+                              value={editForm.ipoplatform_url} 
+                              onChange={(e) => setEditForm({ ...editForm, ipoplatform_url: e.target.value })}
+                              placeholder="Override IPOPlatform URL"
+                              style={{ width: "206px", padding: "4px", border: "1px solid var(--border)", borderRadius: "4px" }}
+                            />
                           </div>
+                        ) : (
+                          <>
+                            <div style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "normal" }}>
+                              {ipo.category?.toUpperCase() || "SME"} · {ipo.registrar_name || "No registrar"}
+                              {ipo.symbol && ` · Ticker: ${ipo.symbol}`}
+                              {ipo.exchange && ` · Exch: ${ipo.exchange}`}
+                              {ipo.enriched_data?.ipoplatform_url && (
+                                <span style={{ display: "block", color: "var(--primary)" }}>
+                                  Override: {ipo.enriched_data.ipoplatform_url.split("/").slice(-2).join("/")}
+                                </span>
+                              )}
+                              {ipo.enriched_data && (ipo.enriched_data as any).lead_manager && ` · LM: ${(ipo.enriched_data as any).lead_manager}`}
+                            </div>
+                            {ipo.enriched_data && 
+                             (ipo.enriched_data as any).sources && 
+                             typeof (ipo.enriched_data as any).sources === "object" && 
+                             !Array.isArray((ipo.enriched_data as any).sources) && (
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
+                                {Object.entries((ipo.enriched_data as any).sources).map(([sec, src]: [string, any]) => (
+                                  <span 
+                                    key={sec} 
+                                    style={{ 
+                                      fontSize: "9px", 
+                                      padding: "2px 5px", 
+                                      background: "#f1f5f9", 
+                                      color: "#475569", 
+                                      borderRadius: "4px", 
+                                      border: "1px solid #cbd5e1" 
+                                    }}
+                                  >
+                                    {sec.replace("_", " ")}: <strong style={{ color: "#0f172a" }}>{typeof src === "object" ? JSON.stringify(src) : String(src)}</strong>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            {(() => {
+                              const warnings = getIpoWarnings(ipo);
+                              if (warnings.length === 0) return null;
+                              return (
+                                <div style={{ display: "flex", gap: "6px", marginTop: "6px", flexWrap: "wrap" }}>
+                                  {warnings.map(w => {
+                                    let bg = "#fee2e2";
+                                    let color = "#ef4444";
+                                    let border = "1px solid #fecaca";
+                                    if (w === "No Peers") {
+                                      bg = "#ffedd5";
+                                      color = "#ea580c";
+                                      border = "1px solid #fed7aa";
+                                    } else if (w === "No Subscription") {
+                                      bg = "#fef9c3";
+                                      color = "#ca8a04";
+                                      border = "1px solid #fef08a";
+                                    }
+                                    return (
+                                      <span 
+                                        key={w} 
+                                        style={{ 
+                                          fontSize: "10px", 
+                                          fontWeight: "750", 
+                                          padding: "2px 6px", 
+                                          borderRadius: "6px", 
+                                          background: bg, 
+                                          color: color, 
+                                          border: border,
+                                          display: "inline-flex",
+                                          alignItems: "center"
+                                        }}
+                                      >
+                                        ⚠️ {w}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
+                          </>
                         )}
                       </td>
                       

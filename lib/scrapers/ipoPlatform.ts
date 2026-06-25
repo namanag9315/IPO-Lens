@@ -207,6 +207,8 @@ export async function findIPOPlatformUrl(companyName: string): Promise<{ slug: s
   const targetWords = cleanCompany.split(" ").filter(w => w.length > 2);
   if (targetWords.length === 0) return null;
 
+  const allDiscoveredLinks: Array<{ text: string; href: string }> = [];
+
   for (const listUrl of lists) {
     try {
       const response = await axios.get(listUrl, {
@@ -222,11 +224,18 @@ export async function findIPOPlatformUrl(companyName: string): Promise<{ slug: s
         const href = $(el).attr("href") || "";
         if (!href.includes("/ipo/")) return;
 
+        const text = $(el).text().trim().replace(/\s+/g, " ");
+        const absoluteUrl = href.startsWith("http") ? href : `https://www.ipoplatform.com${href}`;
+
+        // Collect all links for LLM fallback
+        if (text && href && !allDiscoveredLinks.some(l => l.href === absoluteUrl)) {
+          allDiscoveredLinks.push({ text, href: absoluteUrl });
+        }
+
         const match = href.match(/\/ipo\/([a-zA-Z0-9\-]+)\/(\d+)/);
         if (match) {
           const slug = match[1];
           const id = match[2];
-          const text = $(el).text().trim();
           
           const cleanText = cleanNameForMatch(text);
           const cleanSlug = slug.replace(/-/g, " ").toLowerCase();
@@ -245,7 +254,7 @@ export async function findIPOPlatformUrl(companyName: string): Promise<{ slug: s
             matched = {
               slug,
               id,
-              url: href.startsWith("http") ? href : `https://www.ipoplatform.com${href}`
+              url: absoluteUrl
             };
             return false; // Break
           }
@@ -255,6 +264,55 @@ export async function findIPOPlatformUrl(companyName: string): Promise<{ slug: s
       if (matched) return matched;
     } catch (err) {
       // Try next list URL
+    }
+  }
+
+  // AI Matchmaker Fallback if standard code rules did not find a match
+  if (allDiscoveredLinks.length > 0) {
+    console.log(`[Sync] Prefix match failed for "${companyName}". Running AI Matchmaker Fallback on ${allDiscoveredLinks.length} links...`);
+    
+    interface AIUrlMatch {
+      matchedUrl: string | null;
+      reason: string;
+    }
+
+    const linksText = allDiscoveredLinks.map(l => `- Name/Text: "${l.text}", URL: "${l.href}"`).join("\n");
+    const jsonSchema = `{
+      "matchedUrl": "string or null (the absolute URL from the list that corresponds to the company name, e.g. 'https://www.ipoplatform.com/ipo/cordelia-cruises-ipo/4171')",
+      "reason": "string (brief explanation of why this link was chosen)"
+    }`;
+
+    try {
+      const aiMatch = await extractStructuredDataFromHtml<AIUrlMatch>(
+        `Company to find: "${companyName}"\n\nList of links on the page:\n${linksText}`,
+        "IPOPlatform URL Match",
+        jsonSchema
+      );
+
+      if (aiMatch && aiMatch.matchedUrl) {
+        const targetUrl = aiMatch.matchedUrl;
+        console.log(`[Sync] AI Matchmaker matched "${companyName}" to "${targetUrl}". Reason: ${aiMatch.reason}`);
+        
+        const matchedLink = allDiscoveredLinks.find(l => 
+          l.href === targetUrl || 
+          l.href.includes(targetUrl) || 
+          targetUrl.includes(l.href)
+        );
+
+        if (matchedLink) {
+          const href = matchedLink.href;
+          const match = href.match(/\/ipo\/([a-zA-Z0-9\-]+)\/(\d+)/);
+          if (match) {
+            return {
+              slug: match[1],
+              id: match[2],
+              url: href
+            };
+          }
+        }
+      }
+    } catch (aiErr: any) {
+      console.error(`[Sync] AI Matchmaker failed for ${companyName}:`, aiErr.message);
     }
   }
 

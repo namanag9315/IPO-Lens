@@ -78,6 +78,14 @@ export async function fetchAdminIPOs() {
         score,
         label,
         generated_at
+      ),
+      ipo_financials_yearly (
+        id,
+        financial_year
+      ),
+      ipo_peer_comparisons (
+        id,
+        peer_name
       )
     `)
     .order("close_date", { ascending: false });
@@ -102,13 +110,34 @@ export async function updateIPODetails(
     listing_date?: string | null;
     status?: "upcoming" | "open" | "closed" | "listed";
     registrar_name?: string | null;
+    symbol?: string | null;
+    exchange?: string | null;
+    ipoplatform_url?: string | null;
   }
 ) {
   verifyAuth();
 
+  let finalFields: any = { ...fields };
+
+  if (fields.ipoplatform_url !== undefined) {
+    const { data: ipo } = await supabaseAdmin
+      .from("ipos")
+      .select("enriched_data")
+      .eq("id", ipoId)
+      .single();
+
+    const enriched = (ipo?.enriched_data as any) || {};
+    finalFields.enriched_data = {
+      ...enriched,
+      ipoplatform_url: fields.ipoplatform_url || null
+    };
+
+    delete finalFields.ipoplatform_url;
+  }
+
   const { error } = await supabaseAdmin
     .from("ipos")
-    .update(fields)
+    .update(finalFields)
     .eq("id", ipoId);
 
   if (error) {
