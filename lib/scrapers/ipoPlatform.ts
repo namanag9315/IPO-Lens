@@ -7,7 +7,7 @@ import { extractStructuredDataFromHtml } from "@/lib/groq";
 function cleanNameForMatch(name: string): string {
   return name
     .toLowerCase()
-    .replace(/\b(limited|ltd|ipo|fpo|india|limited-ipo|ltd-ipo|private|pvt|corp|corporation)\b/g, "")
+    .replace(/\b(limited|ltd|ipo|fpo|india|limited-ipo|ltd-ipo|private|pvt|corp|corporation|now open|open|closed|listed|upcoming|pre open|pre-open)\b/g, "")
     .replace(/[^a-z0-9\s]/g, "")
     .trim()
     .replace(/\s+/g, " ");
@@ -203,7 +203,8 @@ export async function findIPOPlatformUrl(companyName: string): Promise<{ slug: s
     "https://www.ipoplatform.com/list-of-mainboard-ipos"
   ];
 
-  const targetWords = cleanNameForMatch(companyName).split(" ").filter(w => w.length > 2);
+  const cleanCompany = cleanNameForMatch(companyName);
+  const targetWords = cleanCompany.split(" ").filter(w => w.length > 2);
   if (targetWords.length === 0) return null;
 
   for (const listUrl of lists) {
@@ -225,10 +226,22 @@ export async function findIPOPlatformUrl(companyName: string): Promise<{ slug: s
         if (match) {
           const slug = match[1];
           const id = match[2];
-          const cleanedSlug = slug.replace(/-/g, " ").toLowerCase();
+          const text = $(el).text().trim();
+          
+          const cleanText = cleanNameForMatch(text);
+          const cleanSlug = slug.replace(/-/g, " ").toLowerCase();
+          const cleanSlugNoIpo = cleanSlug.replace(/\bipo\b/g, "").trim();
 
-          const matchesAll = targetWords.every(word => cleanedSlug.includes(word));
-          if (matchesAll) {
+          // 1. Slug contains all company name words (standard case)
+          const matchesSlug = targetWords.every(word => cleanSlug.includes(word));
+          // 2. Anchor text contains all company name words
+          const matchesText = targetWords.every(word => cleanText.includes(word));
+          // 3. Anchor text is a prefix of company name or vice versa (e.g. "Waterways Leisure" for "Waterways Leisure Tourism")
+          const isTextPrefix = cleanText.length >= 3 && (cleanCompany.startsWith(cleanText) || cleanText.startsWith(cleanCompany));
+          // 4. Slug (without "ipo") is a prefix of company name or vice versa
+          const isSlugPrefix = cleanSlugNoIpo.length >= 3 && (cleanCompany.startsWith(cleanSlugNoIpo) || cleanSlugNoIpo.startsWith(cleanCompany));
+
+          if (matchesSlug || matchesText || isTextPrefix || isSlugPrefix) {
             matched = {
               slug,
               id,
