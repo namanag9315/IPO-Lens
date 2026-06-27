@@ -16,7 +16,8 @@ import {
   logoutAdmin,
   checkAdminSession,
   sendBrevoCampaignAction,
-  fetchSubscribersAction
+  fetchSubscribersAction,
+  repairDataIntegrityWarningsAction
 } from "./actions";
 
 const IPO_UPDATES_LIST_ID = "3";
@@ -58,6 +59,9 @@ export default function AdminPortal() {
   const [editingIpoId, setEditingIpoId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [showWarningsOnly, setShowWarningsOnly] = useState(false);
+  const [repairingWarnings, setRepairingWarnings] = useState(false);
+  const [repairResult, setRepairResult] = useState<any>(null);
+  const [repairStatus, setRepairStatus] = useState("");
 
   // Sync statuses
   const [syncStatus, setSyncStatus] = useState<Record<string, string>>({
@@ -350,6 +354,35 @@ export default function AdminPortal() {
       }
     } catch (err) {
       setSyncStatus(prev => ({ ...prev, [type]: "Failed to trigger." }));
+    }
+  };
+
+  const handleRepairWarnings = async () => {
+    if (repairingWarnings) return;
+
+    setRepairingWarnings(true);
+    setRepairResult(null);
+    setRepairStatus("Repairing flagged IPOs...");
+
+    try {
+      const res = await repairDataIntegrityWarningsAction();
+
+      if (!res.success || !res.data) {
+        setRepairStatus(`Repair failed: ${res.error || "Unknown error"}`);
+        return;
+      }
+
+      setRepairResult(res.data);
+      setRepairStatus(
+        `Repair finished: fixed ${res.data.fixed} of ${res.data.checked} flagged IPOs. ` +
+        `Backfilled ${res.data.totals.financialRows} financial rows, ${res.data.totals.peerRows} peer rows, and ${res.data.totals.subscriptionRows} subscription rows.`
+      );
+      await loadData();
+      await loadLogs();
+    } catch (err: any) {
+      setRepairStatus(`Repair failed: ${err.message || "Unexpected error"}`);
+    } finally {
+      setRepairingWarnings(false);
     }
   };
 
@@ -748,15 +781,55 @@ export default function AdminPortal() {
                 gap: "8px",
                 color: "#b45309"
               }}>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <span style={{ fontSize: "20px" }}>⚠️</span>
-                  <span style={{ fontWeight: "800", fontSize: "14px" }}>
-                    Data Integrity Warning: {totalWarningsCount} IPO{totalWarningsCount > 1 ? "s" : ""} missing critical data
-                  </span>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <span style={{ fontSize: "20px" }}>⚠️</span>
+                    <span style={{ fontWeight: "800", fontSize: "14px" }}>
+                      Data Integrity Warning: {totalWarningsCount} IPO{totalWarningsCount > 1 ? "s" : ""} missing critical data
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRepairWarnings}
+                    disabled={repairingWarnings}
+                    className="btn"
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      fontSize: "12px",
+                      cursor: repairingWarnings ? "not-allowed" : "pointer",
+                      opacity: repairingWarnings ? 0.7 : 1,
+                      background: "#92400e",
+                      color: "#fff",
+                      borderColor: "#92400e"
+                    }}
+                  >
+                    {repairingWarnings ? "Repairing..." : "Repair flagged IPOs"}
+                  </button>
                 </div>
                 <p style={{ fontSize: "12px", margin: 0, color: "#b45309", opacity: 0.9 }}>
-                  Some listings are missing yearly financials, peer comparison data, or live subscriptions. Please click "Edit" on flagged rows to add their manual URL override or enter data manually.
+                  Some listings are missing yearly financials, peer comparison data, or live subscriptions. Use the repair run first; add a manual IPOPlatform override only for rows that still fail.
                 </p>
+              </div>
+            )}
+
+            {repairStatus && (
+              <div style={{
+                background: repairResult?.stillFailing ? "#fffbeb" : "#f0fdf4",
+                border: repairResult?.stillFailing ? "1px solid #fef3c7" : "1px solid #bbf7d0",
+                borderRadius: "10px",
+                padding: "12px 14px",
+                color: repairResult?.stillFailing ? "#92400e" : "#166534",
+                fontSize: "12px",
+                fontWeight: 700
+              }}>
+                {repairStatus}
+                {repairResult?.stillFailing > 0 && (
+                  <span style={{ display: "block", marginTop: "4px", fontWeight: 600 }}>
+                    Still flagged: {repairResult.rows.filter((row: any) => row.remaining.length > 0).slice(0, 4).map((row: any) => row.name).join(", ")}
+                    {repairResult.stillFailing > 4 ? ` +${repairResult.stillFailing - 4} more` : ""}
+                  </span>
+                )}
               </div>
             )}
 

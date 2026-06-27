@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { headers, cookies } from "next/headers";
+import { repairDataIntegrityWarnings as runDataIntegrityRepair } from "@/lib/adminDataIntegrityRepair";
 import { supabaseAdmin } from "@/lib/supabase";
 
 // Authorization guard helper
@@ -320,6 +321,68 @@ export async function fetchSyncLogs() {
   return data || [];
 }
 
+export async function repairDataIntegrityWarningsAction() {
+  verifyAuth();
+
+  let syncLogId: string | undefined;
+
+  try {
+    const { data: logRecord, error: logStartError } = await supabaseAdmin
+      .from("ipo_data_sync_logs")
+      .insert({
+        provider: "admin-repair",
+        data_type: "financials+peers+subscription",
+        status: "running",
+        records_found: 0,
+        records_saved: 0,
+        started_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+
+    if (logStartError) {
+      console.error("[Admin Repair] Failed to start sync log:", logStartError);
+    } else {
+      syncLogId = logRecord?.id;
+    }
+
+    const result = await runDataIntegrityRepair();
+    const recordsSaved = result.totals.financialRows + result.totals.peerRows + result.totals.subscriptionRows;
+
+    if (syncLogId) {
+      await supabaseAdmin
+        .from("ipo_data_sync_logs")
+        .update({
+          status: "success",
+          records_found: result.checked,
+          records_saved: recordsSaved,
+          finished_at: new Date().toISOString(),
+        })
+        .eq("id", syncLogId);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/admin");
+
+    return { success: true, data: result };
+  } catch (error: any) {
+    const message = error?.message || "Unable to repair data integrity warnings.";
+
+    if (syncLogId) {
+      await supabaseAdmin
+        .from("ipo_data_sync_logs")
+        .update({
+          status: "error",
+          error_message: message,
+          finished_at: new Date().toISOString(),
+        })
+        .eq("id", syncLogId);
+    }
+
+    return { success: false, error: message };
+  }
+}
+
 export async function sendBrevoCampaignAction(subject: string, htmlContent: string, listId?: number) {
   verifyAuth();
   const { sendCampaign } = await import("@/lib/brevo");
@@ -342,4 +405,3 @@ export async function fetchSubscribersAction(limit = 50, offset = 0) {
     return { success: false, error: error.message || "Failed to fetch subscribers" };
   }
 }
-
