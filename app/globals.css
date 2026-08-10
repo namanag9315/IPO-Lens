@@ -1894,16 +1894,45 @@ select {
 
 @media (max-width: 1180px) {
   .admin-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .admin-sidebar {
+    gap: 12px;
     height: auto;
+    padding: 14px 16px;
     position: static;
   }
 
+  .admin-sidebar-brand {
+    padding: 0 4px;
+  }
+
   .admin-sidebar nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .admin-sidebar section {
+    display: contents;
+  }
+
+  .admin-sidebar section p,
+  .admin-sidebar-note {
+    display: none;
+  }
+
+  .admin-sidebar section a {
+    flex: 0 0 auto;
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+
+  .admin-main {
+    max-width: 100%;
+    width: 100%;
   }
 }
 
@@ -1936,8 +1965,26 @@ select {
     grid-template-columns: 1fr;
   }
 
-  .admin-sidebar nav {
-    grid-template-columns: 1fr;
+  .admin-sidebar {
+    padding: 12px;
+  }
+
+  .admin-sidebar-brand small {
+    display: none;
+  }
+
+  .admin-sync-stats {
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-sync-stats .admin-stat-card {
+    min-height: 96px;
+    padding: 14px;
+  }
+
+  .admin-sync-stats .admin-stat-card strong {
+    font-size: 22px;
   }
 }
 

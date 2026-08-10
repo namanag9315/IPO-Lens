@@ -37,6 +37,7 @@ const groups = [
   {
     label: "Operations",
     links: [
+      { href: "/admin/sync", icon: RefreshCcw, label: "Sync Center" },
       { href: "/admin/data-engine", icon: RefreshCcw, label: "Data Engine" },
       { href: "/admin/providers", icon: Gauge, label: "Providers" },
       { href: "/admin/allotment", icon: ClipboardCheck, label: "Allotment Logs" },

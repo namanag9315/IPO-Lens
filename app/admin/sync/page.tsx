@@ -15,10 +15,19 @@ type SyncLog = Record<string, unknown>;
 const primarySyncCards: Array<{
   body?: Record<string, unknown>;
   dataType: string;
+  description?: string;
   endpoint: string;
   label: string;
   title: string;
 }> = [
+  {
+    body: { financialsOnly: true, limit: 20 },
+    dataType: "detail",
+    description: "Processes up to 20 IPOs that still have no verified yearly financials.",
+    endpoint: "/api/admin/ipo-engine/detail",
+    label: "Repair Missing Financials",
+    title: "Financial Coverage Repair",
+  },
   {
     dataType: "gmp",
     endpoint: "/api/admin/ipo-engine/gmp",
@@ -42,13 +51,6 @@ const primarySyncCards: Array<{
     endpoint: "/api/admin/ipo-engine/detail",
     label: "Run Full IPO Detail Import Now",
     title: "Full IPO Detail Import",
-  },
-  {
-    body: { financialsOnly: true, limit: 20 },
-    dataType: "detail",
-    endpoint: "/api/admin/ipo-engine/detail",
-    label: "Repair Missing Financials",
-    title: "Financial Coverage Repair",
   },
 ];
 
@@ -96,9 +98,11 @@ export default async function AdminSyncPage() {
         {primarySyncCards.map((card) => {
           const last = lastFor(logs, card.dataType);
           return (
-            <div className="admin-panel" key={card.title}>
+            <div className="admin-panel admin-sync-card" key={card.title}>
               <h2>{card.title}</h2>
-              <div className="admin-grid admin-grid-2">
+              {card.description ? <p className="admin-muted">{card.description}</p> : null}
+              <AdminActionButton endpoint={card.endpoint} label={card.label} body={card.body} />
+              <div className="admin-grid admin-grid-2 admin-sync-stats">
                 <AdminStatCard label="Last status" value={last ? <AdminStatusBadge>{asString(last.status)}</AdminStatusBadge> : "Never"} />
                 <AdminStatCard helper={last ? timeAgo(last.started_at) : "No run yet"} label="Last run" value={last ? formatDateTime(last.started_at) : "Never"} />
                 <AdminStatCard label="Records found" value={String(last?.found ?? 0)} />
@@ -108,7 +112,6 @@ export default async function AdminSyncPage() {
               </div>
               <p className="admin-muted">Provider: {asString(last?.provider, "not run yet")}</p>
               {Array.isArray(last?.errors) && last.errors.length > 0 ? <p className="admin-warning-note">{last.errors.join(", ")}</p> : null}
-              <AdminActionButton endpoint={card.endpoint} label={card.label} body={card.body} />
             </div>
           );
         })}
