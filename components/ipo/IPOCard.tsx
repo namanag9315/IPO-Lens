@@ -1,26 +1,43 @@
 import Link from "next/link";
-import { format } from "date-fns";
 import { Bookmark } from "lucide-react";
+import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import { getDataFreshness, relativeUpdatedTime } from "@/lib/ipo-data/dataFreshness";
+import { isSMECategory } from "@/lib/ipoCategory";
 import { calculateScore, estimateListingGainPct } from "@/lib/scoring";
-import type { ComputedIPO } from "@/types/ipo";
-import { extractDomain, cleanAndFilterFinancials, guessCompanyDomain } from "@/lib/mappers/researchMapper";
-import CompanyLogo from "@/components/ui/CompanyLogo";
-import ScoreRing from "@/components/ui/ScoreRing";
+import type { AIAnalysisLabel, ComputedIPO, IPOStatus } from "@/types/ipo";
 
 interface IPOCardProps {
   ipo: ComputedIPO;
   index: number;
 }
 
-function derivedScore(ipo: ComputedIPO) {
+function initials(name: string) {
+  return name
+    .replace(/\b(IPO|Limited|Ltd)\b/gi, "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function derivedScore(ipo: ComputedIPO): { label: AIAnalysisLabel; score: number } {
+  if (ipo.ai_analysis?.score !== null && ipo.ai_analysis?.score !== undefined && ipo.ai_analysis.label) {
+    return {
+      label: ipo.ai_analysis.label,
+      score: ipo.ai_analysis.score,
+    };
+  }
+
   return calculateScore({
     anchorInvestors: ipo.anchor_investors,
     anchorSummary: ipo.anchor_summary,
     category: ipo.category,
-    financials: cleanAndFilterFinancials(ipo.financials_yearly ?? []),
+    financials: ipo.financials_yearly,
     gmp: ipo.latest_gmp ?? 0,
-    issuePrice: ipo.price_band_high ?? 0,
+    issuePrice: ipo.latest_public_gmp_snapshot?.issue_price ?? ipo.price_band_high ?? 0,
     issueSizeCr: ipo.issue_size_cr ?? 0,
     niiX: ipo.latest_subscription?.nii_x ?? 0,
     objectsOfIssue: ipo.objects_of_issue,
@@ -31,136 +48,122 @@ function derivedScore(ipo: ComputedIPO) {
   });
 }
 
-function priceBand(ipo: ComputedIPO) {
-  if (!ipo.price_band_low || !ipo.price_band_high) {
-    return "—";
+function scoreTone(score: number) {
+  if (score >= 71) {
+    return "strong";
   }
-  return `₹${ipo.price_band_low} - ₹${ipo.price_band_high}`;
+
+  if (score >= 51) {
+    return "moderate";
+  }
+
+  return "weak";
 }
 
-function closeLabel(ipo: ComputedIPO) {
-  if (ipo.status === "listed") {
-    return "Listed";
+function statusTone(status: IPOStatus) {
+  if (status === "open") {
+    return "green";
   }
-  if (!ipo.close_date) {
-    return ipo.status === "upcoming" ? "Upcoming" : "—";
+
+  if (status === "listed") {
+    return "slate";
   }
-  try {
-    return format(new Date(ipo.close_date), "dd MMM yyyy");
-  } catch {
-    return "—";
+
+  if (status === "closed") {
+    return "slate";
   }
+
+  return "amber";
+}
+
+function exchangeLine(ipo: ComputedIPO) {
+  return `${isSMECategory(ipo.category) ? "SME" : "MAIN"} · NSE/BSE`;
+}
+
+function freshnessClass(capturedAt: string | null | undefined) {
+  return getDataFreshness(capturedAt).toLowerCase();
+}
+
+function valueTone(value: number | null) {
+  return value === null ? "" : value > 0 ? "data-positive" : value < 0 ? "data-negative" : "";
+}
+
+function percentLabel(value: number) {
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
 }
 
 export default function IPOCard({ ipo, index }: IPOCardProps) {
   const signal = derivedScore(ipo);
-  const premium = estimateListingGainPct(ipo.latest_gmp ?? 0, ipo.price_band_high) ?? 0;
+  const latestGmp = ipo.latest_gmp ?? null;
+  const premium = ipo.latest_gmp_percent ?? estimateListingGainPct(latestGmp, ipo.latest_public_gmp_snapshot?.issue_price ?? ipo.price_band_high);
   const totalSubscription = ipo.latest_subscription?.total_x ?? 0;
-
-  // Verdict mapping matching the premium financial layout
-  const cleanLabel = (signal.label ?? "").toLowerCase();
-  let verdictText = "Neutral";
-  let verdictClass = "neutral";
-  
-  if (signal.score >= 68 || cleanLabel.includes("apply") || cleanLabel.includes("strong")) {
-    verdictText = "Positive";
-    verdictClass = "positive";
-  } else if (signal.score <= 45 || cleanLabel.includes("avoid") || cleanLabel.includes("weak")) {
-    verdictText = "Avoid";
-    verdictClass = "avoid";
-  }
-
-  const sector = ipo.company_profile?.sector || "Financial Services";
-  const location = ipo.company_profile?.headquarters
-    ? ipo.company_profile.headquarters.split(",")[0].trim()
-    : "India";
-
-  const retailSubscription = ipo.latest_subscription?.retail_x;
-  const subscriptionSubtext = retailSubscription
-    ? `Retail: ${retailSubscription.toFixed(0)}x`
-    : "Total Demand";
+  const retailSubscription = ipo.latest_subscription?.retail_x ?? null;
+  const tone = scoreTone(signal.score);
+  const gmpSnapshot = ipo.latest_public_gmp_snapshot;
+  const subscriptionSnapshot = ipo.latest_public_subscription_snapshot;
 
   return (
     <Card
       as={Link}
-      className={`ipo-premium-card ${verdictClass}`}
+      className={`ipo-signal-card ${tone}`}
       href={`/ipo/${ipo.slug}`}
       style={{
         animation: "row-in 200ms ease-out both",
         animationDelay: `${index * 40}ms`,
-        backgroundColor: "#ffffff",
-        color: "#1e293b",
       }}
     >
-      {/* 1. Header Section */}
-      <div className="card-header-row">
-        <div className="logo-col">
-          <div className="card-logo-container">
-            <CompanyLogo
-              domain={extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name)}
-              name={ipo.name}
-            />
-          </div>
+      <div className="ipo-signal-top">
+        <div className="ipo-avatar">{initials(ipo.name)}</div>
+        <div>
+          <h3>{ipo.name}</h3>
+          <p>{exchangeLine(ipo)}</p>
         </div>
-        <div className="info-col">
-          <div className="title-row">
-            <h3>{ipo.name}</h3>
-            <span className="category-badge">{ipo.category === "sme" ? "SME" : "MAIN"}</span>
-          </div>
-          <p className="sector-location-text">{sector} · {location}</p>
+        <Badge tone={statusTone(ipo.status)}>{ipo.status.toUpperCase()}</Badge>
+      </div>
+
+      <div className="ipo-signal-metrics">
+        <div>
+          <span>Score</span>
+          <strong className="mono">{signal.score}</strong>
+          <em className={tone}>{signal.label}</em>
+        </div>
+        <div>
+          <span>GMP</span>
+          <strong className={`mono ${valueTone(premium)}`}>
+            {premium === null ? "NA" : percentLabel(premium)}
+          </strong>
+          <small>
+            {latestGmp === null ? "No public snapshot" : `GMP ₹${latestGmp}`}
+            {latestGmp !== null && premium === null ? " · Premium NA" : ""}
+            {gmpSnapshot ? (
+              <>
+                {" · "}
+                {gmpSnapshot.source ?? "Public source"} · {relativeUpdatedTime(gmpSnapshot.captured_at).replace("Updated ", "")}
+                <span className={`freshness-pill ${freshnessClass(gmpSnapshot.captured_at)}`} style={{ marginLeft: 6 }}>
+                  {getDataFreshness(gmpSnapshot.captured_at)}
+                </span>
+              </>
+            ) : null}
+          </small>
+        </div>
+        <div>
+          <span>Subs. (x)</span>
+          <strong className="mono">{totalSubscription ? `${totalSubscription.toFixed(0)}x` : "NA"}</strong>
+          <small>
+            {retailSubscription ? `Retail ${retailSubscription.toFixed(1)}x` : "Retail NA"}
+            {subscriptionSnapshot ? (
+              <>
+                {" · "}
+                {subscriptionSnapshot.source ?? "Public source"} · {relativeUpdatedTime(subscriptionSnapshot.captured_at).replace("Updated ", "")}
+              </>
+            ) : null}
+          </small>
         </div>
       </div>
 
-      {/* 2. Score & Key Metrics Section */}
-      <div className="card-body-row">
-        <div className="score-ring-col">
-          <ScoreRing score={signal.score} size={64} />
-          <span className="score-ring-label">IPO SCORE</span>
-        </div>
-
-        <div className="metrics-col">
-          <div className="metric-box">
-            <span className="metric-label">GMP</span>
-            <strong className={`metric-value ${premium >= 0 ? "text-green" : "text-red"}`}>
-              {premium >= 0 ? "+" : ""}
-              {premium.toFixed(1)}%
-            </strong>
-            <span className="metric-subtext">
-              {ipo.latest_gmp !== null ? `₹${ipo.latest_gmp}` : "—"}
-            </span>
-          </div>
-
-          <div className="metric-box">
-            <span className="metric-label">Subs</span>
-            <strong className="metric-value">
-              {totalSubscription ? `${totalSubscription.toFixed(1)}x` : "—"}
-            </strong>
-            <span className="metric-subtext">{subscriptionSubtext}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Details Row (Price Band & Closes On) */}
-      <div className="card-details-row">
-        <div className="detail-box">
-          <span className="detail-label">Price Band</span>
-          <strong className="detail-value">{priceBand(ipo)}</strong>
-        </div>
-        <div className="detail-box">
-          <span className="detail-label">Closes On</span>
-          <strong className="detail-value">{closeLabel(ipo)}</strong>
-        </div>
-      </div>
-
-      {/* 4. Footer Verdict Row */}
-      <div className="card-footer-row">
-        <span className={`verdict-badge ${verdictClass}`}>
-          <span className="verdict-dot" />
-          {verdictText}
-        </span>
-        <div className="bookmark-btn" aria-hidden="true">
-          <Bookmark size={15} />
-        </div>
+      <div className="ipo-signal-foot">
+        <span>{ipo.company_profile?.sector ?? "Sector NA"}</span>
+        <Bookmark aria-hidden="true" size={16} />
       </div>
     </Card>
   );

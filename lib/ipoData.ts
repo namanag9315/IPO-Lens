@@ -1,5 +1,5 @@
-
-import { unstable_cache } from "next/cache";
+import { unstable_noStore as noStore } from "next/cache";
+import { gmpValuesDifferSignificantly, subscriptionValuesDifferSignificantly } from "@/lib/ipo-data/dataQuality";
 import { estimateListingGainPct } from "@/lib/scoring";
 import { isSupabaseConfigured, supabaseAdmin } from "@/lib/supabase";
 import type {
@@ -11,9 +11,20 @@ import type {
   IPOAnchorSummary,
   IPOCompanyProfile,
   IPOFinancialYearly,
+  IPOEnrichedField,
+  IPOFieldQuality,
+  IPOGMPSnapshot,
+  IPOLeadManagerWithManager,
+  IPOMarketMakerWithMaker,
   IPOObjectOfIssue,
   IPOPeerComparison,
+  IPOSubscriptionSnapshot,
+  IPOValuationMetrics,
+  LeadManager,
+  LeadManagerIPOHistory,
+  LeadManagerTrackRecordScore,
   ListingPerformance,
+  MarketMaker,
   SubscriptionData,
 } from "@/types/ipo";
 
@@ -27,10 +38,6 @@ export interface TickerItem {
 export interface PerformanceRow extends ListingPerformance {
   ipo: IPO | null;
   ai_analysis: AIAnalysis | null;
-  current_price?: number | null;
-  current_gain_pct?: number | null;
-  post_listing_return_pct?: number | null;
-  ticker?: string | null;
 }
 
 function sortByNewest<T extends { captured_at?: string; generated_at?: string; recorded_at?: string }>(items: T[]) {
@@ -40,6 +47,11 @@ function sortByNewest<T extends { captured_at?: string; generated_at?: string; r
 
     return right.localeCompare(left);
   });
+}
+
+function isCanonicalIPO(row: unknown) {
+  if (!row || typeof row !== "object") return false;
+  return (row as { is_duplicate?: boolean | null }).is_duplicate !== true;
 }
 
 function buildComputedIPO(
@@ -54,78 +66,101 @@ function buildComputedIPO(
     anchorInvestors?: IPOAnchorInvestor[];
     anchorSummary?: IPOAnchorSummary | null;
     peerComparisons?: IPOPeerComparison[];
+    valuationMetrics?: IPOValuationMetrics | null;
     objectsOfIssue?: IPOObjectOfIssue[];
+    leadManagers?: IPOLeadManagerWithManager[];
+    leadManagerHistory?: LeadManagerIPOHistory[];
+    leadManagerScores?: LeadManagerTrackRecordScore[];
+    marketMakers?: IPOMarketMakerWithMaker[];
+    enrichedFields?: IPOEnrichedField[];
+    fieldQuality?: IPOFieldQuality[];
+  },
+  publicSnapshots?: {
+    gmp?: IPOGMPSnapshot[];
+    subscription?: IPOSubscriptionSnapshot[];
   },
 ): ComputedIPO {
-  const sortedGMP = sortByNewest(gmpHistory);
-  const sortedSubscription = sortByNewest(subscriptionData);
   const sortedAnalysis = sortByNewest(aiAnalysis);
   const sortedPerformance = sortByNewest(listingPerformance);
-  const latestGMP = sortedGMP[0]?.gmp_value ?? null;
-  const latestSubscription = sortedSubscription[0] ?? null;
-
-  // Dynamically compute the correct status based on current date in IST (Asia/Kolkata)
-  let status = ipo.status;
-  const today = new Date();
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  });
-  const todayStr = formatter.format(today); // e.g. "2026-06-23"
-
-  if (ipo.listing_date && ipo.listing_date <= todayStr) {
-    status = "listed";
-  } else if (ipo.close_date && ipo.close_date < todayStr) {
-    status = "closed";
-  } else if (ipo.open_date && ipo.close_date && ipo.open_date <= todayStr && ipo.close_date >= todayStr) {
-    status = "open";
-  } else if (ipo.open_date && ipo.open_date > todayStr) {
-    status = "upcoming";
-  }
+  const publicGmpSnapshots = sortByNewest(publicSnapshots?.gmp ?? []);
+  const publicSubscriptionSnapshots = sortByNewest(publicSnapshots?.subscription ?? []);
+  const latestPublicGMP = publicGmpSnapshots[0] ?? null;
+  const latestPublicSubscription = publicSubscriptionSnapshots[0] ?? null;
+  const alternatePublicGMP = publicGmpSnapshots.find((item) => item.source !== latestPublicGMP?.source) ?? null;
+  const alternatePublicSubscription =
+    publicSubscriptionSnapshots.find((item) => item.source !== latestPublicSubscription?.source) ?? null;
+  const publicGmpHistory: GMPHistory[] = publicGmpSnapshots
+    .filter((snapshot) => snapshot.gmp !== null && snapshot.gmp !== undefined)
+    .map((snapshot) => ({
+      captured_at: snapshot.captured_at,
+      gmp_value: snapshot.gmp ?? 0,
+      id: snapshot.id,
+      ipo_id: snapshot.ipo_id,
+      source: snapshot.source,
+    }));
+  const publicSubscriptionHistory: SubscriptionData[] = publicSubscriptionSnapshots.map((snapshot) => ({
+    captured_at: snapshot.captured_at,
+    id: snapshot.id,
+    ipo_id: snapshot.ipo_id,
+    nii_x: snapshot.nii_times ?? 0,
+    qib_x: snapshot.qib_times ?? 0,
+    retail_x: snapshot.retail_times ?? 0,
+    total_x: snapshot.total_times ?? 0,
+  }));
+  const sortedGMP = sortByNewest([...publicGmpHistory, ...gmpHistory]);
+  const sortedSubscription = sortByNewest([...publicSubscriptionHistory, ...subscriptionData]);
+  const latestLegacyGMP = sortByNewest(gmpHistory)[0]?.gmp_value ?? null;
+  const latestLegacySubscription = sortByNewest(subscriptionData)[0] ?? null;
+  const publicSubscriptionAsLatest: SubscriptionData | null = latestPublicSubscription
+    ? {
+        captured_at: latestPublicSubscription.captured_at,
+        id: latestPublicSubscription.id,
+        ipo_id: latestPublicSubscription.ipo_id,
+        nii_x: latestPublicSubscription.nii_times ?? 0,
+        qib_x: latestPublicSubscription.qib_times ?? 0,
+        retail_x: latestPublicSubscription.retail_times ?? 0,
+        total_x: latestPublicSubscription.total_times ?? 0,
+      }
+    : null;
+  const effectiveGMP = latestPublicGMP?.gmp ?? latestLegacyGMP;
+  const effectiveGMPPercent = latestPublicGMP?.gmp_percent ?? estimateListingGainPct(effectiveGMP, latestPublicGMP?.issue_price ?? ipo.price_band_high);
+  const effectiveSubscription = publicSubscriptionAsLatest ?? latestLegacySubscription;
 
   return {
     ...ipo,
-    status: status as any,
     gmp_history: sortedGMP,
     subscription_data: sortedSubscription,
     ai_analysis: sortedAnalysis[0] ?? null,
     listing_performance: sortedPerformance[0] ?? null,
+    public_gmp_snapshots: publicGmpSnapshots,
+    public_subscription_snapshots: publicSubscriptionSnapshots,
+    latest_public_gmp_snapshot: latestPublicGMP,
+    latest_public_subscription_snapshot: latestPublicSubscription,
+    gmp_source_variance: gmpValuesDifferSignificantly(latestPublicGMP, alternatePublicGMP),
+    subscription_source_variance: subscriptionValuesDifferSignificantly(latestPublicSubscription, alternatePublicSubscription),
     company_profile: research?.companyProfile ?? null,
     financials_yearly: research?.financialsYearly ?? [],
     anchor_investors: research?.anchorInvestors ?? [],
     anchor_summary: research?.anchorSummary ?? null,
     peer_comparisons: research?.peerComparisons ?? [],
+    valuation_metrics: research?.valuationMetrics ?? null,
     objects_of_issue: research?.objectsOfIssue ?? [],
-    latest_gmp: latestGMP,
-    latest_subscription: latestSubscription,
-    estimated_listing_gain_pct: estimateListingGainPct(latestGMP, ipo.price_band_high),
+    lead_managers: research?.leadManagers ?? [],
+    lead_manager_history: research?.leadManagerHistory ?? [],
+    lead_manager_scores: research?.leadManagerScores ?? [],
+    market_makers: research?.marketMakers ?? [],
+    enriched_fields: research?.enrichedFields ?? [],
+    field_quality: research?.fieldQuality ?? [],
+    latest_gmp: effectiveGMP,
+    latest_gmp_percent: effectiveGMPPercent,
+    latest_subscription: effectiveSubscription,
+    estimated_listing_gain_pct: effectiveGMPPercent,
   };
 }
 
 function sortByFinancialYear(items: IPOFinancialYearly[]) {
   return items.slice().sort((a, b) => a.financial_year.localeCompare(b.financial_year));
 }
-
-export function getIPOCompletenessScore(ipo: ComputedIPO): number {
-  let score = 0;
-
-  if (ipo.price_band_high !== null && ipo.price_band_high > 0) score += 15;
-  if (ipo.lot_size !== null && ipo.lot_size > 0) score += 15;
-  if (ipo.issue_size_cr !== null && ipo.issue_size_cr > 0) score += 15;
-
-  if (ipo.open_date !== null && ipo.open_date !== "") score += 5;
-  if (ipo.close_date !== null && ipo.close_date !== "") score += 5;
-  if (ipo.listing_date !== null && ipo.listing_date !== "") score += 5;
-
-  if (ipo.company_profile?.company_overview && ipo.company_profile.company_overview.trim().length > 0) score += 15;
-  if (ipo.company_profile?.sector && ipo.company_profile.sector.trim().length > 0) score += 10;
-  if (ipo.financials_yearly && ipo.financials_yearly.length > 0) score += 15;
-
-  return score;
-}
-
 
 async function safeSingle<T>(query: PromiseLike<{ data: unknown; error: { message: string } | null }>): Promise<T | null> {
   const response = await query;
@@ -147,6 +182,60 @@ async function safeRows<T>(query: PromiseLike<{ data: unknown; error: { message:
   return (response.data ?? []) as T[];
 }
 
+async function getIPOLeadManagers(ipoId: string): Promise<IPOLeadManagerWithManager[]> {
+  const embeddedRows = await safeRows<IPOLeadManagerWithManager>(
+    supabaseAdmin.from("ipo_lead_managers").select("*, lead_manager:lead_managers(*)").eq("ipo_id", ipoId).order("is_primary", { ascending: false }),
+  );
+  const rows =
+    embeddedRows.length > 0
+      ? embeddedRows
+      : await safeRows<IPOLeadManagerWithManager>(
+          supabaseAdmin.from("ipo_lead_managers").select("*").eq("ipo_id", ipoId).order("is_primary", { ascending: false }),
+        );
+
+  if (rows.length === 0 || rows.every((row) => row.lead_manager)) {
+    return rows;
+  }
+
+  const managerIds = Array.from(new Set(rows.map((row) => row.lead_manager_id).filter(Boolean)));
+  const managers =
+    managerIds.length > 0
+      ? await safeRows<LeadManager>(supabaseAdmin.from("lead_managers").select("*").in("id", managerIds))
+      : [];
+  const managerById = new Map(managers.map((manager) => [manager.id, manager]));
+
+  return rows.map((row) => ({
+    ...row,
+    lead_manager: row.lead_manager ?? managerById.get(row.lead_manager_id) ?? null,
+  }));
+}
+
+async function getIPOMarketMakers(ipoId: string): Promise<IPOMarketMakerWithMaker[]> {
+  const embeddedRows = await safeRows<IPOMarketMakerWithMaker>(
+    supabaseAdmin.from("ipo_market_makers").select("*, market_maker:market_makers(*)").eq("ipo_id", ipoId),
+  );
+  const rows =
+    embeddedRows.length > 0
+      ? embeddedRows
+      : await safeRows<IPOMarketMakerWithMaker>(supabaseAdmin.from("ipo_market_makers").select("*").eq("ipo_id", ipoId));
+
+  if (rows.length === 0 || rows.every((row) => row.market_maker)) {
+    return rows;
+  }
+
+  const marketMakerIds = Array.from(new Set(rows.map((row) => row.market_maker_id).filter(Boolean)));
+  const marketMakers =
+    marketMakerIds.length > 0
+      ? await safeRows<MarketMaker>(supabaseAdmin.from("market_makers").select("*").in("id", marketMakerIds))
+      : [];
+  const marketMakerById = new Map(marketMakers.map((maker) => [maker.id, maker]));
+
+  return rows.map((row) => ({
+    ...row,
+    market_maker: row.market_maker ?? marketMakerById.get(row.market_maker_id) ?? null,
+  }));
+}
+
 function groupByIPOId<T extends { ipo_id: string }>(rows: T[]) {
   const map = new Map<string, T[]>();
 
@@ -159,129 +248,112 @@ function groupByIPOId<T extends { ipo_id: string }>(rows: T[]) {
   return map;
 }
 
-function shouldUseMockData() {
-  if (process.env.USE_MOCK_IPOS === "false") {
-    return false;
-  }
+export async function getComputedIPOs(): Promise<ComputedIPO[]> {
+  noStore();
 
-  return process.env.USE_MOCK_IPOS === "true" || !process.env.IPO_GURU_API_KEY;
-}
-
-async function getComputedIPOsRaw(): Promise<ComputedIPO[]> {
-  if (!isSupabaseConfigured() || shouldUseMockData()) {
+  if (!isSupabaseConfigured()) {
     return [];
   }
 
   try {
-    const { data: ipos, error: ipoError } = await supabaseAdmin
+    let { data: ipos, error: ipoError } = await supabaseAdmin
       .from("ipos")
       .select("*")
+      .or("is_duplicate.is.null,is_duplicate.eq.false")
       .order("close_date", { ascending: true });
+
+    if (ipoError) {
+      const fallback = await supabaseAdmin.from("ipos").select("*").order("close_date", { ascending: true });
+      ipos = fallback.data;
+      ipoError = fallback.error;
+    }
 
     if (ipoError) {
       throw ipoError;
     }
 
-    const ipoRows = (ipos ?? []) as IPO[];
+    const ipoRows = ((ipos ?? []) as unknown[]).filter(isCanonicalIPO) as IPO[];
 
     if (ipoRows.length === 0) {
       return [];
     }
 
     const ids = ipoRows.map((ipo) => ipo.id);
-    const [
-      gmpResponse,
-      subscriptionResponse,
-      analysisResponse,
-      performanceResponse,
-      financialsResponse,
-      peersResponse,
-      anchorsResponse,
-      anchorSummaryResponse,
-      objectsResponse,
-      profilesResponse
-    ] = await Promise.all([
+    const [gmpResponse, subscriptionResponse, analysisResponse, performanceResponse] = await Promise.all([
       supabaseAdmin.from("gmp_history").select("*").in("ipo_id", ids).order("captured_at", { ascending: false }),
       supabaseAdmin.from("subscription_data").select("*").in("ipo_id", ids).order("captured_at", { ascending: false }),
       supabaseAdmin.from("ai_analysis").select("*").in("ipo_id", ids).order("generated_at", { ascending: false }),
       supabaseAdmin.from("listing_performance").select("*").in("ipo_id", ids).order("recorded_at", { ascending: false }),
-      supabaseAdmin.from("ipo_financials_yearly").select("*").in("ipo_id", ids),
-      supabaseAdmin.from("ipo_peer_comparisons").select("*").in("ipo_id", ids),
-      supabaseAdmin.from("ipo_anchor_investors").select("*").in("ipo_id", ids),
-      supabaseAdmin.from("ipo_anchor_summary").select("*").in("ipo_id", ids),
-      supabaseAdmin.from("ipo_objects_of_issue").select("*").in("ipo_id", ids),
-      supabaseAdmin.from("ipo_company_profiles").select("*").in("ipo_id", ids),
     ]);
 
-    for (const response of [
-      gmpResponse,
-      subscriptionResponse,
-      analysisResponse,
-      performanceResponse,
-      financialsResponse,
-      peersResponse,
-      anchorsResponse,
-      anchorSummaryResponse,
-      objectsResponse,
-      profilesResponse
-    ]) {
+    for (const response of [gmpResponse, subscriptionResponse, analysisResponse, performanceResponse]) {
       if (response.error) {
         throw response.error;
       }
     }
 
+    const [publicGmpRows, publicSubscriptionRows] = await Promise.all([
+      safeRows<IPOGMPSnapshot>(
+        supabaseAdmin.from("ipo_gmp_snapshots").select("*").in("ipo_id", ids).order("captured_at", { ascending: false }),
+      ),
+      safeRows<IPOSubscriptionSnapshot>(
+        supabaseAdmin.from("ipo_subscription_snapshots").select("*").in("ipo_id", ids).order("captured_at", { ascending: false }),
+      ),
+    ]);
+
     const gmpByIPO = groupByIPOId((gmpResponse.data ?? []) as GMPHistory[]);
     const subscriptionByIPO = groupByIPOId((subscriptionResponse.data ?? []) as SubscriptionData[]);
     const analysisByIPO = groupByIPOId((analysisResponse.data ?? []) as AIAnalysis[]);
     const performanceByIPO = groupByIPOId((performanceResponse.data ?? []) as ListingPerformance[]);
-    const financialsByIPO = groupByIPOId((financialsResponse.data ?? []) as IPOFinancialYearly[]);
-    const peersByIPO = groupByIPOId((peersResponse.data ?? []) as IPOPeerComparison[]);
-    const anchorsByIPO = groupByIPOId((anchorsResponse.data ?? []) as IPOAnchorInvestor[]);
-    const anchorSummaryByIPO = groupByIPOId((anchorSummaryResponse.data ?? []) as IPOAnchorSummary[]);
-    const objectsByIPO = groupByIPOId((objectsResponse.data ?? []) as IPOObjectOfIssue[]);
-    const profilesByIPO = groupByIPOId((profilesResponse.data ?? []) as IPOCompanyProfile[]);
+    const publicGmpByIPO = groupByIPOId(publicGmpRows);
+    const publicSubscriptionByIPO = groupByIPOId(publicSubscriptionRows);
 
-    return ipoRows
-      .map((ipo) =>
-        buildComputedIPO(
-          ipo,
-          gmpByIPO.get(ipo.id) ?? [],
-          subscriptionByIPO.get(ipo.id) ?? [],
-          analysisByIPO.get(ipo.id) ?? [],
-          performanceByIPO.get(ipo.id) ?? [],
-          {
-            companyProfile: (profilesByIPO.get(ipo.id) ?? [])[0] ?? null,
-            financialsYearly: sortByFinancialYear(financialsByIPO.get(ipo.id) ?? []),
-            peerComparisons: peersByIPO.get(ipo.id) ?? [],
-            anchorInvestors: anchorsByIPO.get(ipo.id) ?? [],
-            anchorSummary: (anchorSummaryByIPO.get(ipo.id) ?? [])[0] ?? null,
-            objectsOfIssue: objectsByIPO.get(ipo.id) ?? [],
-          }
-        ),
-      )
-      .filter((computedIpo) => {
-        const completeness = getIPOCompletenessScore(computedIpo);
-        return completeness >= 30 || computedIpo.admin_verified;
-      });
+    return ipoRows.map((ipo) =>
+      buildComputedIPO(
+        ipo,
+        gmpByIPO.get(ipo.id) ?? [],
+        subscriptionByIPO.get(ipo.id) ?? [],
+        analysisByIPO.get(ipo.id) ?? [],
+        performanceByIPO.get(ipo.id) ?? [],
+        undefined,
+        {
+          gmp: publicGmpByIPO.get(ipo.id) ?? [],
+          subscription: publicSubscriptionByIPO.get(ipo.id) ?? [],
+        },
+      ),
+    );
   } catch (error) {
-    console.error("Error in getComputedIPOs:", error);
+    console.error("Unable to load IPO data", error);
     return [];
   }
 }
 
-async function getComputedIPOBySlugRaw(slug: string): Promise<ComputedIPO | null> {
-  if (!isSupabaseConfigured() || shouldUseMockData()) {
+export async function getComputedIPOBySlug(slug: string): Promise<ComputedIPO | null> {
+  noStore();
+
+  if (!isSupabaseConfigured()) {
     return null;
   }
 
   try {
-    const { data: ipo, error: ipoError } = await supabaseAdmin.from("ipos").select("*").eq("slug", slug).maybeSingle();
+    let { data: ipo, error: ipoError } = await supabaseAdmin
+      .from("ipos")
+      .select("*")
+      .eq("slug", slug)
+      .or("is_duplicate.is.null,is_duplicate.eq.false")
+      .maybeSingle();
+
+    if (ipoError) {
+      const fallback = await supabaseAdmin.from("ipos").select("*").eq("slug", slug).maybeSingle();
+      ipo = fallback.data;
+      ipoError = fallback.error;
+    }
 
     if (ipoError) {
       throw ipoError;
     }
 
-    if (!ipo) {
+    if (!ipo || !isCanonicalIPO(ipo)) {
       return null;
     }
 
@@ -319,47 +391,111 @@ async function getComputedIPOBySlugRaw(slug: string): Promise<ComputedIPO | null
       }
     }
 
-    const computedIpo = buildComputedIPO(
+    const [
+      companyProfile,
+      financialsYearly,
+      anchorInvestors,
+      anchorSummary,
+      peerComparisons,
+      objectsOfIssue,
+      valuationMetrics,
+      publicGmpSnapshots,
+      publicSubscriptionSnapshots,
+      leadManagers,
+      marketMakers,
+      enrichedFields,
+      fieldQuality,
+    ] = await Promise.all([
+      safeSingle<IPOCompanyProfile>(supabaseAdmin.from("ipo_company_profiles").select("*").eq("ipo_id", ipoRow.id).maybeSingle()),
+      safeRows<IPOFinancialYearly>(supabaseAdmin.from("ipo_financials_yearly").select("*").eq("ipo_id", ipoRow.id).order("financial_year")),
+      safeRows<IPOAnchorInvestor>(supabaseAdmin.from("ipo_anchor_investors").select("*").eq("ipo_id", ipoRow.id)),
+      safeSingle<IPOAnchorSummary>(supabaseAdmin.from("ipo_anchor_summary").select("*").eq("ipo_id", ipoRow.id).maybeSingle()),
+      safeRows<IPOPeerComparison>(supabaseAdmin.from("ipo_peer_comparisons").select("*").eq("ipo_id", ipoRow.id).order("peer_name")),
+      safeRows<IPOObjectOfIssue>(
+        supabaseAdmin.from("ipo_objects_of_issue").select("*").eq("ipo_id", ipoRow.id).order("amount_cr", { ascending: false }),
+      ),
+      safeSingle<IPOValuationMetrics>(supabaseAdmin.from("ipo_valuation_metrics").select("*").eq("ipo_id", ipoRow.id).maybeSingle()),
+      safeRows<IPOGMPSnapshot>(
+        supabaseAdmin.from("ipo_gmp_snapshots").select("*").eq("ipo_id", ipoRow.id).order("captured_at", { ascending: false }).limit(20),
+      ),
+      safeRows<IPOSubscriptionSnapshot>(
+        supabaseAdmin
+          .from("ipo_subscription_snapshots")
+          .select("*")
+          .eq("ipo_id", ipoRow.id)
+          .order("captured_at", { ascending: false })
+          .limit(20),
+      ),
+      getIPOLeadManagers(ipoRow.id),
+      getIPOMarketMakers(ipoRow.id),
+      safeRows<IPOEnrichedField>(
+        supabaseAdmin
+          .from("ipo_enriched_fields")
+          .select("*")
+          .eq("ipo_id", ipoRow.id)
+          .in("status", ["auto_applied", "needs_review"])
+          .order("created_at", { ascending: false })
+          .limit(80),
+      ),
+      safeRows<IPOFieldQuality>(supabaseAdmin.from("ipo_field_quality").select("*").eq("ipo_id", ipoRow.id)),
+    ]);
+    const leadManagerIds = leadManagers.map((item) => item.lead_manager_id).filter(Boolean);
+    const [leadManagerHistory, leadManagerScores] =
+      leadManagerIds.length > 0
+        ? await Promise.all([
+            safeRows<LeadManagerIPOHistory>(
+              supabaseAdmin
+                .from("lead_manager_ipo_history")
+                .select("*")
+                .in("lead_manager_id", leadManagerIds)
+                .order("listing_date", { ascending: false })
+                .limit(60),
+            ),
+            safeRows<LeadManagerTrackRecordScore>(
+              supabaseAdmin
+                .from("lead_manager_track_record_scores")
+                .select("*")
+                .in("lead_manager_id", leadManagerIds)
+                .order("calculated_at", { ascending: false }),
+            ),
+          ])
+        : [[], []];
+
+    return buildComputedIPO(
       ipoRow,
       (gmpResponse.data ?? []) as GMPHistory[],
       (subscriptionResponse.data ?? []) as SubscriptionData[],
       (analysisResponse.data ?? []) as AIAnalysis[],
       (performanceResponse.data ?? []) as ListingPerformance[],
       {
-        companyProfile: await safeSingle<IPOCompanyProfile>(
-          supabaseAdmin.from("ipo_company_profiles").select("*").eq("ipo_id", ipoRow.id).maybeSingle(),
-        ),
-        financialsYearly: sortByFinancialYear(
-          await safeRows<IPOFinancialYearly>(
-            supabaseAdmin.from("ipo_financials_yearly").select("*").eq("ipo_id", ipoRow.id).order("financial_year"),
-          ),
-        ),
-        anchorInvestors: await safeRows<IPOAnchorInvestor>(
-          supabaseAdmin.from("ipo_anchor_investors").select("*").eq("ipo_id", ipoRow.id),
-        ),
-        anchorSummary: await safeSingle<IPOAnchorSummary>(
-          supabaseAdmin.from("ipo_anchor_summary").select("*").eq("ipo_id", ipoRow.id).maybeSingle(),
-        ),
-        peerComparisons: await safeRows<IPOPeerComparison>(
-          supabaseAdmin.from("ipo_peer_comparisons").select("*").eq("ipo_id", ipoRow.id).order("peer_name"),
-        ),
-        objectsOfIssue: await safeRows<IPOObjectOfIssue>(
-          supabaseAdmin.from("ipo_objects_of_issue").select("*").eq("ipo_id", ipoRow.id).order("amount_cr", { ascending: false }),
-        ),
+        companyProfile,
+        financialsYearly: sortByFinancialYear(financialsYearly),
+        anchorInvestors,
+        anchorSummary,
+        peerComparisons,
+        valuationMetrics,
+        objectsOfIssue,
+        leadManagers,
+        leadManagerHistory,
+        leadManagerScores,
+        marketMakers,
+        enrichedFields,
+        fieldQuality,
+      },
+      {
+        gmp: publicGmpSnapshots,
+        subscription: publicSubscriptionSnapshots,
       },
     );
-
-    const completeness = getIPOCompletenessScore(computedIpo);
-    if (completeness < 30 && !computedIpo.admin_verified) {
-      return null;
-    }
-    return computedIpo;
-  } catch {
+  } catch (error) {
+    console.error(`Unable to load IPO detail for ${slug}`, error);
     return null;
   }
 }
 
 export async function getTickerItems(): Promise<TickerItem[]> {
+  noStore();
+
   const ipos = await getComputedIPOs();
 
   return ipos
@@ -369,7 +505,7 @@ export async function getTickerItems(): Promise<TickerItem[]> {
       const history = ipo.gmp_history;
       const latest = ipo.latest_gmp ?? 0;
       const previous = history[1]?.gmp_value ?? latest;
-      const gmpPct = estimateListingGainPct(latest, ipo.price_band_high) ?? 0;
+      const gmpPct = ipo.latest_gmp_percent ?? 0;
       const shortName = ipo.name
         .replace(/\b(IPO|Limited|Ltd)\b/gi, "")
         .trim()
@@ -387,8 +523,10 @@ export async function getTickerItems(): Promise<TickerItem[]> {
     });
 }
 
-async function getPerformanceRowsRaw(): Promise<PerformanceRow[]> {
-  if (!isSupabaseConfigured() || shouldUseMockData()) {
+export async function getPerformanceRows(): Promise<PerformanceRow[]> {
+  noStore();
+
+  if (!isSupabaseConfigured()) {
     return [];
   }
 
@@ -410,7 +548,7 @@ async function getPerformanceRowsRaw(): Promise<PerformanceRow[]> {
 
     const ids = rows.map((row) => row.ipo_id);
     const [ipoResponse, analysisResponse] = await Promise.all([
-      supabaseAdmin.from("ipos").select("*").in("id", ids),
+      supabaseAdmin.from("ipos").select("*").in("id", ids).or("is_duplicate.is.null,is_duplicate.eq.false"),
       supabaseAdmin.from("ai_analysis").select("*").in("ipo_id", ids).order("generated_at", { ascending: false }),
     ]);
 
@@ -425,284 +563,13 @@ async function getPerformanceRowsRaw(): Promise<PerformanceRow[]> {
     const ipoById = new Map(((ipoResponse.data ?? []) as IPO[]).map((ipo) => [ipo.id, ipo]));
     const analysisByIPO = groupByIPOId((analysisResponse.data ?? []) as AIAnalysis[]);
 
-    const results = await Promise.all(
-      rows.map(async (row) => {
-        const ipo = ipoById.get(row.ipo_id) ?? null;
-        const ai_analysis = sortByNewest(analysisByIPO.get(row.ipo_id) ?? [])[0] ?? null;
-
-        let current_price: number | null = null;
-        let current_gain_pct: number | null = null;
-        let post_listing_return_pct: number | null = null;
-        let dbListingPrice = row.listing_price;
-        let dbListingGainPct = row.listing_gain_pct;
-        let ticker: string | null = null;
-
-        if (ipo) {
-          ticker = (ipo.enriched_data?.yahoo_ticker as string) || null;
-          if (!ticker) {
-            ticker = await searchYahooTicker(ipo.name);
-            if (ticker) {
-              const enriched = { ...ipo.enriched_data, yahoo_ticker: ticker };
-              supabaseAdmin
-                .from("ipos")
-                .update({ enriched_data: enriched })
-                .eq("id", ipo.id)
-                .then(({ error }) => {
-                  if (error) console.error("Error updating yahoo_ticker in DB:", error);
-                });
-            }
-          }
-
-          if (ticker) {
-            const stockInfo = await fetchYahooStockInfo(ticker);
-            if (stockInfo) {
-              current_price = stockInfo.currentPrice;
-
-              if (dbListingPrice === null && stockInfo.listingPrice !== null) {
-                dbListingPrice = stockInfo.listingPrice;
-                dbListingGainPct = row.issue_price
-                  ? ((dbListingPrice - row.issue_price) / row.issue_price) * 100
-                  : null;
-
-                supabaseAdmin
-                  .from("listing_performance")
-                  .update({
-                    listing_price: dbListingPrice,
-                    listing_gain_pct: dbListingGainPct,
-                  })
-                  .eq("id", row.id)
-                  .then(({ error }) => {
-                    if (error) console.error("Error updating listing_price in DB:", error);
-                  });
-              }
-
-              if (row.issue_price && current_price) {
-                current_gain_pct = ((current_price - row.issue_price) / row.issue_price) * 100;
-              }
-              if (dbListingPrice && current_price) {
-                post_listing_return_pct = ((current_price - dbListingPrice) / dbListingPrice) * 100;
-              }
-            }
-          }
-        }
-
-        return {
-          ...row,
-          listing_price: dbListingPrice,
-          listing_gain_pct: dbListingGainPct,
-          ipo,
-          ai_analysis,
-          current_price,
-          current_gain_pct,
-          post_listing_return_pct,
-          ticker,
-        };
-      })
-    );
-
-    return results;
-  } catch (err) {
-    console.error("Error in getPerformanceRows:", err);
+    return rows.map((row) => ({
+      ...row,
+      ipo: ipoById.get(row.ipo_id) ?? null,
+      ai_analysis: sortByNewest(analysisByIPO.get(row.ipo_id) ?? [])[0] ?? null,
+    }));
+  } catch (error) {
+    console.error("Unable to load performance rows", error);
     return [];
   }
 }
-
-export interface LiveIndexItem {
-  label: string;
-  value: string;
-  change: string;
-  tone: "positive" | "negative";
-}
-
-async function getLiveIndicesRaw(): Promise<LiveIndexItem[]> {
-  const defaultIndices: LiveIndexItem[] = [
-    { label: "NIFTY 50", value: "23,420.35", change: "+0.42%", tone: "positive" },
-    { label: "SENSEX", value: "76,812.20", change: "+0.38%", tone: "positive" },
-    { label: "NIFTY BANK", value: "50,184.10", change: "-0.21%", tone: "negative" },
-    { label: "INDIA VIX", value: "13.82", change: "-1.64%", tone: "negative" },
-  ];
-
-  try {
-    const fetchSymbol = async (symbol: string, label: string) => {
-      const url = `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-          "Accept-Language": "en-US,en;q=0.5"
-        },
-        next: { revalidate: 60 } // cache for 1 minute
-      });
-      const data = await res.json();
-      const meta = data?.chart?.result?.[0]?.meta;
-      if (!meta) return null;
-      
-      const price = meta.regularMarketPrice;
-      const previousClose = meta.chartPreviousClose;
-      
-      // If we don't have previousClose in options (e.g. India VIX), price change is 0
-      const prev = previousClose || price;
-      const change = price - prev;
-      const changePct = prev > 0 ? (change / prev) * 100 : 0;
-
-      const sign = change >= 0 ? "+" : "";
-      
-      return {
-        label,
-        value: price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        change: `${sign}${changePct.toFixed(2)}%`,
-        tone: change >= 0 ? ("positive" as const) : ("negative" as const)
-      };
-    };
-
-    const results = await Promise.all([
-      fetchSymbol("^NSEI", "NIFTY 50"),
-      fetchSymbol("^BSESN", "SENSEX"),
-      fetchSymbol("^NSEBANK", "NIFTY BANK"),
-      fetchSymbol("INDIAVIX.NS", "INDIA VIX")
-    ]);
-
-    const items: LiveIndexItem[] = [];
-    for (let i = 0; i < defaultIndices.length; i++) {
-      if (results[i]) {
-        items.push(results[i]!);
-      } else {
-        items.push(defaultIndices[i]);
-      }
-    }
-    return items;
-  } catch (err) {
-    console.error("Error fetching live indices:", err);
-    return defaultIndices;
-  }
-}
-
-export function getYahooTickerForCompany(name: string): string | null {
-  const clean = name.toLowerCase();
-  if (clean.includes("utkal speciality")) return "AWFIS.NS";
-  if (clean.includes("susan electricals")) return "GODIGIT.NS";
-  if (clean.includes("horizon reclaim")) return "INDGN.NS";
-  if (clean.includes("leapfrog engineering")) return "TBOTEK.NS";
-  if (clean.includes("liotech")) return "AADHARHFC.NS";
-  if (clean.includes("clay craft")) return "ZOMATO.NS";
-  if (clean.includes("diksha polymers")) return "RELIANCE.NS";
-  if (clean.includes("avience biomedical")) return "INFY.NS";
-  if (clean.includes("turtlemint")) return "TCS.NS";
-  if (clean.includes("advit jewels")) return "TATAMOTORS.NS";
-  if (clean.includes("saffron speciality")) return "WIPRO.NS";
-  if (clean.includes("anubhav plast")) return "HDFCBANK.NS";
-  if (clean.includes("riyaasat")) return "ICICIBANK.NS";
-  return null;
-}
-
-export async function searchYahooTicker(name: string): Promise<string | null> {
-  const mapped = getYahooTickerForCompany(name);
-  if (mapped) return mapped;
-
-  const cleanName = name
-    .replace(/\(India\)/gi, "")
-    .replace(/Limited/gi, "")
-    .replace(/Ltd\.?/gi, "")
-    .replace(/SME/gi, "")
-    .replace(/IPO/gi, "")
-    .replace(/Industries/gi, "")
-    .replace(/Speciality/gi, "")
-    .replace(/Services/gi, "")
-    .trim();
-
-  const searchQuery = cleanName.length >= 3 ? cleanName : name;
-  const url = `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(searchQuery)}`;
-  
-  try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json"
-      },
-      next: { revalidate: 86400 } // cache for 24 hours
-    });
-    const data = await res.json();
-    const quotes = data?.quotes || [];
-    const equityQuotes = quotes.filter((q: any) => q.quoteType === "EQUITY" && (q.symbol.endsWith(".NS") || q.symbol.endsWith(".BO")));
-    if (equityQuotes.length === 0) return null;
-    const nsQuote = equityQuotes.find((q: any) => q.symbol.endsWith(".NS"));
-    return nsQuote ? nsQuote.symbol : equityQuotes[0].symbol;
-  } catch (err) {
-    console.error(`Error searching Yahoo Finance ticker for "${name}":`, err);
-    return null;
-  }
-}
-
-export interface YahooStockInfo {
-  currentPrice: number | null;
-  listingPrice: number | null;
-}
-
-export async function fetchYahooStockInfo(symbol: string): Promise<YahooStockInfo | null> {
-  try {
-    const metaUrl = `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-    const res = await fetch(metaUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "Accept-Language": "en-US,en;q=0.5"
-      },
-      next: { revalidate: 300 } // 5 minutes cache
-    });
-    const data = await res.json();
-    const meta = data?.chart?.result?.[0]?.meta;
-    if (!meta) return null;
-
-    const currentPrice = meta.regularMarketPrice || null;
-    const firstTradeDate = meta.firstTradeDate;
-
-    let listingPrice = null;
-    if (firstTradeDate) {
-      const histUrl = `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${firstTradeDate}&period2=${firstTradeDate + 86400 * 3}&interval=1d`;
-      const histRes = await fetch(histUrl, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept": "application/json",
-          "Accept-Language": "en-US,en;q=0.5"
-        },
-        next: { revalidate: 86400 } // 24 hours cache
-      });
-      const histData = await histRes.json();
-      const openPrices = histData?.chart?.result?.[0]?.indicators?.quote?.[0]?.open || [];
-      listingPrice = openPrices.find((p: any) => p !== null && p !== undefined) || null;
-    }
-
-    return {
-      currentPrice,
-      listingPrice
-    };
-  } catch (err) {
-    console.error(`Error fetching Yahoo stock info for ${symbol}:`, err);
-    return null;
-  }
-}
-
-// Cached wrappers for database and live API fetches to prevent load delays
-export const getComputedIPOs = unstable_cache(
-  async () => getComputedIPOsRaw(),
-  ["computed-ipos-list"],
-  { revalidate: 60, tags: ["ipos"] }
-);
-
-export const getComputedIPOBySlug = unstable_cache(
-  async (slug: string) => getComputedIPOBySlugRaw(slug),
-  ["computed-ipo-by-slug"],
-  { revalidate: 60, tags: ["ipos"] }
-);
-
-export const getPerformanceRows = unstable_cache(
-  async () => getPerformanceRowsRaw(),
-  ["performance-rows-list"],
-  { revalidate: 60, tags: ["ipos"] }
-);
-
-export const getLiveIndices = unstable_cache(
-  async () => getLiveIndicesRaw(),
-  ["live-indices-list"],
-  { revalidate: 60 }
-);

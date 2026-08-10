@@ -1,4 +1,5 @@
 import type { AnchorInvestorCategory, IPOAnchorInvestor, IPOAnchorSummary, IPOCategory } from "@/types/ipo";
+import { isSMECategory } from "@/lib/ipoCategory";
 
 export interface AnchorInvestorScoringInput {
   investors: IPOAnchorInvestor[];
@@ -209,7 +210,7 @@ export function calculateAnchorInvestorScore(input: AnchorInvestorScoringInput):
     positiveSignals.push("Insurance or pension institutions add long-horizon participation.");
   }
 
-  const healthyCount = input.category === "sme" ? metrics.count >= 5 : metrics.count >= 10;
+  const healthyCount = isSMECategory(input.category) ? metrics.count >= 5 : metrics.count >= 10;
 
   if (healthyCount) {
     score += 10;
@@ -255,7 +256,7 @@ export function calculateAnchorInvestorScore(input: AnchorInvestorScoringInput):
     riskSignals.push("Source data is incomplete for some anchor rows.");
   }
 
-  if (input.category === "sme") {
+  if (isSMECategory(input.category)) {
     score -= 5;
     riskSignals.push("SME IPOs carry additional liquidity and governance risk.");
   }

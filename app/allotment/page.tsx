@@ -1,46 +1,63 @@
-import type { Metadata } from "next";
 import AllotmentCheckForm from "@/components/allotment/AllotmentCheckForm";
 import AllotmentPrivacyNotice from "@/components/allotment/AllotmentPrivacyNotice";
 import RecentAllotments from "@/components/allotment/RecentAllotments";
-import { getAllotmentEligibleIPOs } from "@/lib/allotment/data";
+import { getAllotmentIPOOptions } from "@/lib/allotment/allotmentService";
 
-export const metadata: Metadata = {
-  title: "IPO Allotment Status Checker - IPO Lens",
-  description: "Check your IPO allotment status online. Instant checks for all recent Indian IPOs using PAN or application number.",
-};
+interface AllotmentPageProps {
+  searchParams?: {
+    ipo?: string;
+  };
+}
 
-export default async function AllotmentPage({ searchParams }: { searchParams: { ipo?: string } }) {
-  const ipos = await getAllotmentEligibleIPOs();
+export const dynamic = "force-dynamic";
+
+export default async function AllotmentPage({ searchParams }: AllotmentPageProps) {
+  const ipos = await getAllotmentIPOOptions();
 
   return (
-    <main className="shell" style={{ padding: "48px 0", maxWidth: 1000, margin: "0 auto" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 48, alignItems: "start" }}>
-        
-        {/* Main Content */}
-        <div>
-          <h1 style={{ color: "var(--ink)", fontSize: 36, fontWeight: 900, letterSpacing: "-0.04em", margin: "0 0 8px" }}>
-            IPO Allotment Checker
-          </h1>
-          <p style={{ color: "var(--text)", fontSize: 16, lineHeight: 1.5, margin: "0 0 32px" }}>
-            Check IPO allotment status using PAN or application number. IPO Lens does not save your PAN in this version.
-          </p>
-
+    <main className="allotment-page">
+      <section className="allotment-hero">
+        <div className="shell">
+          <div className="allotment-hero-copy">
+            <span className="premium-pill">
+              <span />
+              Secure utility · official fallback links · no PAN storage in manual mode
+            </span>
+            <h1>IPO Allotment Checker</h1>
+            <p>
+              Check IPO allotment status using PAN or application number. IPO Lens does not save your PAN unless you explicitly choose to save it.
+            </p>
+          </div>
           <AllotmentPrivacyNotice />
+        </div>
+      </section>
 
-          <div style={{ marginTop: 32, background: "#fff", padding: 32, borderRadius: 16, border: "1px solid var(--border-default)", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-            <h2 style={{ color: "var(--ink)", fontSize: 20, fontWeight: 900, marginBottom: 24, letterSpacing: "-0.02em" }}>
-              Check Status
-            </h2>
-            <AllotmentCheckForm ipos={ipos} initialIpoSlug={searchParams.ipo} />
+      <section className="section">
+        <div className="shell">
+          {ipos.length > 0 ? (
+            <AllotmentCheckForm initialSlug={searchParams?.ipo} ipos={ipos} />
+          ) : (
+            <div className="premium-card allotment-empty-state">
+              <h3>No allotment-ready IPOs found</h3>
+              <p>Closed or listed IPOs with allotment relevance will appear here once data is available.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="section allotment-recent-section">
+        <div className="shell allotment-bottom-grid">
+          <RecentAllotments ipos={ipos} />
+          <div className="premium-card allotment-disclaimer">
+            <span className="allotment-card-label">Disclaimer</span>
+            <p>
+              IPO Lens is for educational and informational purposes only. Allotment probability is an estimate based on subscription data. Final
+              allotment depends on valid applications, cancellations, category-wise demand and basis of allotment. IPO Lens does not guarantee
+              allotment.
+            </p>
           </div>
         </div>
-
-        {/* Sidebar */}
-        <aside>
-          <RecentAllotments ipos={ipos as any} />
-        </aside>
-
-      </div>
+      </section>
     </main>
   );
 }

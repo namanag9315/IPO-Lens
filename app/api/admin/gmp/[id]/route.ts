@@ -1,0 +1,18 @@
+import { NextResponse } from "next/server";
+import { getAdminOrResponse } from "@/lib/admin/api";
+import { logAdminAction } from "@/lib/admin/audit";
+import { supabaseAdmin } from "@/lib/supabase";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const admin = await getAdminOrResponse(request, ["manage_ipo_data"]);
+  if (admin instanceof Response) return admin;
+
+  const { data: oldValue } = await supabaseAdmin.from("ipo_gmp_snapshots").select("*").eq("id", params.id).maybeSingle();
+  const { error } = await supabaseAdmin.from("ipo_gmp_snapshots").delete().eq("id", params.id);
+  if (error) return NextResponse.json({ error: "Unable to delete GMP snapshot." }, { status: 500 });
+  await logAdminAction({ action: "GMP_SNAPSHOT_DELETED", admin, entityId: params.id, entityType: "ipo_gmp_snapshot", oldValue });
+  return NextResponse.json({ message: "GMP snapshot deleted." });
+}

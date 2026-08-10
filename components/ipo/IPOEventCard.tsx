@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
-import CompanyLogo from "@/components/ui/CompanyLogo";
 
 interface IPOEventRow {
   badge?: {
@@ -13,11 +12,10 @@ interface IPOEventRow {
   meta: ReactNode;
   right?: ReactNode;
   title: string;
-  domain?: string;
 }
 
 interface IPOEventCardProps {
-  accent: "green" | "blue" | "amber" | "purple";
+  accent: "green" | "navy" | "amber";
   count: number;
   ctaHref: string;
   ctaLabel: string;
@@ -28,7 +26,6 @@ interface IPOEventCardProps {
   title: string;
 }
 
-
 function accentColor(accent: IPOEventCardProps["accent"]) {
   if (accent === "green") {
     return "var(--green)";
@@ -38,11 +35,7 @@ function accentColor(accent: IPOEventCardProps["accent"]) {
     return "var(--amber)";
   }
 
-  if (accent === "purple") {
-    return "var(--purple)";
-  }
-
-  return "var(--blue)";
+  return "var(--primary-navy)";
 }
 
 export default function IPOEventCard({ accent, count, ctaHref, ctaLabel, description, emptyText, icon, rows, title }: IPOEventCardProps) {
@@ -52,11 +45,11 @@ export default function IPOEventCard({ accent, count, ctaHref, ctaLabel, descrip
     <Card className="ipo-event-card" style={{ ["--event-accent" as string]: color }}>
       <div className="ipo-event-head">
         <div className="ipo-event-icon">{icon}</div>
-        <div>
+        <div className="ipo-event-title">
           <span>{title}</span>
-          <strong className="mono">{count}</strong>
           <p>{description}</p>
         </div>
+        <strong className="mono">{count}</strong>
       </div>
 
       <div className="ipo-event-list">
@@ -65,20 +58,13 @@ export default function IPOEventCard({ accent, count, ctaHref, ctaLabel, descrip
         ) : (
           rows.slice(0, 3).map((row) => (
             <div className="ipo-event-row" key={row.title}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {row.domain && (
-                  <div className="ipo-avatar relative flex items-center justify-center" style={{ width: 24, height: 24, fontSize: 8, flexShrink: 0 }}>
-                    <CompanyLogo domain={row.domain} name={row.title} />
-                  </div>
+              <div>
+                {row.href ? (
+                  <Link href={row.href}>{row.title}</Link>
+                ) : (
+                  <span>{row.title}</span>
                 )}
-                <div>
-                  {row.href ? (
-                    <Link href={row.href}>{row.title}</Link>
-                  ) : (
-                    <span>{row.title}</span>
-                  )}
-                  <p>{row.meta}</p>
-                </div>
+                <p>{row.meta}</p>
               </div>
               {row.right ?? (row.badge ? <Badge tone={row.badge.tone}>{row.badge.label}</Badge> : null)}
             </div>

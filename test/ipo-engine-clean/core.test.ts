@@ -1,180 +1,176 @@
-import { describe, it, expect } from "vitest";
-import { buildIPOResearchView, shouldShowSection } from "../../lib/researchView";
-import type { ComputedIPO } from "../../types/ipo";
+import { describe, expect, it } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
+import { canCreateIPO } from "@/lib/ipo-engine-clean/canCreateIPO";
+import { buildIPOResearchView } from "@/lib/ipo-engine-clean/public/buildIPOResearchView";
+import { cleanLabelText } from "@/lib/ipo-engine-clean/public/factLookup";
+import { detectIPOPageContent } from "@/lib/ipo-engine-clean/detectSourceContent";
+import { matchIPONameClean } from "@/lib/ipo-engine-clean/matchIPONameClean";
+import { normalizeIPONameClean } from "@/lib/ipo-engine-clean/normalizeIPONameClean";
+import { extractTablesAndText } from "@/lib/ipo-engine-clean/extractTablesAndText";
+import { parseChittorgarhDetail } from "@/lib/ipo-engine-clean/providers/chittorgarhProvider";
+import { parseFinologyTickerDetail } from "@/lib/ipo-engine-clean/providers/finologyTickerProvider";
+import { validateFacts } from "@/lib/ipo-engine-clean/validateFacts";
 
-describe("IPO Research View Model Engine", () => {
-  const mockIPO: ComputedIPO = {
-    id: "test-id",
-    slug: "susan-electricals-india",
-    name: "Susan Electricals India",
-    category: "sme",
-    status: "closed",
-    price_band_low: 120,
-    price_band_high: 127,
-    lot_size: 1000,
-    issue_size_cr: 70.38,
-    open_date: "2026-06-11",
-    close_date: "2026-06-15",
-    listing_date: "2026-06-18",
-    created_at: new Date().toISOString(),
-    registrar_name: null,
-    fresh_issue_amount: null,
-    ofs_amount: null,
-    face_value: 10,
-    issue_type: null,
-    pre_issue_shares: null,
-    post_issue_shares: null,
-    canonical_ipo_id: null,
-    is_duplicate: false,
-    duplicate_status: null,
-    merged_at: null,
-    merge_notes: null,
-    admin_verified: false,
-    enriched_data: {
-      exchange: "BSE SME",
-      allotment_date: "2026-06-16",
-    },
-    gmp_history: [
-      { id: "g1", ipo_id: "test-id", gmp_value: 60, source: "test", captured_at: "2026-06-15" },
-    ],
-    subscription_data: [
-      { id: "s1", ipo_id: "test-id", qib_x: 0, nii_x: 0, retail_x: 200, total_x: 216.6, captured_at: "2026-06-15" },
-    ],
-    ai_analysis: null,
-    listing_performance: null,
-    latest_gmp: 60,
-    latest_subscription: {
-      id: "s1",
-      ipo_id: "test-id",
-      qib_x: 0,
-      nii_x: 0,
-      retail_x: 200,
-      total_x: 216.6,
-      captured_at: "2026-06-15",
-    },
-    estimated_listing_gain_pct: 47.2,
-    company_profile: {
-      id: "p1",
-      ipo_id: "test-id",
-      company_overview: "Susan Electricals India manufactures winding wires, power cables, and conductors.",
-      business_model: "Winding wires, power cables, conductors",
-      sector: "Electricals",
-      industry: "Cables",
-      headquarters: "Mumbai",
-      website: "http://susan.com",
-      promoters: "Susan Family",
-      pre_issue_promoter_holding_pct: 100,
-      post_issue_promoter_holding_pct: 73.2,
-      risk_factors: ["Raw material price volatility"],
-      source_documents: [],
-      updated_at: new Date().toISOString(),
-    },
-    financials_yearly: [
-      {
-        id: "f1",
-        ipo_id: "test-id",
-        financial_year: "31 Mar 2024",
-        revenue_cr: 103.59,
-        pat_cr: 0.76,
-        ebitda_cr: 3.64,
-        ebitda_margin_pct: 3.51,
-        pat_margin_pct: 0.73,
-        net_worth_cr: 6.21,
-        total_borrowings_cr: 24.79,
-        debt_equity: 3.99,
-        eps: 0.5,
-        roe_pct: 12.2,
-        roce_pct: 11.5,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: "f2",
-        ipo_id: "test-id",
-        financial_year: "31 Mar 2025",
-        revenue_cr: 136.05,
-        pat_cr: 5.65,
-        ebitda_cr: 12.0,
-        ebitda_margin_pct: 8.82,
-        pat_margin_pct: 4.15,
-        net_worth_cr: 17.98,
-        total_borrowings_cr: 45.27,
-        debt_equity: 2.52,
-        eps: 3.2,
-        roe_pct: 31.4,
-        roce_pct: 22.8,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: "f3",
-        ipo_id: "test-id",
-        financial_year: "31 Mar 2026",
-        revenue_cr: 269.96,
-        pat_cr: 18.25,
-        ebitda_cr: 32.08,
-        ebitda_margin_pct: 11.91,
-        pat_margin_pct: 6.77,
-        net_worth_cr: 38.48,
-        total_borrowings_cr: 66.72,
-        debt_equity: 1.73,
-        eps: 9.0,
-        roe_pct: 64.64,
-        roce_pct: 29.05,
-        created_at: new Date().toISOString(),
-      },
-    ],
-    peer_comparisons: [
-      {
-        id: "pe1",
-        ipo_id: "test-id",
-        peer_name: "Peer Electricals",
-        revenue_cr: 500,
-        pat_cr: 45,
-        pe_ratio: 25.4,
-        pb_ratio: 3.2,
-        roe_pct: 18.5,
-        roce_pct: 17.2,
-        market_cap_cr: 1200,
-        notes: null,
-        created_at: new Date().toISOString(),
-      },
-    ],
-    objects_of_issue: [],
-  };
+const existingIpos = [
+  { id: "1", name: "Susan Electricals India Limited", slug: "susan-electricals" },
+  { id: "2", name: "Clay Craft India Limited", slug: "clay-craft" },
+  { id: "3", name: "Horizon Reclaim (India) Limited", slug: "horizon-reclaim" },
+];
 
-  it("normalizes IPO details correctly for Hero section", () => {
-    const view = buildIPOResearchView(mockIPO);
-    expect(view.hero.values.name).toBe("Susan Electricals India");
-    expect(view.hero.values.category).toBe("sme");
-    expect(view.hero.values.priceBand).toBe("₹120 - ₹127");
-    expect(view.hero.values.minInvestment).toBe(254000);
+describe("clean IPO engine core rules", () => {
+  it("normalizes legal suffixes without removing meaningful words", () => {
+    expect(normalizeIPONameClean("Susan Electricals India Limited IPO")).toBe("susan electricals india");
+    expect(normalizeIPONameClean("Leapfrog Engineering Services Ltd")).toBe("leapfrog engineering services");
+    expect(normalizeIPONameClean("Horizon Reclaim (India) Pvt Ltd")).toBe("horizon reclaim india");
   });
 
-  it("calculates correct deterministic signals", () => {
-    const view = buildIPOResearchView(mockIPO);
-    const signals = view.quickSignals.values.signals;
-    expect(signals.some((s: any) => s.title === "Grey market is bullish")).toBe(true);
-    expect(signals.some((s: any) => s.title === "Demand is very high")).toBe(true);
-    expect(signals.some((s: any) => s.title === "Priced below peer average")).toBe(true);
-    expect(signals.some((s: any) => s.title === "SME liquidity risk")).toBe(true);
+  it("matches known duplicate name variants to canonical IPOs", () => {
+    expect(matchIPONameClean({ aliases: [], existingIpos, rawName: "Susan Electricals India" })).toMatchObject({
+      confidence: 100,
+      ipoId: "1",
+      matchType: "exact",
+    });
+    expect(matchIPONameClean({ aliases: [], existingIpos, rawName: "Horizon Reclaim India" }).confidence).toBeGreaterThanOrEqual(85);
   });
 
-  it("calculates financials correctly", () => {
-    const view = buildIPOResearchView(mockIPO);
-    expect(view.financials.values.latestRevenue).toBe(269.96);
-    expect(view.financials.values.revenueGrowth).toBeGreaterThan(0);
-    expect(view.financials.values.financials).toHaveLength(3);
-    expect(view.financials.values.financials[0].year).toBe("31 Mar 2024");
+  it("blocks master creation from non-list providers", () => {
+    expect(canCreateIPO({ matchConfidence: 0, provider: "INVESTORGAIN", recordType: "gmp", slugExists: false }).allowed).toBe(false);
+    expect(canCreateIPO({ matchConfidence: 0, provider: "IPOWATCH", recordType: "subscription", slugExists: false }).allowed).toBe(false);
+    expect(canCreateIPO({ matchConfidence: 0, provider: "CHITTORGARH", recordType: "detail", slugExists: false }).allowed).toBe(false);
   });
 
-  it("identifies allotment odds correctly", () => {
-    const view = buildIPOResearchView(mockIPO);
-    expect(view.demand.values.allotmentChance).toBe(0.5);
+  it("allows safe IPO list creation only when duplicate checks pass", () => {
+    expect(canCreateIPO({ matchConfidence: 0, provider: "CHITTORGARH", recordType: "ipo_list", slugExists: false }).allowed).toBe(true);
+    expect(canCreateIPO({ matchConfidence: 92, provider: "CHITTORGARH", recordType: "ipo_list", slugExists: false }).allowed).toBe(false);
+    expect(canCreateIPO({ matchConfidence: 0, provider: "CHITTORGARH", recordType: "ipo_list", slugExists: true }).allowed).toBe(false);
   });
 
-  it("evaluates shouldShowSection properly", () => {
-    const view = buildIPOResearchView(mockIPO);
-    expect(shouldShowSection(view.hero)).toBe(true);
-    expect(shouldShowSection(view.quickSignals)).toBe(true);
-    expect(shouldShowSection(view.leadManager)).toBe(true); // SME only
+  it("extracts generic tables with nearby headings", () => {
+    const html = "<h2>IPO Details</h2><table><tr><th>Field</th><th>Value</th></tr><tr><td>Registrar</td><td>Bigshare Services</td></tr></table>";
+    const result = extractTablesAndText(html);
+    expect(result.tables).toHaveLength(1);
+    expect(result.tables[0].nearbyHeading).toBe("IPO Details");
+    expect(result.tables[0].rows[0]).toMatchObject({ Field: "Registrar", Value: "Bigshare Services" });
+  });
+
+  it("accepts a real Chittorgarh IPO page even when ad text exists", () => {
+    const fixture = path.join(process.cwd(), "test/fixtures/ipo-engine-clean/chittorgarh-detail-horizon-reclaim.html");
+    const html = fs.readFileSync(fixture, "utf8");
+    const detection = detectIPOPageContent({ html, ipoName: "Horizon Reclaim (India)", provider: "CHITTORGARH", text: html });
+    const parsed = parseChittorgarhDetail(html, "Horizon Reclaim (India)");
+    const validation = validateFacts(parsed.facts);
+
+    expect(detection.isValidIPOPage).toBe(true);
+    expect(detection.isInterstitialOnly).toBe(false);
+    expect(validation.accepted.map((fact) => fact.factKey)).toContain("ipo_details_table");
+    expect(validation.accepted.map((fact) => fact.factKey)).toContain("financial_table");
+  });
+
+  it("extracts issue details and financials from a real Finology Ticker page", () => {
+    const fixture = path.join(process.cwd(), "test/fixtures/ipo-engine-clean/finology-ticker-detail-horizon-reclaim.html");
+    const html = fs.readFileSync(fixture, "utf8");
+    const detection = detectIPOPageContent({ html, ipoName: "Horizon Reclaim (India)", provider: "FINOLOGY_TICKER", text: html });
+    const parsed = parseFinologyTickerDetail(html, "Horizon Reclaim (India)");
+    const acceptedKeys = validateFacts(parsed.facts).accepted.map((fact) => fact.factKey);
+
+    expect(detection.isValidIPOPage).toBe(true);
+    expect(acceptedKeys).toContain("ipo_details_table");
+    expect(acceptedKeys).toContain("issue_size");
+    expect(acceptedKeys).toContain("financial_table");
+  });
+});
+
+describe("buildIPOResearchView with Susan facts", () => {
+  it("builds correct research view and maps required facts", () => {
+    const fixturePath = path.join(process.cwd(), "test/fixtures/ipo-engine-clean/susan-clean-facts.json");
+    const factRows = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+    const ipo = {
+      id: "be19f3b4-e119-4730-a21e-43e0466ebe07",
+      name: "Susan Electricals India Limited",
+      slug: "susan-electricals",
+      category: "sme",
+      price_band_high: 127,
+      price_band_low: 120,
+    };
+
+    const gmpHistory = [
+      { gmp_value: 64, captured_at: new Date().toISOString(), source_provider: "IPOWATCH" }
+    ];
+
+    const view = buildIPOResearchView(ipo, factRows, gmpHistory);
+
+    // 1. buildIPOResearchView maps pe_post_ipo to valuation.ipoPE
+    expect(view.valuation.ipoPE).toBe(14.15);
+
+    // 2. buildIPOResearchView maps total_income_latest to financial.latestRevenue
+    expect(view.financials.latestRevenue).toBe(269.96);
+
+    // 3. buildIPOResearchView maps subscription_table to offered/applied rows
+    const totalRow = view.demand.subscriptionTable.find(r => r.category === "Total");
+    expect(totalRow).toBeDefined();
+
+    // 4. buildIPOResearchView fixes GMP percent
+    expect(view.hero.gmpValue).toBe(64);
+    expect(view.hero.gmpPercent).toBeCloseTo(50.4, 1);
+    expect(view.hero.listingEstimate).toBe(191);
+
+    // 5. score does not say lead manager missing when lead_manager_name exists
+    expect(view.score.missingData.every(w => !w.toLowerCase().includes("lead manager not linked"))).toBe(true);
+
+    // 6. score does not say IPO PE missing when pe_post_ipo exists
+    expect(view.score.missingData.every(w => !w.toLowerCase().includes("pe not calculated"))).toBe(true);
+
+    // 7. sector cleanup removes "SME IPO so far"
+    expect(view.company.sector).toBe("Electric Equipments");
+  });
+
+  it("removes SME IPO so far from sector text", () => {
+    expect(cleanLabelText("Electric Equipments SME IPO so far")).toBe("Electric Equipments");
+    expect(cleanLabelText("Electrical equipment / wires & cables Sector Update")).toBe("Electrical equipment / wires & cables");
+  });
+
+  it("parses transposed financial table in buildIPOResearchView", () => {
+    const ipo = { id: "1", name: "Test IPO", slug: "test" };
+    const factRows = [
+      {
+        fact_key: "financial_table",
+        fact_value: [
+          {
+            "Period Ended": "Assets",
+            "31 Mar 2026": "130.05",
+            "31 Mar 2025": "73.68"
+          },
+          {
+            "Period Ended": "Total Income",
+            "31 Mar 2026": "269.96",
+            "31 Mar 2025": "136.05"
+          },
+          {
+            "Period Ended": "Profit After Tax",
+            "31 Mar 2026": "18.25",
+            "31 Mar 2025": "5.65"
+          }
+        ],
+        source_provider: "CHITTORGARH",
+        confidence: "high",
+        source_priority: 35
+      }
+    ];
+
+    const view = buildIPOResearchView(ipo, factRows as any);
+    expect(view.financials.yearlyRows).toHaveLength(2);
+    expect(view.financials.yearlyRows[0]).toMatchObject({
+      financialYear: "31 Mar 2025",
+      revenueCr: 136.05,
+      patCr: 5.65,
+      totalAssetsCr: 73.68
+    });
+    expect(view.financials.yearlyRows[1]).toMatchObject({
+      financialYear: "31 Mar 2026",
+      revenueCr: 269.96,
+      patCr: 18.25,
+      totalAssetsCr: 130.05
+    });
   });
 });

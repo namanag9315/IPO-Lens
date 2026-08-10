@@ -220,3 +220,5 @@ CREATE TABLE IF NOT EXISTS ipo_objects_of_issue (
   details text,
   created_at timestamp DEFAULT now()
 );
+
+NOTIFY pgrst, 'reload schema';

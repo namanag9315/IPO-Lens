@@ -1,12 +1,20 @@
 {
   "crons": [
     {
-      "path": "/api/sync-ipos",
-      "schedule": "0 6 * * *"
+      "path": "/api/cron/ipo-engine/full",
+      "schedule": "30 3 * * *"
     },
     {
-      "path": "/api/sync-subscription",
-      "schedule": "0 7 * * *"
+      "path": "/api/cron/ipo-engine/ipo-list",
+      "schedule": "15 4 * * *"
+    },
+    {
+      "path": "/api/cron/ipo-engine/gmp",
+      "schedule": "30 11 * * *"
+    },
+    {
+      "path": "/api/cron/ipo-engine/subscription",
+      "schedule": "0 12 * * *"
     }
   ]
 }

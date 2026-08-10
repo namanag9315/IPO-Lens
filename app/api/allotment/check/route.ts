@@ -1,46 +1,37 @@
 import { NextResponse } from "next/server";
-import { AllotmentCheckRequest } from "@/lib/allotment/types";
-import { checkAllotment } from "@/lib/allotment/allotmentService";
-import { supabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+import { checkAllotment, logAllotmentCheck } from "@/lib/allotment/allotmentService";
+import { validateAllotmentRequest } from "@/lib/allotment/validation";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+async function readJson(request: Request) {
+  try {
+    return await request.json();
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(request: Request) {
+  const { error, request: parsed } = validateAllotmentRequest(await readJson(request));
+
+  if (error || !parsed) {
+    return NextResponse.json({ error: error ?? "Invalid allotment check request." }, { status: 400 });
+  }
+
   try {
-    const body = await request.json();
-    const checkRequest: AllotmentCheckRequest = {
-      ipoId: body.ipoId,
-      registrar: body.registrar,
-      checkType: body.checkType,
-      value: body.value,
-    };
-
-    if (!checkRequest.ipoId || !checkRequest.registrar || !checkRequest.checkType || !checkRequest.value) {
-      return NextResponse.json({
-        status: "ERROR",
-        message: "Missing required fields.",
-        checkedAt: new Date().toISOString(),
-      }, { status: 400 });
-    }
-
-    const result = await checkAllotment(checkRequest);
-
-    if (isSupabaseConfigured()) {
-      supabaseAdmin.from("ipo_allotment_check_logs").insert({
-        ipo_id: checkRequest.ipoId,
-        registrar: checkRequest.registrar,
-        check_type: checkRequest.checkType,
-        provider: result.source,
-        status: result.status,
-      }).then(({ error }) => {
-        if (error) console.error("Failed to log allotment check:", error.message);
-      });
-    }
+    const result = await checkAllotment(parsed);
+    await logAllotmentCheck({
+      checkType: parsed.checkType,
+      ipoId: parsed.ipoId,
+      provider: result.source,
+      registrar: parsed.registrar,
+      status: result.status,
+    });
 
     return NextResponse.json(result);
-  } catch (error: any) {
-    return NextResponse.json({
-      status: "ERROR",
-      message: error.message || "An unexpected error occurred.",
-      checkedAt: new Date().toISOString(),
-    }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Unable to check allotment status right now." }, { status: 500 });
   }
 }

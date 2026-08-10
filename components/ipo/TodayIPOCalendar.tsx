@@ -1,13 +1,31 @@
-"use client";
-
-import { Building2, CalendarCheck, TrendingUp, Target } from "lucide-react";
-import { differenceInCalendarDays, format, parseISO, startOfDay, isWithinInterval, isSameDay } from "date-fns";
+import { Building2, CalendarCheck, TrendingUp } from "lucide-react";
+import { differenceInCalendarDays, format, parseISO, startOfDay } from "date-fns";
 import IPOEventCard from "@/components/ipo/IPOEventCard";
-import { calculateScore } from "@/lib/scoring";
-import { cleanAndFilterFinancials, extractDomain, guessCompanyDomain } from "@/lib/mappers/researchMapper";
 import type { ComputedIPO } from "@/types/ipo";
 
-function closeLabel(closeDate: string) {
+interface TodayIPOCalendarProps {
+  ipos: ComputedIPO[];
+}
+
+function isToday(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  return differenceInCalendarDays(startOfDay(parseISO(value)), startOfDay(new Date())) === 0;
+}
+
+function isOpenToday(ipo: ComputedIPO) {
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  return Boolean(ipo.open_date && ipo.close_date && ipo.open_date <= today && ipo.close_date >= today);
+}
+
+function closeLabel(closeDate: string | null) {
+  if (!closeDate) {
+    return "close date TBA";
+  }
+
   const days = differenceInCalendarDays(startOfDay(parseISO(closeDate)), startOfDay(new Date()));
 
   if (days === 0) {
@@ -18,54 +36,30 @@ function closeLabel(closeDate: string) {
     return "closes tomorrow";
   }
 
-  return `closes in ${days} days`;
+  if (days > 1) {
+    return `closes in ${days} days`;
+  }
+
+  return "closed";
 }
 
-function parseDate(value: string) {
-  return startOfDay(parseISO(value));
+function listingGain(ipo: ComputedIPO) {
+  const gain = ipo.listing_performance?.listing_gain_pct;
+
+  return gain === null || gain === undefined ? null : gain;
 }
 
-export default function TodayIPOCalendar({ ipos }: { ipos: ComputedIPO[] }) {
-  const today = startOfDay(new Date());
-
-  const openIPOs = ipos.filter((ipo) => ipo.status === "open");
-
-  const allotments = ipos.filter((ipo) => {
-    const allotmentDate = ipo.enriched_data?.allotment_date as string | undefined;
-    if (!allotmentDate) return false;
-    return isSameDay(parseDate(allotmentDate), today);
-  });
-
-  const listings = ipos.filter((ipo) => {
-    if (!ipo.listing_date) return false;
-    return isSameDay(parseDate(ipo.listing_date), today);
-  });
-
-  const strongSignals = ipos.filter((ipo) => {
-    const scoreResult = calculateScore({
-      anchorInvestors: ipo.anchor_investors,
-      anchorSummary: ipo.anchor_summary,
-      category: ipo.category,
-      financials: cleanAndFilterFinancials(ipo.financials_yearly ?? []),
-      gmp: ipo.latest_gmp ?? 0,
-      issuePrice: ipo.price_band_high ?? 0,
-      issueSizeCr: ipo.issue_size_cr ?? 0,
-      niiX: ipo.latest_subscription?.nii_x ?? 0,
-      objectsOfIssue: ipo.objects_of_issue,
-      peers: ipo.peer_comparisons,
-      qibX: ipo.latest_subscription?.qib_x ?? 0,
-      retailX: ipo.latest_subscription?.retail_x ?? 0,
-      totalX: ipo.latest_subscription?.total_x ?? 0,
-    });
-    return scoreResult.score >= 71;
-  });
+export default function TodayIPOCalendar({ ipos }: TodayIPOCalendarProps) {
+  const openIPOs = ipos.filter(isOpenToday);
+  const allotments = ipos.filter((ipo) => isToday(ipo.allotment_date));
+  const listings = ipos.filter((ipo) => isToday(ipo.listing_date));
 
   return (
     <section className="section today-ipo-section" aria-labelledby="today-ipo-calendar">
       <div className="shell">
         <div className="section-head compact">
           <div>
-            <h2 id="today-ipo-calendar">Today&apos;s IPO Command Center</h2>
+            <h2 id="today-ipo-calendar">Today&apos;s IPO Calendar</h2>
             <p>Snapshot of today&apos;s IPO activity · <span className="mono">{format(new Date(), "dd MMM yyyy")}</span></p>
           </div>
         </div>
@@ -81,9 +75,8 @@ export default function TodayIPOCalendar({ ipos }: { ipos: ComputedIPO[] }) {
             icon={<TrendingUp size={18} />}
             rows={openIPOs.map((ipo) => ({
               badge: { label: "Open", tone: "green" },
-              domain: extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name),
               href: `/ipo/${ipo.slug}`,
-              meta: <span className="mono">{ipo.close_date ? closeLabel(ipo.close_date) : "closes NA"}</span>,
+              meta: <span className="mono">{closeLabel(ipo.close_date)}</span>,
               title: ipo.name,
             }))}
             title="Open Now"
@@ -98,7 +91,6 @@ export default function TodayIPOCalendar({ ipos }: { ipos: ComputedIPO[] }) {
             icon={<CalendarCheck size={18} />}
             rows={allotments.map((ipo) => ({
               badge: { label: "Expected", tone: "amber" },
-              domain: extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name),
               href: `/ipo/${ipo.slug}`,
               meta: ipo.registrar_name ?? "Registrar NA",
               title: ipo.name,
@@ -106,7 +98,7 @@ export default function TodayIPOCalendar({ ipos }: { ipos: ComputedIPO[] }) {
             title="Allotment Today"
           />
           <IPOEventCard
-            accent="blue"
+            accent="navy"
             count={listings.length}
             ctaHref="/performance"
             ctaLabel="View listing performance"
@@ -114,66 +106,27 @@ export default function TodayIPOCalendar({ ipos }: { ipos: ComputedIPO[] }) {
             emptyText="No listings today"
             icon={<Building2 size={18} />}
             rows={listings.map((ipo) => {
-              const gain = ipo.listing_performance?.listing_gain_pct ?? null;
+              const gain = listingGain(ipo);
 
               return {
                 badge: gain === null ? { label: "Listing", tone: "blue" as const } : undefined,
-                domain: extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name),
                 href: `/ipo/${ipo.slug}`,
                 meta: (
                   <>
-                    <span className="mono">₹{ipo.price_band_high ?? "NA"}</span> · {((ipo.enriched_data?.exchange as string | undefined) ?? "Exchange NA")}
+                    <span className="mono">₹{ipo.price_band_high ?? "NA"}</span> · {ipo.exchange ?? "Exchange NA"}
                   </>
                 ),
                 right:
                   gain === null ? undefined : (
-                    <span className="mono data-positive" style={{ fontSize: 12, fontWeight: 900 }}>
-                      {gain > 0 ? '+' : ''}{gain.toFixed(1)}%
+                    <span className={`mono ${gain >= 0 ? "data-positive" : "data-negative"}`} style={{ fontSize: 12, fontWeight: 900 }}>
+                      {gain >= 0 ? "+" : ""}
+                      {gain.toFixed(1)}%
                     </span>
                   ),
                 title: ipo.name,
               };
             })}
             title="Listing Today"
-          />
-          <IPOEventCard
-            accent="purple"
-            count={strongSignals.length}
-            ctaHref="/?filter=strong#ipos"
-            ctaLabel="View all strong research signals"
-            description="IPOs with score above 70"
-            emptyText="No strong research signals today"
-            icon={<Target size={18} />}
-            rows={strongSignals.map((ipo) => {
-              const scoreResult = calculateScore({
-                anchorInvestors: ipo.anchor_investors,
-                anchorSummary: ipo.anchor_summary,
-                category: ipo.category,
-                financials: cleanAndFilterFinancials(ipo.financials_yearly ?? []),
-                gmp: ipo.latest_gmp ?? 0,
-                issuePrice: ipo.price_band_high ?? 0,
-                issueSizeCr: ipo.issue_size_cr ?? 0,
-                niiX: ipo.latest_subscription?.nii_x ?? 0,
-                objectsOfIssue: ipo.objects_of_issue,
-                peers: ipo.peer_comparisons,
-                qibX: ipo.latest_subscription?.qib_x ?? 0,
-                retailX: ipo.latest_subscription?.retail_x ?? 0,
-                totalX: ipo.latest_subscription?.total_x ?? 0,
-              });
-
-              return {
-                domain: extractDomain(ipo.company_profile?.website) || guessCompanyDomain(ipo.name),
-                href: `/ipo/${ipo.slug}`,
-                meta: ipo.category === "sme" ? "SME • NSE/BSE" : "MAIN • NSE/BSE",
-                right: (
-                  <span className="mono font-extrabold text-emerald-600" style={{ fontSize: 12, fontWeight: 900 }}>
-                    {scoreResult.score}
-                  </span>
-                ),
-                title: ipo.name,
-              };
-            })}
-            title="Strong Research Signals"
           />
         </div>
       </div>

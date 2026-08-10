@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Card from "@/components/ui/Card";
 
 interface MarketSummaryCardProps {
-  accent?: "blue" | "green" | "amber" | "red";
+  accent?: "navy" | "green" | "amber" | "red";
   explanation: string;
   icon: ReactNode;
   label: string;
@@ -19,11 +19,11 @@ function color(accent: MarketSummaryCardProps["accent"]) {
     case "red":
       return "var(--red)";
     default:
-      return "var(--blue)";
+      return "var(--primary-navy)";
   }
 }
 
-export default function MarketSummaryCard({ accent = "blue", explanation, icon, label, sparkline, value }: MarketSummaryCardProps) {
+export default function MarketSummaryCard({ accent = "navy", explanation, icon, label, sparkline, value }: MarketSummaryCardProps) {
   const max = Math.max(...(sparkline ?? []), 1);
 
   return (
@@ -40,7 +40,7 @@ export default function MarketSummaryCard({ accent = "blue", explanation, icon, 
       </div>
       {sparkline ? (
         <div className="summary-spark" aria-hidden="true">
-          {sparkline.slice(-8).map((item, index) => (
+          {sparkline.map((item, index) => (
             <i key={`${item}-${index}`} style={{ height: `${Math.max(5, (item / max) * 34)}px` }} />
           ))}
         </div>
