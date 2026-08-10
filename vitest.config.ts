@@ -1,9 +1,10 @@
-const path = require("path");
+import { defineConfig } from 'vitest/config';
+import path from 'path';
 
-module.exports = {
-  test: {
+export default defineConfig({
+  resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./"),
-    },
-  },
-};
+      '@': path.resolve(__dirname, './')
+    }
+  }
+});

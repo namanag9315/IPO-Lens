@@ -10,50 +10,50 @@ interface AIAnalysisBoxProps {
   onGenerate: () => void;
 }
 
-function defaultAnalysis(summary = "Analysis not yet generated."): AIResearchSummary {
-  return {
-    summary,
-    positives: [],
-    negatives: [],
-    fundamentalsView: "Fundamentals analysis is not available.",
-    valuationView: "Valuation analysis is not available.",
-    subscriptionView: "Subscription analysis is not available.",
-    gmpView: "GMP analysis is not available.",
-    anchorInvestorView: "Anchor investor analysis is not available.",
-    objectsOfIssueView: "Objects of issue analysis is not available.",
-    retailInvestorView: "Review available data and source documents before deciding.",
-    dataQualityNote: "Structured AI fields are not available for this row.",
-  };
-}
-
 function normalizedSummary(summary: AIResearchSummary | string | null): AIResearchSummary | null {
-  if (!summary) {
-    return null;
-  }
+  if (!summary) return null;
 
   if (typeof summary !== "string") {
     return {
-      ...defaultAnalysis(summary.summary),
       ...summary,
-      positives: Array.isArray(summary.positives) ? summary.positives : [],
       negatives: Array.isArray(summary.negatives) ? summary.negatives : [],
+      positives: Array.isArray(summary.positives) ? summary.positives : [],
     };
   }
 
   try {
     const parsed = JSON.parse(summary) as Partial<AIResearchSummary>;
 
+    if (!parsed.summary) return null;
+
     return {
-      ...defaultAnalysis(parsed.summary),
-      ...parsed,
-      summary: parsed.summary ?? "Analysis not yet generated.",
-      positives: Array.isArray(parsed.positives) ? parsed.positives : [],
-      negatives: Array.isArray(parsed.negatives) ? parsed.negatives : [],
+      anchorInvestorView: parsed.anchorInvestorView ?? "",
+      dataQualityNote: parsed.dataQualityNote ?? "Structured AI data quality note is not available.",
+      fundamentalsView: parsed.fundamentalsView ?? "",
+      gmpView: parsed.gmpView ?? "",
+      negatives: Array.isArray(parsed.negatives) ? parsed.negatives.map(String) : [],
+      objectsOfIssueView: parsed.objectsOfIssueView ?? "",
+      positives: Array.isArray(parsed.positives) ? parsed.positives.map(String) : [],
+      retailInvestorView: parsed.retailInvestorView ?? "",
+      subscriptionView: parsed.subscriptionView ?? "",
+      summary: parsed.summary,
+      valuationView: parsed.valuationView ?? "",
+      allotmentView: parsed.allotmentView ?? "",
     };
   } catch {
     return {
-      ...defaultAnalysis(summary),
-      dataQualityNote: "Legacy text summary. Structured AI fields are not available for this row.",
+      anchorInvestorView: "",
+      dataQualityNote: "Legacy text summary. Regenerate for structured IPO Lens memo sections.",
+      fundamentalsView: "",
+      gmpView: "",
+      negatives: [],
+      objectsOfIssueView: "",
+      positives: [],
+      retailInvestorView: "Review available data and official source documents before making any decision.",
+      subscriptionView: "",
+      summary,
+      valuationView: "",
+      allotmentView: "",
     };
   }
 }
@@ -65,121 +65,63 @@ function scoreClass(label: string) {
 export default function AIAnalysisBox({ summary, score, label, loading, onGenerate }: AIAnalysisBoxProps) {
   if (loading) {
     return (
-      <div style={{ display: "grid", gap: 8 }}>
+      <div className="analysis-memo-loading">
         <div className="ai-skeleton-line" style={{ width: "100%" }} />
-        <div className="ai-skeleton-line" style={{ width: "85%" }} />
-        <div className="ai-skeleton-line" style={{ width: "60%" }} />
+        <div className="ai-skeleton-line" style={{ width: "82%" }} />
+        <div className="ai-skeleton-line" style={{ width: "64%" }} />
       </div>
     );
   }
 
   const analysis = normalizedSummary(summary);
 
-  if (analysis) {
+  if (!analysis) {
     return (
-      <div>
-        <div style={{ alignItems: "center", display: "flex", gap: 10, marginBottom: 12 }}>
-          <span className={`badge ${scoreClass(label)}`}>{label}</span>
-          <span className="mono" style={{ color: "var(--ink)", fontSize: 13, fontWeight: 900 }}>
-            {score}/100
-          </span>
-        </div>
-        <p>{analysis.summary}</p>
-        <div className="subgrid" style={{ marginTop: 14 }}>
-          <div>
-            <h3 style={{ fontSize: 14 }}>Positives</h3>
-            <ul style={{ color: "var(--text)", display: "grid", fontSize: 13, gap: 6, lineHeight: 1.5, margin: 0, paddingLeft: 18 }}>
-              {(analysis.positives.length ? analysis.positives : ["No clear positives available from structured data."]).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 style={{ fontSize: 14 }}>Negatives</h3>
-            <ul style={{ color: "var(--text)", display: "grid", fontSize: 13, gap: 6, lineHeight: 1.5, margin: 0, paddingLeft: 18 }}>
-              {(analysis.negatives.length ? analysis.negatives : ["No clear negatives available from structured data."]).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="metrics" style={{ marginTop: 14 }}>
-          <div className="metric">
-            <div className="metric-label">Fundamentals View</div>
-            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.55, marginTop: 6 }}>{analysis.fundamentalsView}</div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Valuation View</div>
-            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.55, marginTop: 6 }}>{analysis.valuationView}</div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Subscription View</div>
-            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.55, marginTop: 6 }}>{analysis.subscriptionView}</div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">GMP View</div>
-            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.55, marginTop: 6 }}>{analysis.gmpView}</div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Anchor View</div>
-            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.55, marginTop: 6 }}>{analysis.anchorInvestorView}</div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Objects View</div>
-            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.55, marginTop: 6 }}>{analysis.objectsOfIssueView}</div>
-          </div>
-          <div className="metric">
-            <div className="metric-label">Retail View</div>
-            <div style={{ color: "var(--text)", fontSize: 13, lineHeight: 1.55, marginTop: 6 }}>{analysis.retailInvestorView}</div>
-          </div>
-        </div>
-        <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 12 }}>{analysis.dataQualityNote}</p>
-        <button
-          onClick={onGenerate}
-          style={{
-            alignItems: "center",
-            background: "none",
-            border: "none",
-            color: "var(--muted)",
-            cursor: "pointer",
-            display: "flex",
-            fontSize: 12,
-            fontWeight: 800,
-            gap: 4,
-            marginTop: 12,
-            padding: 0,
-          }}
-          type="button"
-        >
-          Regenerate research summary →
+      <div className="analysis-ai-empty">
+        <span className="analysis-badge slate">AI memo pending</span>
+        <h3>Structured AI research is not available yet.</h3>
+        <p>Generate it from the admin panel or use the button below. IPO Lens will use structured data only and will not provide investment advice.</p>
+        <button className="ui-button ui-button-primary" onClick={onGenerate} type="button">
+          Regenerate research summary
         </button>
       </div>
     );
   }
 
+  const memoSections = [
+    ["Demand view", analysis.subscriptionView],
+    ["Valuation view", analysis.valuationView],
+    ["Allotment view", analysis.allotmentView],
+    ["Retail investor view", analysis.retailInvestorView],
+  ].filter(([, value]) => value);
+
   return (
-    <div>
-      <button
-        onClick={onGenerate}
-        style={{
-          alignItems: "center",
-          background: "none",
-          border: "none",
-          color: "var(--ink)",
-          cursor: "pointer",
-          display: "flex",
-          fontSize: 13,
-          fontWeight: 800,
-          gap: 6,
-          padding: 0,
-        }}
-        type="button"
-      >
-        Generate AI research summary →
-      </button>
-      <p className="mono" style={{ color: "var(--muted)", fontSize: 11, marginTop: 4 }}>
-        Uses Groq Llama 3.3 · structured data only
-      </p>
+    <div className="analysis-ai-memo">
+      <div className="analysis-ai-memo-head">
+        <div>
+          <span className={`badge ${scoreClass(label)}`}>{label}</span>
+          <strong className="mono">{score}/100</strong>
+        </div>
+        <button className="ui-button ui-button-secondary" onClick={onGenerate} type="button">
+          Regenerate research summary
+        </button>
+      </div>
+
+      <div className="analysis-ai-summary">
+        <span>Plain-English Summary</span>
+        <p>{analysis.summary}</p>
+      </div>
+
+      <div className="analysis-ai-section-grid">
+        {memoSections.map(([title, value]) => (
+          <div key={title}>
+            <span>{title}</span>
+            <p>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="analysis-ai-quality-note">{analysis.dataQualityNote}</div>
     </div>
   );
 }

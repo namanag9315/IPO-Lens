@@ -1,21 +1,11 @@
-import { AllotmentProvider, AllotmentCheckRequest, AllotmentResult } from "../types";
-import { maskApplicationNumber, maskPAN } from "../mask";
+import type { AllotmentCheckRequest, AllotmentCheckResponse, AllotmentIPOOption, AllotmentRegistrar } from "@/lib/allotment/types";
 
-export function createStubProvider(name: string): AllotmentProvider {
-  return {
-    name,
-    async checkAllotment(request: AllotmentCheckRequest): Promise<AllotmentResult> {
-      return {
-        status: "UNAVAILABLE",
-        ipoName: request.ipoId || "Unknown IPO",
-        investorName: null,
-        allottedShares: null,
-        applicationNumberMasked: request.checkType === "APPLICATION_NO" ? maskApplicationNumber(request.value) : null,
-        panMasked: request.checkType === "PAN" ? maskPAN(request.value) : null,
-        source: name,
-        checkedAt: new Date().toISOString(),
-        message: "Live registrar integration is not enabled yet.",
-      };
-    },
-  };
+export interface ProviderCheckInput extends AllotmentCheckRequest {
+  ipo: Pick<AllotmentIPOOption, "id" | "name" | "slug" | "registrar">;
+}
+
+export interface AllotmentProvider {
+  name: AllotmentRegistrar;
+  isEnabled(): boolean;
+  check(input: ProviderCheckInput): Promise<AllotmentCheckResponse>;
 }

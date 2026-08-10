@@ -23,5 +23,20 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "scratch"]
+  "exclude": [
+    "node_modules",
+    "lib/_disabled-old-data-engine/**",
+    "lib/diagnostics/**",
+    "lib/importers/**",
+    "lib/ipo-engine-lite/**",
+    "lib/providers/**",
+    "test/**",
+    "test-*.ts",
+    "test-parser.ts",
+    "scratch/**",
+    "scratch.ts",
+    "scratch.js",
+    "scripts/test-*",
+    "vitest.config.ts"
+  ]
 }

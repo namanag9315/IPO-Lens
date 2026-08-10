@@ -1,74 +1,73 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import type { TickerItem, LiveIndexItem } from "@/lib/ipoData";
+import type { TickerItem } from "@/lib/ipoData";
 
 interface MarketTickerProps {
   items: TickerItem[];
-  indices?: LiveIndexItem[];
 }
-
-const marketItems = [
-  { label: "NIFTY 50", value: "23,420.35", change: "+0.42%", tone: "positive" as const },
-  { label: "SENSEX", value: "76,812.20", change: "+0.38%", tone: "positive" as const },
-  { label: "NIFTY BANK", value: "50,184.10", change: "-0.21%", tone: "negative" as const },
-  { label: "INDIA VIX", value: "13.82", change: "-1.64%", tone: "negative" as const },
-];
 
 function topGmpAlert(items: TickerItem[]) {
   return items.slice().sort((a, b) => b.gmpPct - a.gmpPct)[0] ?? null;
 }
 
-export default function MarketTicker({ items, indices }: MarketTickerProps) {
-  const [mounted, setMounted] = useState(false);
+function toneFor(value: number) {
+  if (value > 0) {
+    return "positive" as const;
+  }
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  if (value < 0) {
+    return "negative" as const;
+  }
 
+  return "neutral" as const;
+}
+
+function percentLabel(value: number) {
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
+}
+
+export default function MarketTicker({ items }: MarketTickerProps) {
   const alert = topGmpAlert(items);
-  const activeIndices = indices && indices.length > 0 ? indices : marketItems;
+  const topItems = items.slice(0, 4).map((item) => ({
+    change: `GMP ₹${item.gmp}`,
+    label: item.name,
+    tone: toneFor(item.gmpPct),
+    value: percentLabel(item.gmpPct),
+  }));
   const tickerRows = [
-    ...activeIndices,
     {
-      label: "IPO WATCH",
-      value: `${items.length || 6} tracked issues`,
-      change: "3 strong signals",
+      label: "IPO LENS",
+      value: "Public-source research",
+      change: "Educational only",
       tone: "neutral" as const,
     },
     {
-      label: "GMP ALERT",
-      value: alert?.name ?? "VAYUDATA",
-      change: alert ? `+${alert.gmpPct.toFixed(1)}%` : "+19.4%",
-      tone: "positive" as const,
+      label: "IPO WATCH",
+      value: `${items.length} live ${items.length === 1 ? "record" : "records"}`,
+      change: items.length > 0 ? "Synced GMP" : "Run public data sync",
+      tone: "neutral" as const,
     },
+    ...topItems,
+    ...(alert
+      ? [
+          {
+            label: "TOP GMP",
+            value: alert.name,
+            change: percentLabel(alert.gmpPct),
+            tone: toneFor(alert.gmpPct),
+          },
+        ]
+      : []),
   ];
-
-  if (!mounted) {
-    return (
-      <div className="market-ticker" style={{ height: "32px", background: "#0f172a" }}></div>
-    );
-  }
 
   return (
     <div className="market-ticker" aria-label="Market ticker">
       <div className="market-ticker-track">
-        {[...tickerRows, ...tickerRows].map((item, index) => {
-          const changeText = item.change;
-          const isPositive = changeText.startsWith("+");
-          const isNegative = changeText.startsWith("-");
-          const arrow = isPositive ? "▲ " : isNegative ? "▼ " : "";
-          const cleanChange = changeText.replace(/^[+-]/, "");
-          const displayText = `${arrow}${cleanChange}`;
-
-          return (
-            <div className="market-ticker-item" key={`${item.label}-${index}`}>
-              <span className="market-ticker-label">{item.label}</span>
-              <span className="market-ticker-value mono">{item.value}</span>
-              <span className={`market-ticker-change ${item.tone}`}>{displayText}</span>
-            </div>
-          );
-        })}
+        {[...tickerRows, ...tickerRows].map((item, index) => (
+          <div className="market-ticker-item" key={`${item.label}-${index}`}>
+            <span className="market-ticker-label">{item.label}</span>
+            <span className="market-ticker-value mono">{item.value}</span>
+            <span className={`market-ticker-change ${item.tone}`}>{item.change}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,143 +1,150 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { AllotmentResult, CheckType, Registrar } from "@/lib/allotment/types";
-import { AllotmentEligibleIPO } from "@/lib/allotment/data";
-import { getFallbackLinks, RegistrarLink } from "@/lib/allotment/registrarLinks";
-import AllotmentResultCard from "./AllotmentResultCard";
+import { useMemo, useState } from "react";
+import AllotmentFallbackLinks from "@/components/allotment/AllotmentFallbackLinks";
+import AllotmentProbabilityCard from "@/components/allotment/AllotmentProbabilityCard";
+import AllotmentResultCard from "@/components/allotment/AllotmentResultCard";
+import RegistrarBadge from "@/components/allotment/RegistrarBadge";
+import SavedPANProfiles from "@/components/allotment/SavedPANProfiles";
+import { registrarLabel } from "@/lib/allotment/registrarLinks";
+import type { AllotmentCheckResponse, AllotmentCheckType, AllotmentIPOOption, AllotmentRegistrar } from "@/lib/allotment/types";
 
-export default function AllotmentCheckForm({ 
-  ipos, 
-  initialIpoSlug 
-}: { 
-  ipos: AllotmentEligibleIPO[]; 
-  initialIpoSlug?: string | null;
-}) {
-  const defaultIpo = ipos.find(i => i.slug === initialIpoSlug) || ipos[0];
-  
-  const [ipoId, setIpoId] = useState(defaultIpo?.ipoId || "Mock IPO");
-  const [registrar, setRegistrar] = useState<Registrar>(defaultIpo?.registrar || "MOCK");
-  const [checkType, setCheckType] = useState<CheckType>("PAN");
+interface AllotmentCheckFormProps {
+  initialSlug?: string;
+  ipos: AllotmentIPOOption[];
+}
+
+const DEFAULT_REGISTRAR: AllotmentRegistrar = "BSE";
+const registrars: AllotmentRegistrar[] = ["KFINTECH", "MUFG_INTIME", "BIGSHARE", "BSE", "NSE"];
+
+function productionRegistrar(registrar: AllotmentRegistrar | null | undefined) {
+  return registrar === "MOCK" ? DEFAULT_REGISTRAR : registrar ?? DEFAULT_REGISTRAR;
+}
+
+function dateLabel(value: string | null) {
+  return value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "TBA";
+}
+
+export default function AllotmentCheckForm({ initialSlug, ipos }: AllotmentCheckFormProps) {
+  const initialIPO = ipos.find((ipo) => ipo.slug === initialSlug) ?? ipos[0] ?? null;
+  const [ipoId, setIpoId] = useState(initialIPO?.id ?? "");
+  const selectedIPO = useMemo(() => ipos.find((ipo) => ipo.id === ipoId) ?? null, [ipoId, ipos]);
+  const [registrar, setRegistrar] = useState<AllotmentRegistrar>(productionRegistrar(initialIPO?.registrar));
+  const [checkType, setCheckType] = useState<AllotmentCheckType>("PAN");
   const [value, setValue] = useState("");
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<AllotmentResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<AllotmentCheckResponse | null>(null);
 
-  const selectedIpo = ipos.find(i => i.ipoId === ipoId);
-  const fallbackLinks = selectedIpo ? getFallbackLinks(registrar, selectedIpo.exchange) : [];
+  function onIPOChange(nextId: string) {
+    const nextIPO = ipos.find((ipo) => ipo.id === nextId) ?? null;
+    setIpoId(nextId);
+    setRegistrar(productionRegistrar(nextIPO?.registrar));
+    setResult(null);
+  }
 
-  useEffect(() => {
-    if (selectedIpo && selectedIpo.registrar) {
-      setRegistrar(selectedIpo.registrar);
-    } else {
-      setRegistrar("MOCK");
-    }
-  }, [ipoId, selectedIpo]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  async function submit() {
+    setLoading(true);
+    setError(null);
     setResult(null);
 
     try {
       const response = await fetch("/api/allotment/check", {
-        method: "POST",
+        body: JSON.stringify({ checkType, ipoId, registrar, value }),
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ipoId, registrar, checkType, value }),
+        method: "POST",
       });
-      const data = await response.json();
-      setResult(data);
-    } catch (err) {
-      setResult({
-        status: "ERROR",
-        message: "Failed to connect to the allotment service.",
-        ipoName: selectedIpo?.name || ipoId,
-        investorName: null,
-        allottedShares: null,
-        applicationNumberMasked: null,
-        panMasked: null,
-        source: "Client",
-        checkedAt: new Date().toISOString(),
-      });
+      const payload = (await response.json()) as AllotmentCheckResponse & { error?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Unable to check allotment status.");
+      }
+
+      setResult(payload);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to check allotment status.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 16 }}>
-        <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "var(--ink)" }}>Select IPO</label>
-          <select 
-            value={ipoId} 
-            onChange={(e) => setIpoId(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border-default)", fontSize: 14 }}
-          >
-            {ipos.length === 0 && <option value="Mock IPO">Mock IPO (For Testing)</option>}
-            {ipos.map(ipo => (
-              <option key={ipo.ipoId} value={ipo.ipoId}>{ipo.name} {ipo.registrar ? "" : "(Registrar not available)"}</option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <div>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "var(--ink)" }}>Registrar</label>
-            <select 
-              value={registrar} 
-              onChange={(e) => setRegistrar(e.target.value as Registrar)}
-              style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border-default)", fontSize: 14 }}
-            >
-              <option value="MOCK">Mock Provider</option>
-              <option value="KFINTECH">KFin Technologies</option>
-              <option value="MUFG_INTIME">Link Intime</option>
-              <option value="BIGSHARE">Bigshare Services</option>
-              <option value="BSE">BSE India</option>
-              <option value="NSE">NSE India</option>
-            </select>
+    <div className="allotment-layout">
+      <div className="allotment-main-stack">
+        <div className="premium-card allotment-form-card">
+          <div className="allotment-card-head">
+            <div>
+              <span className="allotment-card-label">Manual checker</span>
+              <h3>Check allotment status</h3>
+            </div>
+            <RegistrarBadge registrar={registrar} />
           </div>
-          <div>
-            <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "var(--ink)" }}>Search By</label>
-            <select 
-              value={checkType} 
-              onChange={(e) => setCheckType(e.target.value as CheckType)}
-              style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border-default)", fontSize: 14 }}
-            >
-              <option value="PAN">PAN Number</option>
-              <option value="APPLICATION_NO">Application Number</option>
-            </select>
+
+          <div className="allotment-selected-ipo">
+            <label>
+              IPO
+              <select onChange={(event) => onIPOChange(event.target.value)} value={ipoId}>
+                {ipos.map((ipo) => (
+                  <option key={ipo.id} value={ipo.id}>
+                    {ipo.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div>
+              <span>Allotment date</span>
+              <strong className="mono">{dateLabel(selectedIPO?.allotmentDate ?? null)}</strong>
+            </div>
+            <div>
+              <span>Listing date</span>
+              <strong className="mono">{dateLabel(selectedIPO?.listingDate ?? null)}</strong>
+            </div>
           </div>
+
+          <div className="allotment-form-grid">
+            <label>
+              Registrar
+              <select onChange={(event) => setRegistrar(event.target.value as AllotmentRegistrar)} value={registrar}>
+                {registrars.map((item) => (
+                  <option key={item} value={item}>
+                    {registrarLabel(item)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Check method
+              <select onChange={(event) => setCheckType(event.target.value as AllotmentCheckType)} value={checkType}>
+                <option value="PAN">PAN</option>
+                <option value="APPLICATION_NO">Application Number</option>
+                <option value="DEMAT">Demat ID / Client ID</option>
+              </select>
+            </label>
+            <label className="allotment-input-wide">
+              {checkType === "PAN" ? "PAN" : checkType === "APPLICATION_NO" ? "Application number" : "Demat ID / Client ID"}
+              <input
+                autoComplete="off"
+                onChange={(event) => setValue(checkType === "PAN" ? event.target.value.toUpperCase() : event.target.value)}
+                placeholder={checkType === "PAN" ? "ABCDE1234F" : "Enter identifier"}
+                value={value}
+              />
+            </label>
+          </div>
+
+          <button className="allotment-submit" disabled={!ipoId || !value || loading} onClick={() => void submit()} type="button">
+            {loading ? "Checking..." : "Check allotment"}
+          </button>
+          {error ? <p className="form-error">{error}</p> : null}
         </div>
 
-        <div>
-          <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "var(--ink)" }}>
-            {checkType === "PAN" ? "Enter PAN" : "Enter Application Number"}
-          </label>
-          <input 
-            type="text" 
-            value={value} 
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={checkType === "PAN" ? "ABCDE1234F" : "App Number"}
-            required
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border-default)", fontSize: 14, textTransform: "uppercase" }}
-          />
-        </div>
+        <AllotmentResultCard result={result} />
+        <SavedPANProfiles selectedIPO={selectedIPO} />
+      </div>
 
-        <button 
-          type="submit" 
-          disabled={isLoading || !value}
-          style={{
-            background: "var(--primary-navy)", color: "#fff", padding: "12px", borderRadius: 8,
-            fontWeight: 800, fontSize: 15, marginTop: 8, cursor: isLoading || !value ? "not-allowed" : "pointer",
-            opacity: isLoading || !value ? 0.7 : 1, border: "none"
-          }}
-        >
-          {isLoading ? "Checking..." : "Check Allotment"}
-        </button>
-      </form>
-
-      <AllotmentResultCard result={result} fallbackLinks={fallbackLinks} />
+      <aside className="allotment-side-stack">
+        <AllotmentProbabilityCard retailSubscription={selectedIPO?.retailSubscription ?? null} />
+        <AllotmentFallbackLinks registrar={registrar} />
+      </aside>
     </div>
   );
 }

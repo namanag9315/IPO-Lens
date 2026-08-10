@@ -27,11 +27,11 @@ export default function TickerTape({ items }: TickerTapeProps) {
         {triplicated.map((item, index) => (
           <span className="ticker-item" key={`${item.name}-${index}`}>
             <span className="ticker-name">{item.name}</span>
-            <span>₹{item.gmp}</span>
             <span className={trendClass(item)}>
               {item.gmpPct > 0 ? "+" : ""}
               {item.gmpPct.toFixed(1)}%
             </span>
+            <span>GMP ₹{item.gmp}</span>
           </span>
         ))}
       </div>

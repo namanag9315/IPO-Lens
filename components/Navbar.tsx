@@ -3,13 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import Logo from "@/components/ui/Logo";
-
 const navLinks = [
   { href: "/", label: "Live IPOs" },
   { href: "/calendar", label: "Calendar" },
   { href: "/performance", label: "Performance" },
-  { href: "/allotment", label: "Allotment" },
 ];
 
 export default function Navbar() {
@@ -19,7 +16,7 @@ export default function Navbar() {
     <header className="topbar">
       <div className="shell topbar-inner">
         <Link className="brand" href="/" aria-label="IPO Lens home">
-          <Logo size={34} />
+          <span className="brand-mark">IPO</span>
           <span>IPO Lens</span>
         </Link>
 

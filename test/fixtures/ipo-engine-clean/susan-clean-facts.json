@@ -1,0 +1,870 @@
+[
+  {
+    "fact_key": "company_description",
+    "fact_value": "Incorporated in 2007, Susan Electricals India Ltd. is engaged in the manufacturing of aluminium and copper-based electrical winding wires, conductors, and power cables in various specifications, sizes, and configurations.",
+    "display_value": "Incorporated in 2007, Susan Electricals India Ltd. is engaged in the manufacturing of aluminium and copper-based electrical winding wires, conductors, and power cables in various specifications, sizes, and configurations.",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "latest_subscription",
+    "fact_value": {
+      "niiX": 21.91,
+      "qibX": 7.31,
+      "totalX": 16.37,
+      "retailX": 19.16
+    },
+    "display_value": "16.37x",
+    "confidence": "medium",
+    "source_provider": "IPOWATCH",
+    "source_url": "https://ipowatch.in/ipo-subscription-status-today/"
+  },
+  {
+    "fact_key": "lot_size",
+    "fact_value": "1,000 Shares",
+    "display_value": "1,000 Shares",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "latest_gmp",
+    "fact_value": {
+      "gmpPct": 19150.39,
+      "gmpValue": 64,
+      "estimatedListingPrice": 19150.39
+    },
+    "display_value": "₹64",
+    "confidence": "medium",
+    "source_provider": "IPOWATCH",
+    "source_url": "https://ipowatch.in/ipo-grey-market-premium-latest-ipo-gmp/"
+  },
+  {
+    "fact_key": "listing_date",
+    "fact_value": "Thu, Jun 18, 2026",
+    "display_value": "Thu, Jun 18, 2026",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "price_band",
+    "fact_value": "₹120 to ₹127",
+    "display_value": "₹120 to ₹127",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "listing_exchange",
+    "fact_value": "BSE SME",
+    "display_value": "BSE SME",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "issue_size",
+    "fact_value": "55,42,000 shares (agg. up to ₹70 Cr)",
+    "display_value": "55,42,000 shares (agg. up to ₹70 Cr)",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "kpi_table",
+    "fact_value": [
+      {
+        "label": "ROE",
+        "value": "64.64%"
+      },
+      {
+        "label": "ROCE",
+        "value": "29.05%"
+      },
+      {
+        "label": "RoNW",
+        "value": "47.42%"
+      },
+      {
+        "label": "PAT Margin",
+        "value": "6.77%"
+      },
+      {
+        "label": "EBITDA Margin",
+        "value": "11.91%"
+      },
+      {
+        "label": "Price to Book Value",
+        "value": "5.15"
+      },
+      {
+        "label": "EPS (₹)",
+        "value": "11.70",
+        "value_2": "8.97"
+      },
+      {
+        "label": "P/E (x)",
+        "value": "10.85",
+        "value_2": "14.15"
+      },
+      {
+        "label": "Promoter Holding",
+        "value": "92.47%",
+        "value_2": "66.97%"
+      },
+      {
+        "label": "Market Cap",
+        "value": "₹258.20 Cr."
+      }
+    ],
+    "display_value": "KPI table with 10 rows",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "peer_valuation_table",
+    "fact_value": [
+      {
+        "LTP": "₹185.25 (+0.30%)",
+        "Company": "Systematic Industries Ltd.",
+        "Issue Size": "₹115.60 Cr",
+        "Issue Type": "SME",
+        "Issue Price": "₹195",
+        "Listing Day Close": "₹196.45",
+        "Listing Gain/Loss %": "+0.74%"
+      },
+      {
+        "LTP": "₹116.65 (+1.43%)",
+        "Company": "Prime Cable Industries Ltd.",
+        "Issue Size": "₹40.04 Cr",
+        "Issue Type": "SME",
+        "Issue Price": "₹83",
+        "Listing Day Close": "₹78.30",
+        "Listing Gain/Loss %": "-5.66%"
+      },
+      {
+        "LTP": "₹186.35 (+3.33%)",
+        "Company": "JD Cables Ltd.",
+        "Issue Size": "₹95.99 Cr",
+        "Issue Type": "SME",
+        "Issue Price": "₹152",
+        "Listing Day Close": "₹157.90",
+        "Listing Gain/Loss %": "+3.88%"
+      },
+      {
+        "LTP": "₹59.65 (+3.92%)",
+        "Company": "Bhadora Industries Ltd.",
+        "Issue Size": "₹55.62 Cr",
+        "Issue Type": "SME",
+        "Issue Price": "₹103",
+        "Listing Day Close": "₹105.95",
+        "Listing Gain/Loss %": "+2.86%"
+      }
+    ],
+    "display_value": "Peer table with 4 rows",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "objects_of_issue",
+    "fact_value": [
+      {
+        "#": "1",
+        "Issue Objects": "Funding of Capital expenditure towards Expansion of existing Manufacturing Facility situated at Plot No.18/31, Sahibabad, Ghaziabad, Uttar Pradesh",
+        "Est Amt (₹ Cr.)": "10.29"
+      },
+      {
+        "#": "2",
+        "Issue Objects": "Funding of Working Capital Requirements",
+        "Est Amt (₹ Cr.)": "33.00"
+      },
+      {
+        "#": "3",
+        "Issue Objects": "General corporate purposes",
+        "Est Amt (₹ Cr.)": ""
+      },
+      {
+        "#": "",
+        "Issue Objects": "Total",
+        "Est Amt (₹ Cr.)": "43.29"
+      }
+    ],
+    "display_value": "Objects of issue table with 4 rows",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "lead_manager_name",
+    "fact_value": "Seren Capital Pvt.Ltd.",
+    "display_value": "Seren Capital Pvt.Ltd.",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "financial_table",
+    "fact_value": [
+      {
+        "Column 1": "ROE",
+        "Column 2": "64.64%"
+      },
+      {
+        "Column 1": "ROCE",
+        "Column 2": "29.05%"
+      },
+      {
+        "Column 1": "RoNW",
+        "Column 2": "47.42%"
+      },
+      {
+        "Column 1": "PAT Margin",
+        "Column 2": "6.77%"
+      },
+      {
+        "Column 1": "EBITDA Margin",
+        "Column 2": "11.91%"
+      },
+      {
+        "Column 1": "Price to Book Value",
+        "Column 2": "5.15"
+      }
+    ],
+    "display_value": "Financial table with 6 rows",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "registrar_name",
+    "fact_value": "Mudra RTA Ventures Private Limited",
+    "display_value": "Mudra RTA Ventures Private Limited",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "open_date",
+    "fact_value": "Jun 11, 2026",
+    "display_value": "Jun 11, 2026",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "close_date",
+    "fact_value": "Jun 15, 2026",
+    "display_value": "Jun 15, 2026",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "lead_managers_table",
+    "fact_value": [
+      {
+        "name": "Seren Capital Pvt.Ltd.",
+        "past_ipo_performance_url": "Past IPO Performance"
+      }
+    ],
+    "display_value": "Lead managers table",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "company_contact",
+    "fact_value": {
+      "email": "1100010120-4331296office@seil.net.inVisit",
+      "phone": "1100010120-4331296",
+      "address": "Susan Electricals India Ltd. Address1703, Nirmal Tower,26, Barakhamba Road,Connaught PlazaNew Delhi, New Delhi, Website",
+      "website": "Visit Website"
+    },
+    "display_value": "Company contact details",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "allotment_date",
+    "fact_value": "Tue, Jun 16, 2026",
+    "display_value": "Tue, Jun 16, 2026",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "refund_date",
+    "fact_value": "Wed, Jun 17, 2026",
+    "display_value": "Wed, Jun 17, 2026",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "credit_of_shares_date",
+    "fact_value": "Wed, Jun 17, 2026",
+    "display_value": "Wed, Jun 17, 2026",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "face_value",
+    "fact_value": "₹10 per share",
+    "display_value": "₹10 per share",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "price_band_low",
+    "fact_value": 120,
+    "display_value": "120",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "price_band_high",
+    "fact_value": 127,
+    "display_value": "127",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "issue_price",
+    "fact_value": "₹127 per share",
+    "display_value": "₹127 per share",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "sale_type",
+    "fact_value": "Fresh capital cum OFS",
+    "display_value": "Fresh capital cum OFS",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "issue_type",
+    "fact_value": "Bookbuilding IPO",
+    "display_value": "Bookbuilding IPO",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "total_issue_size",
+    "fact_value": "55,42,000 shares (agg. up to ₹70 Cr)",
+    "display_value": "55,42,000 shares (agg. up to ₹70 Cr)",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "fresh_issue",
+    "fact_value": "42,84,000 shares (agg. up to ₹54 Cr)",
+    "display_value": "42,84,000 shares (agg. up to ₹54 Cr)",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "offer_for_sale",
+    "fact_value": "8,00,000 shares of ₹10 (agg. up to ₹10 Cr)",
+    "display_value": "8,00,000 shares of ₹10 (agg. up to ₹10 Cr)",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "market_maker_portion",
+    "fact_value": "4,58,000 shares (agg. up to ₹6 Cr)",
+    "display_value": "4,58,000 shares (agg. up to ₹6 Cr)",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "registrar_contact",
+    "fact_value": {
+      "email": "Limited+919870297591ipo@mudrarta.comVisit",
+      "phone": "+919870297591",
+      "website": "Visit Website"
+    },
+    "display_value": "Registrar contact details",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "issue_reservation_table",
+    "fact_value": [
+      {
+        "Column 1": "Bid Date",
+        "Column 2": "Wed, Jun 10, 2026"
+      },
+      {
+        "Column 1": "Shares Offered",
+        "Column 2": "15,23,000"
+      },
+      {
+        "Column 1": "Anchor Portion (₹ Cr.)",
+        "Column 2": "19.34"
+      },
+      {
+        "Column 1": "Anchor lock-in period end date for 50% shares (30 Days)",
+        "Column 2": "Thu, Jul 16, 2026"
+      },
+      {
+        "Column 1": "Anchor lock-in period end date for remaining shares (90 Days)",
+        "Column 2": "Mon, Sep 14, 2026"
+      }
+    ],
+    "display_value": "Issue reservation table with 5 rows",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "borrowing_latest",
+    "fact_value": 66.72,
+    "display_value": "66.72",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "pat_latest",
+    "fact_value": 6.77,
+    "display_value": "6.77%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "ebitda_latest",
+    "fact_value": 11.91,
+    "display_value": "11.91%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "lot_size_table",
+    "fact_value": [
+      {
+        "Lots": "2",
+        "Amount": "₹2,54,000",
+        "Shares": "2,000",
+        "Application": "Individual investors (IND) (Min)"
+      },
+      {
+        "Lots": "2",
+        "Amount": "₹2,54,000",
+        "Shares": "2,000",
+        "Application": "Individual investors (IND) (Max)"
+      },
+      {
+        "Lots": "3",
+        "Amount": "₹3,81,000",
+        "Shares": "3,000",
+        "Application": "S-HNI (Min)"
+      },
+      {
+        "Lots": "7",
+        "Amount": "₹8,89,000",
+        "Shares": "7,000",
+        "Application": "S-HNI (Max)"
+      },
+      {
+        "Lots": "8",
+        "Amount": "₹10,16,000",
+        "Shares": "8,000",
+        "Application": "B-HNI (Min)"
+      }
+    ],
+    "display_value": "IPO lot size table with 5 rows",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "roe_latest",
+    "fact_value": 64.64,
+    "display_value": "64.64%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "roce_latest",
+    "fact_value": 29.05,
+    "display_value": "29.05%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "promoter_holding_post_ipo",
+    "fact_value": 66.97,
+    "display_value": "66.97%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "market_cap",
+    "fact_value": 258.2,
+    "display_value": "₹258.20 Cr.",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "ronw_latest",
+    "fact_value": 47.42,
+    "display_value": "47.42%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "pat_margin_latest",
+    "fact_value": 6.77,
+    "display_value": "6.77%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "ebitda_margin_latest",
+    "fact_value": 11.91,
+    "display_value": "11.91%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "price_to_book_value",
+    "fact_value": 5.15,
+    "display_value": "5.15",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "eps_pre_ipo",
+    "fact_value": 11.7,
+    "display_value": "11.70",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "eps_post_ipo",
+    "fact_value": 8.97,
+    "display_value": "8.97",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "pe_pre_ipo",
+    "fact_value": 10.85,
+    "display_value": "10.85",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "assets_latest",
+    "fact_value": 130.05,
+    "display_value": "130.05",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "total_income_latest",
+    "fact_value": 269.96,
+    "display_value": "269.96",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "revenue_latest",
+    "fact_value": 269.96,
+    "display_value": "269.96",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "pe_post_ipo",
+    "fact_value": 14.15,
+    "display_value": "14.15",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "promoter_holding_pre_ipo",
+    "fact_value": 92.47,
+    "display_value": "92.47%",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "net_worth_latest",
+    "fact_value": 38.48,
+    "display_value": "38.48",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "reserves_latest",
+    "fact_value": 22.89,
+    "display_value": "22.89",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "revenue_growth",
+    "fact_value": -23.76,
+    "display_value": "-23.76",
+    "confidence": "high",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "pat_growth",
+    "fact_value": -86.73,
+    "display_value": "-86.73",
+    "confidence": "high",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "subscription_table",
+    "fact_value": [
+      {
+        "Category": "Anchor Investors **",
+        "Shares Offered": "15,23,000",
+        "Shares Applied For": "15,23,000",
+        "Amount Offered (Cr.)": "-",
+        "Subscription (times)": "1",
+        "Amount Applied For (Cr.)": "19.34"
+      },
+      {
+        "Category": "Market Maker",
+        "Shares Offered": "4,58,000",
+        "Shares Applied For": "4,58,000",
+        "Amount Offered (Cr.)": "-",
+        "Subscription (times)": "1",
+        "Amount Applied For (Cr.)": "5.82"
+      },
+      {
+        "Category": "QIB (Ex Anchor)",
+        "Shares Offered": "10,16,000",
+        "Shares Applied For": "74,29,000",
+        "Amount Offered (Cr.)": "12.90",
+        "Subscription (times)": "7.31",
+        "Amount Applied For (Cr.)": "94.35"
+      },
+      {
+        "Category": "Non-Institutional Buyers",
+        "Shares Offered": "7,65,000",
+        "Shares Applied For": "1,67,62,000",
+        "Amount Offered (Cr.)": "9.72",
+        "Subscription (times)": "21.91",
+        "Amount Applied For (Cr.)": "212.88"
+      },
+      {
+        "Category": "- bNII (bids above ₹10L)",
+        "Shares Offered": "5,10,000",
+        "Shares Applied For": "1,25,41,000",
+        "Amount Offered (Cr.)": "6.48",
+        "Subscription (times)": "24.59",
+        "Amount Applied For (Cr.)": "159.27"
+      },
+      {
+        "Category": "- sNII (bids below ₹10L)",
+        "Shares Offered": "2,55,000",
+        "Shares Applied For": "42,21,000",
+        "Amount Offered (Cr.)": "3.24",
+        "Subscription (times)": "16.55",
+        "Amount Applied For (Cr.)": "53.61"
+      },
+      {
+        "Category": "Retail Individual Investors (RIIs)",
+        "Shares Offered": "17,80,000",
+        "Shares Applied For": "3,40,98,000",
+        "Amount Offered (Cr.)": "22.61",
+        "Subscription (times)": "19.16",
+        "Amount Applied For (Cr.)": "433.04"
+      },
+      {
+        "Category": "Total*",
+        "Shares Offered": "35,61,000",
+        "Shares Applied For": "5,82,89,000",
+        "Amount Offered (Cr.)": "51.04",
+        "Subscription (times)": "16.37",
+        "Amount Applied For (Cr.)": "740.27"
+      }
+    ],
+    "display_value": "[{\"Category\":\"Anchor Investors **\",\"Subscription (times)\":\"1\",\"Shares Offered\":\"15,23,000\",\"Shares Applied For\":\"15,23,000\",\"Amount Offered (Cr.)\":\"-\",\"Amount Applied For (Cr.)\":\"19.34\"},{\"Category\":\"Market Maker\",\"Subscription (times)\":\"1\",\"Shares Offered\":\"4,58,000\",\"Shares Applied For\":\"4,58,000\",\"Amount Offered (Cr.)\":\"-\",\"Amount Applied For (Cr.)\":\"5.82\"},{\"Category\":\"QIB (Ex Anchor)\",\"Subscription (times)\":\"7.31\",\"Shares Offered\":\"10,16,000\",\"Shares Applied For\":\"74,29,000\",\"Amount Offered (Cr.)\":\"12.90\",\"Amount Applied For (Cr.)\":\"94.35\"},{\"Category\":\"Non-Institutional Buyers\",\"Subscription (times)\":\"21.91\",\"Shares Offered\":\"7,65,000\",\"Shares Applied For\":\"1,67,62,000\",\"Amount Offered (Cr.)\":\"9.72\",\"Amount Applied For (Cr.)\":\"212.88\"},{\"Category\":\"- bNII (bids above ₹10L)\",\"Subscription (times)\":\"24.59\",\"Shares Offered\":\"5,10,000\",\"Shares Applied For\":\"1,25,41,000\",\"Amount Offered (Cr.)\":\"6.48\",\"Amount Applied For (Cr.)\":\"159.27\"},{\"Category\":\"- sNII (bids below ₹10L)\",\"Subscription (times)\":\"16.55\",\"Shares Offered\":\"2,55,000\",\"Shares Applied For\":\"42,21,000\",\"Amount Offered (Cr.)\":\"3.24\",\"Amount Applied For (Cr.)\":\"53.61\"},{\"Category\":\"Retail Individual Investors (RIIs)\",\"Subscription (times)\":\"19.16\",\"Shares Offered\":\"17,80,000\",\"Shares Applied For\":\"3,40,98,000\",\"Amount Offered (Cr.)\":\"22.61\",\"Amount Applied For (Cr.)\":\"433.04\"},{\"Category\":\"Total*\",\"Subscription (times)\":\"16.37\",\"Shares Offered\":\"35,61,000\",\"Shares Applied For\":\"5,82,89,000\",\"Amount Offered (Cr.)\":\"51.04\",\"Amount Applied For (Cr.)\":\"740.27\"}]",
+    "confidence": "medium",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "eps",
+    "fact_value": 1.17,
+    "display_value": "1.17",
+    "confidence": "high",
+    "source_provider": "FINOLOGY_TICKER",
+    "source_url": "https://ticker.finology.in/ipo/sme/susan-electricals-india"
+  },
+  {
+    "fact_key": "qib_subscription",
+    "fact_value": 7.31,
+    "display_value": "7.31",
+    "confidence": "medium",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "ipo_details_table",
+    "fact_value": [
+      {
+        "label": "IPO Date",
+        "value": "11 to 15 Jun, 2026"
+      },
+      {
+        "label": "Listing Date",
+        "value": "Thu, Jun 18, 2026"
+      },
+      {
+        "label": "Face Value",
+        "value": "₹10 per share"
+      },
+      {
+        "label": "Price Band",
+        "value": "₹120 to ₹127"
+      },
+      {
+        "label": "Issue Price",
+        "value": "₹127 per share"
+      },
+      {
+        "label": "Lot Size",
+        "value": "1,000 Shares"
+      },
+      {
+        "label": "Sale Type",
+        "value": "Fresh capital cum OFS"
+      },
+      {
+        "label": "Issue Type",
+        "value": "Bookbuilding IPO"
+      },
+      {
+        "label": "Listing At",
+        "value": "BSE SME"
+      },
+      {
+        "label": "Total Issue Size",
+        "value": "55,42,000 shares (agg. up to ₹70 Cr)"
+      },
+      {
+        "label": "Reserved for Market Maker",
+        "value": "4,58,000 shares (agg. up to ₹6 Cr)"
+      },
+      {
+        "label": "Fresh Issue (Ex Market Maker)",
+        "value": "42,84,000 shares (agg. up to ₹54 Cr)"
+      },
+      {
+        "label": "Offer for Sale",
+        "value": "8,00,000 shares of ₹10 (agg. up to ₹10 Cr)"
+      },
+      {
+        "label": "Net Offered to Public",
+        "value": "50,84,000 shares (agg. up to ₹65 Cr)"
+      },
+      {
+        "label": "Share Holding Pre Issue",
+        "value": "1,55,88,795 shares"
+      },
+      {
+        "label": "Share Holding Post Issue",
+        "value": "2,03,30,795 shares"
+      }
+    ],
+    "display_value": "IPO details table with 16 rows",
+    "confidence": "high",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "strengths",
+    "fact_value": "Competitive Strengths: Multi-state vendor registrations and approvals with DISCOMs. Strong access to government and utility tender opportunities. Well-positioned to benefit from RDSS and rural electrification projects. Established technical capabilities and quality compliance standards. Wide geographic presence supporting scalable business growth. + Read MoreCompany",
+    "display_value": "Competitive Strengths: Multi-state vendor registrations and approvals with DISCOMs. Strong access to government and utility tender opportunities. Well-positioned to benefit from RDSS and rural electrification projects. Established technical capabilities and quality compliance standards. Wide geographic presence supporting scalable business growth. + Read MoreCompany",
+    "confidence": "medium",
+    "source_provider": "CHITTORGARH",
+    "source_url": "https://www.chittorgarh.com/ipo/susan-electricals-india-ipo/2872/"
+  },
+  {
+    "fact_key": "sector",
+    "fact_value": "Electric Equipments SME IPO so far",
+    "display_value": "Electric Equipments SME IPO so far",
+    "confidence": "medium",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "nii_subscription",
+    "fact_value": 21.91,
+    "display_value": "21.91",
+    "confidence": "medium",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "retail_subscription",
+    "fact_value": 19.16,
+    "display_value": "19.16",
+    "confidence": "medium",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "total_subscription",
+    "fact_value": 16.37,
+    "display_value": "16.37",
+    "confidence": "medium",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  },
+  {
+    "fact_key": "ipo_review_summary",
+    "fact_value": "Susan Electricals IPO Date\n                                                \n                                                \n                                                    \n                                                        IPO Open Date:\n                                                        \n                                                            11 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        IPO Close Date:\n                                                        \n                                                            15 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        IPO Allotment Date:\n                                                        \n                                                            16 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        Tentative Refund Date:\n                                                        \n                                                            17 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        IPO Listing:\n                                                        \n                                                            17 Jun 2026\n                                                        \n                                                    \n                                                \n\n                                            \n                                            \n                                            Check\n                                                Susan Electricals IPO GMP\n\nSusan Electricals IPO Overview\n                                                                                                    \n                                                        Sector Update\n\n                                                        \n                                                            Susan Electricals India Limited operates in the manufacturing of aluminum and copper-based electrical winding wires, conductors and cables in various specifications, sizes and configurations. The Indian wires and cables market is projected to grow from USD 10.32 billion in 2025 to USD 22.35 billion by 2035, registering a CAGR of 8.02%.\n                                                        \n                                                    \n                                                                                                                                                    \n                                                        Growth drivers\n                                                        \n                                                            The Company’s growth is driven by\n\n\n\tElectrification and distribution network expansion\n\tInfrastructure and urban development activity\n\tRenewable energy and grid-integration requirements\n\tTransportation and mobility electrification\n\tAI-led data centres and digital infrastructure expansion\n\n                                                        \n                                                    \n                                                                                                \n                                                    \n                                                        Financial Update:\n                                                        (comparison\n                                                            of                                                                                                                                     FY25\n                                                                                                                                                                                                                                                                FY26\n                                                                                                                             )\n                                                    \n\n\n\n                                                    \n                                                                                                                                                                                                                                \n                                                                                                                                                                                                                                                                                        \n                                                                                                                                                                \n                                                    \n                                                        \n                                                            \n                                                            \n                                                                Revenue\n                                                                ₹135.73 cr\n                                                                \n                                                                \n                                                                \n                                                                    ₹269.35 cr\n                                                                                                                                            \n                                                                            (+98.45%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                PAT\n                                                                ₹5.65 cr\n                                                                \n                                                                \n                                                                \n                                                                    ₹18.24 cr\n                                                                                                                                            \n                                                                            (+222.83%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                PAT Margin\n                                                                4.16 %\n                                                                \n                                                                \n                                                                \n                                                                    6.77 %\n                                                                                                                                            \n                                                                            (+62.74%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                EBITDA\n                                                                ₹12.30 cr\n                                                                \n                                                                \n                                                                \n                                                                    ₹32.08 cr\n                                                                                                                                            \n                                                                            (+160.81%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                EBITDA Margin\n                                                                9.06 %\n                                                                \n                                                                \n                                                                \n                                                                    11.91 %\n                                                                                                                                            \n                                                                            (+31.46%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                ROE\n                                                                31.42 %\n                                                                \n                                                                \n                                                                \n                                                                    47.41 %\n                                                                                                                                            \n                                                                            (+50.89%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                ROCE\n                                                                17.46 %\n                                                                \n                                                                \n                                                                \n                                                                    29.05 %\n                                                                                                                                            \n                                                                            (+66.38%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                D/E\n                                                                2.52\n                                                                \n                                                                \n                                                                    1.73\n                                                                                                                                            \n                                                                            (-31.35%)\n                                                                        \n                                                                                                                                    \n                                                            \n                                                        \n                                                    \n\n\n                                                \n                                                                                                    \n                                                        Business Diversification\n                                                        The Company manufactures aluminium and copper-based electrical winding wires, conductors and cables in various specifications, sizes and configurations. Its portfolio includes LT cables, LT AB cables, HT cables, MVCC cables, winding aluminium wires and strips, winding copper wires and strips and aluminium conductors.\n                                                        \n                                                    \n                                                                                                                                                    \n                                                        IPO Valuation\n                                                        \n                                                            PE Ratio:\n                                                            14.15x\n                                                            Average Sector PE Ratio:\n                                                            18.34x\n\nSusan Electricals IPO\n                                                    Reservation\n                                                \n\n                                                    \n                                                    \n                                                        \n                                                            Susan Electricals IPO Share\n                                                                Allocation\n                                                            \n                                                                                                                                    \n                                                                        QIB Shares Offered:\n                                                                        2539000\n                                                                        \n                                                                    \n                                                                                                                                                                                                                                                                            \n                                                                            - Anchor Investor Shares Offered:\n                                                                            1523000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                             − QIB (Ex. Anchor) Shares Offered : \n                                                                            1016000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                                                                        \n                                                                        NII (HNI) Shares Offered:\n                                                                        765000\n                                                                        \n                                                                    \n                                                                                                                                                                                                                                                                            \n                                                                            - bNII > ₹10L:\n                                                                            510000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                            - sNII < ₹10L:\n                                                                            255000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                                                                        \n                                                                        Retail Shares Offered:\n                                                                        1780000\n                                                                        \n                                                                    \n                                                                                                                                                                                                    \n                                                                        Total Shares Offered:\n                                                                        5084000\n                                                                        \n                                                                    \n                                                                                                                            \n                                                        \n                                                    \n\n                                                    \n                                                    \n                                                        \n                                                            Susan Electricals IPO Lot Size\n                                                            \n                                                            \n                                                                \n                                                                    \n                                                                        Application\n                                                                        Lot\n                                                                        Shares\n                                                                        Amount\n                                                                    \n                                                                \n                                                                \n                                                                                                                                                                                                                        \n                                                                                Individual investors (Retail) (Max)\n                                                                                2\n                                                                                \n                                                                                2000\n                                                                                \n                                                                                ₹254000\n                                                                                \n                                                                            \n                                                                                                                                                                                                                                                                                        \n                                                                            S-HNI (Min)\n                                                                            3\n                                                                            3000\n                                                                            ₹381000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                            S-HNI (Max)\n                                                                            7\n                                                                            7000\n                                                                            ₹889000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                            B-HNI (Min)\n                                                                            8\n                                                                            8000\n                                                                            ₹1016000",
+    "display_value": "Susan Electricals IPO Date\n                                                \n                                                \n                                                    \n                                                        IPO Open Date:\n                                                        \n                                                            11 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        IPO Close Date:\n                                                        \n                                                            15 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        IPO Allotment Date:\n                                                        \n                                                            16 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        Tentative Refund Date:\n                                                        \n                                                            17 Jun 2026\n                                                        \n                                                    \n\n                                                    \n                                                        IPO Listing:\n                                                        \n                                                            17 Jun 2026\n                                                        \n                                                    \n                                                \n\n                                            \n                                            \n                                            Check\n                                                Susan Electricals IPO GMP\n\nSusan Electricals IPO Overview\n                                                                                                    \n                                                        Sector Update\n\n                                                        \n                                                            Susan Electricals India Limited operates in the manufacturing of aluminum and copper-based electrical winding wires, conductors and cables in various specifications, sizes and configurations. The Indian wires and cables market is projected to grow from USD 10.32 billion in 2025 to USD 22.35 billion by 2035, registering a CAGR of 8.02%.\n                                                        \n                                                    \n                                                                                                                                                    \n                                                        Growth drivers\n                                                        \n                                                            The Company’s growth is driven by\n\n\n\tElectrification and distribution network expansion\n\tInfrastructure and urban development activity\n\tRenewable energy and grid-integration requirements\n\tTransportation and mobility electrification\n\tAI-led data centres and digital infrastructure expansion\n\n                                                        \n                                                    \n                                                                                                \n                                                    \n                                                        Financial Update:\n                                                        (comparison\n                                                            of                                                                                                                                     FY25\n                                                                                                                                                                                                                                                                FY26\n                                                                                                                             )\n                                                    \n\n\n\n                                                    \n                                                                                                                                                                                                                                \n                                                                                                                                                                                                                                                                                        \n                                                                                                                                                                \n                                                    \n                                                        \n                                                            \n                                                            \n                                                                Revenue\n                                                                ₹135.73 cr\n                                                                \n                                                                \n                                                                \n                                                                    ₹269.35 cr\n                                                                                                                                            \n                                                                            (+98.45%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                PAT\n                                                                ₹5.65 cr\n                                                                \n                                                                \n                                                                \n                                                                    ₹18.24 cr\n                                                                                                                                            \n                                                                            (+222.83%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                PAT Margin\n                                                                4.16 %\n                                                                \n                                                                \n                                                                \n                                                                    6.77 %\n                                                                                                                                            \n                                                                            (+62.74%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                EBITDA\n                                                                ₹12.30 cr\n                                                                \n                                                                \n                                                                \n                                                                    ₹32.08 cr\n                                                                                                                                            \n                                                                            (+160.81%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                EBITDA Margin\n                                                                9.06 %\n                                                                \n                                                                \n                                                                \n                                                                    11.91 %\n                                                                                                                                            \n                                                                            (+31.46%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                ROE\n                                                                31.42 %\n                                                                \n                                                                \n                                                                \n                                                                    47.41 %\n                                                                                                                                            \n                                                                            (+50.89%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                ROCE\n                                                                17.46 %\n                                                                \n                                                                \n                                                                \n                                                                    29.05 %\n                                                                                                                                            \n                                                                            (+66.38%)\n                                                                        \n                                                                                                                                    \n                                                            \n\n                                                            \n                                                            \n                                                                D/E\n                                                                2.52\n                                                                \n                                                                \n                                                                    1.73\n                                                                                                                                            \n                                                                            (-31.35%)\n                                                                        \n                                                                                                                                    \n                                                            \n                                                        \n                                                    \n\n\n                                                \n                                                                                                    \n                                                        Business Diversification\n                                                        The Company manufactures aluminium and copper-based electrical winding wires, conductors and cables in various specifications, sizes and configurations. Its portfolio includes LT cables, LT AB cables, HT cables, MVCC cables, winding aluminium wires and strips, winding copper wires and strips and aluminium conductors.\n                                                        \n                                                    \n                                                                                                                                                    \n                                                        IPO Valuation\n                                                        \n                                                            PE Ratio:\n                                                            14.15x\n                                                            Average Sector PE Ratio:\n                                                            18.34x\n\nSusan Electricals IPO\n                                                    Reservation\n                                                \n\n                                                    \n                                                    \n                                                        \n                                                            Susan Electricals IPO Share\n                                                                Allocation\n                                                            \n                                                                                                                                    \n                                                                        QIB Shares Offered:\n                                                                        2539000\n                                                                        \n                                                                    \n                                                                                                                                                                                                                                                                            \n                                                                            - Anchor Investor Shares Offered:\n                                                                            1523000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                             − QIB (Ex. Anchor) Shares Offered : \n                                                                            1016000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                                                                        \n                                                                        NII (HNI) Shares Offered:\n                                                                        765000\n                                                                        \n                                                                    \n                                                                                                                                                                                                                                                                            \n                                                                            - bNII > ₹10L:\n                                                                            510000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                            - sNII < ₹10L:\n                                                                            255000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                                                                        \n                                                                        Retail Shares Offered:\n                                                                        1780000\n                                                                        \n                                                                    \n                                                                                                                                                                                                    \n                                                                        Total Shares Offered:\n                                                                        5084000\n                                                                        \n                                                                    \n                                                                                                                            \n                                                        \n                                                    \n\n                                                    \n                                                    \n                                                        \n                                                            Susan Electricals IPO Lot Size\n                                                            \n                                                            \n                                                                \n                                                                    \n                                                                        Application\n                                                                        Lot\n                                                                        Shares\n                                                                        Amount\n                                                                    \n                                                                \n                                                                \n                                                                                                                                                                                                                        \n                                                                                Individual investors (Retail) (Max)\n                                                                                2\n                                                                                \n                                                                                2000\n                                                                                \n                                                                                ₹254000\n                                                                                \n                                                                            \n                                                                                                                                                                                                                                                                                        \n                                                                            S-HNI (Min)\n                                                                            3\n                                                                            3000\n                                                                            ₹381000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                            S-HNI (Max)\n                                                                            7\n                                                                            7000\n                                                                            ₹889000\n                                                                            \n                                                                        \n                                                                                                                                                                                                                \n                                                                            B-HNI (Min)\n                                                                            8\n                                                                            8000\n                                                                            ₹1016000",
+    "confidence": "medium",
+    "source_provider": "IPOPLATFORM",
+    "source_url": "https://www.ipoplatform.com/ipo/susan-electricals-india-ipo/4595"
+  }
+]
