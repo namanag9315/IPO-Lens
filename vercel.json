@@ -10,11 +10,11 @@
     },
     {
       "path": "/api/cron/ipo-engine/gmp",
-      "schedule": "30 5,11 * * *"
+      "schedule": "30 11 * * *"
     },
     {
       "path": "/api/cron/ipo-engine/subscription",
-      "schedule": "0 * * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }
